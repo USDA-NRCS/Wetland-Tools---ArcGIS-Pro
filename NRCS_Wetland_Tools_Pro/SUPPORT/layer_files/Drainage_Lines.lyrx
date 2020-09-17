@@ -3,13 +3,13 @@
   "version" : "2.5.0",
   "build" : 22081,
   "layers" : [
-    "CIMPATH=map/drainage_lines.xml"
+    "CIMPATH=map/drainage_lines2.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
       "name" : "Drainage Lines",
-      "uRI" : "CIMPATH=map/drainage_lines.xml",
+      "uRI" : "CIMPATH=map/drainage_lines2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -34,7 +34,7 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "line_type",
+        "displayField" : "Shape_Length",
         "editable" : true,
         "fieldDescriptions" : [
           {
@@ -61,13 +61,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Line Type",
-            "fieldName" : "line_type",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "Shape_Length",
             "fieldName" : "Shape_Length",
             "numberFormat" : {
@@ -83,6 +76,37 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "GlobalID",
+            "fieldName" : "GlobalID",
+            "readOnly" : true,
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Line Type",
+            "fieldName" : "line_type",
+            "highlight" : true,
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Era",
+            "fieldName" : "manip_era",
+            "highlight" : true,
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Manipulation Year",
+            "fieldName" : "manip_year",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Length (ft)",
             "fieldName" : "line_length",
             "numberFormat" : {
@@ -90,7 +114,9 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 2,
+              "useSeparator" : true,
+              "zeroPad" : true
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -104,7 +130,9 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 2,
+              "useSeparator" : true,
+              "zeroPad" : true
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -118,22 +146,10 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 2,
+              "useSeparator" : true,
+              "zeroPad" : true
             },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Era",
-            "fieldName" : "manip_era",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Manipulation Year",
-            "fieldName" : "manip_year",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -143,21 +159,13 @@
             "fieldName" : "comments",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "GlobalID",
-            "fieldName" : "GlobalID",
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
           "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "drainage_lines_master",
+          "dataset" : "master_drainage_lines",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
@@ -1550,10 +1558,7 @@
         "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing"
-      }
+      "snappable" : true
     }
   ],
   "elevationSurfaces" : [

@@ -22,7 +22,7 @@
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -39,7 +39,7 @@
           "type" : "CIMStandardDataConnection",
           "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "pjw_master",
+          "dataset" : "master_pjw",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",

@@ -194,6 +194,20 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Request Date",
+            "fieldName" : "request_date",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Request Type",
+            "fieldName" : "request_type",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Data Form",
             "fieldName" : "data_form",
             "highlight" : true,
@@ -242,20 +256,12 @@
           "type" : "CIMStandardDataConnection",
           "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "rop_master",
+          "dataset" : "master_rop",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
-      "featureTemplates" : [
-        {
-          "type" : "CIMFeatureTemplate",
-          "name" : "ROPs",
-          "tags" : "Point",
-          "toolProgID" : "2a8b3331-5238-4025-972e-452a69535b06"
-        }
-      ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
@@ -507,7 +513,7 @@
                                 2
                               ],
                               [
-                                5.091292279098724e-16,
+                                3.3685524234509571e-16,
                                 0
                               ],
                               0,

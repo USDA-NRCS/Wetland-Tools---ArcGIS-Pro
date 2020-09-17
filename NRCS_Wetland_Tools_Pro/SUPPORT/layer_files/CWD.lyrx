@@ -69,7 +69,7 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Admin_State",
+            "alias" : "Admin State",
             "fieldName" : "admin_state",
             "readOnly" : true,
             "visible" : false,
@@ -151,7 +151,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "CLU Number",
             "fieldName" : "clu_number",
-            "readOnly" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -159,14 +158,14 @@
             "type" : "CIMFieldDescription",
             "alias" : "CLU Subfield",
             "fieldName" : "clu_subfield",
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Field",
             "fieldName" : "field",
-            "visible" : false,
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -174,6 +173,13 @@
             "alias" : "Locked?",
             "fieldName" : "locked",
             "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Evaluation Status",
+            "fieldName" : "eval_status",
+            "visible" : true,
             "searchMode" : "Exact"
           },
           {
@@ -201,9 +207,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true,
-              "zeroPad" : true
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -213,13 +217,6 @@
             "alias" : "CWD Status",
             "fieldName" : "cwd_status",
             "highlight" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Designated Conservationist",
-            "fieldName" : "des_con",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -239,9 +236,30 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "3-Factors?",
+            "alias" : "3-Factors",
             "fieldName" : "three_factors",
             "highlight" : true,
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Request Date",
+            "fieldName" : "request_date",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Request Type",
+            "fieldName" : "request_type",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Designated Conservationist",
+            "fieldName" : "des_con",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -317,24 +335,12 @@
           "type" : "CIMStandardDataConnection",
           "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "cwd_master",
+          "dataset" : "master_cwd",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
-      "featureTemplates" : [
-        {
-          "type" : "CIMFeatureTemplate",
-          "name" : "CWD",
-          "tags" : "Polygon",
-          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
-          "toolFilter" : [
-            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
-            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
-          ]
-        }
-      ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",

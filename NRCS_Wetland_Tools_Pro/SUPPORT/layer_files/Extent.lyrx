@@ -1,21 +1,20 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.5.0",
-  "build" : 22081,
+  "version" : "2.6.0",
+  "build" : 24783,
   "layers" : [
-    "CIMPATH=map/sampling_units.xml"
+    "CIMPATH=map/extent_in091_t0012564_2020_09.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Sampling Units",
-      "uRI" : "CIMPATH=map/sampling_units.xml",
+      "name" : "Extent_in091_t0012564_2020_09",
+      "uRI" : "CIMPATH=map/extent_in091_t0012564_2020_09.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant",
-        "start" : 978307200000
+        "type" : "TimeInstant"
       },
       "useSourceMetadata" : true,
-      "description" : "Sampling Units",
+      "description" : "Extent_in091_t0012564_2020_09",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
@@ -36,289 +35,21 @@
         "type" : "CIMFeatureTable",
         "displayField" : "admin_state_name",
         "editable" : true,
-        "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "OBJECTID",
-            "fieldName" : "OBJECTID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape",
-            "fieldName" : "Shape",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "GlobalID",
-            "fieldName" : "GlobalID",
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Admin State",
-            "fieldName" : "admin_state",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Admin State Name",
-            "fieldName" : "admin_state_name",
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Admin County",
-            "fieldName" : "admin_county",
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Admin County Name",
-            "fieldName" : "admin_county_name",
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "State Code",
-            "fieldName" : "state_code",
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "State Name",
-            "fieldName" : "state_name",
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "County Code",
-            "fieldName" : "county_code",
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "County Name",
-            "fieldName" : "county_name",
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Farm Number",
-            "fieldName" : "farm_number",
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Tract Number",
-            "fieldName" : "tract_number",
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Locked?",
-            "fieldName" : "locked",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Evaluation Status",
-            "fieldName" : "eval_status",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Sampling Unit Number",
-            "fieldName" : "su_number",
-            "highlight" : true,
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Acres",
-            "fieldName" : "acres",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Associated ROP",
-            "fieldName" : "associated_rop",
-            "highlight" : true,
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "3-Factors?",
-            "fieldName" : "three_factors",
-            "highlight" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Request_Date",
-            "fieldName" : "request_date",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Request Type",
-            "fieldName" : "request_type",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Determination Method",
-            "fieldName" : "deter_method",
-            "highlight" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Determination Staff",
-            "fieldName" : "deter_staff",
-            "highlight" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Digitizing Staff",
-            "fieldName" : "dig_staff",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Digitizing Date",
-            "fieldName" : "dig_date",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Comments",
-            "fieldName" : "comments",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape_Length",
-            "fieldName" : "Shape_Length",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape_Area",
-            "fieldName" : "Shape_Area",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
-          }
-        ],
         "dataConnection" : {
-          "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
+          "type" : "CIMFeatureDatasetDataConnection",
+          "featureDataset" : "Layers",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in091_t0012564_2020_09\\in091_t0012564_2020_09_BaseData.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "master_sampling_units",
+          "dataset" : "Extent_in091_t0012564_2020_09",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
-      "featureTemplates" : [
-        {
-          "type" : "CIMFeatureTemplate",
-          "name" : "Sampling Units",
-          "tags" : "Polygon",
-          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
-          "toolFilter" : [
-            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
-            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
-          ]
-        }
-      ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "displayFiltersType" : "ByScale",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
@@ -416,7 +147,7 @@
             "primaryOffset" : 1,
             "primaryOffsetUnit" : "Point",
             "removeExtraWhiteSpace" : true,
-            "repetitionIntervalUnit" : "Map",
+            "repetitionIntervalUnit" : "Point",
             "rotationProperties" : {
               "type" : "CIMMaplexRotationProperties",
               "rotationType" : "Arithmetic",
@@ -434,7 +165,8 @@
             "thinningDistanceUnit" : "Point",
             "truncationMarkerCharacter" : ".",
             "truncationMinimumLength" : 1,
-            "truncationPreferredCharacters" : "aeiou"
+            "truncationPreferredCharacters" : "aeiou",
+            "truncationExcludedCharacters" : "0123456789"
           },
           "name" : "Class 1",
           "priority" : -1,
@@ -543,11 +275,11 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 1.5,
+                "width" : 1.4999999999999998,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    0,
+                    255,
                     0,
                     0,
                     100
@@ -560,9 +292,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
+                    252.44999999999999,
+                    201.96000000000001,
+                    247.40000000000001,
                     0
                   ]
                 }
