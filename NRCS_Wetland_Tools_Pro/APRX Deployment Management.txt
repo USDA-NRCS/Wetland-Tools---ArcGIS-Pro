@@ -1,0 +1,1 @@
+From Chad V: "looks like if I deploy just the APRX file with the Project settings for default geodatabase and default toolbox set to an alternate location it will not create those on a save as.  So it look to be a pretty easy process."

@@ -29,6 +29,11 @@
 ## Change input parameters to use lookup table for states & counties downloaded from US Census.
 ## Change processing to use lookup table obtained from US Census for state and county names.
 ##
+## rev. 10/13/2020
+## Change processing to create a template blank CLU feature class and then append downloaded CLU features to it
+## Incorporated option to update an existing project after the month/year that the project was started has passed
+##
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -111,39 +116,67 @@ sys.path.append(scriptPath)
 import extract_CLU_by_Tract
 reload(extract_CLU_by_Tract)
 
+
+#### Inputs
+arcpy.AddMessage("Reading inputs...\n")
+projectType = arcpy.GetParameterAsText(0)
+existingFolder = arcpy.GetParameterAsText(1)
+#sourceLUT = arcpy.GetParameterAsText(2)
+#stateFld = arcpy.GetParameterAsText(3)
+sourceState = arcpy.GetParameterAsText(4)
+#countyFld = arcpy.GetParameterAsText(5)
+sourceCounty = arcpy.GetParameterAsText(6)
+tractNumber = arcpy.GetParameterAsText(7)
+owFlag = arcpy.GetParameter(8)
+map_name = arcpy.GetParameterAsText(11)
+specific_sr = arcpy.GetParameterAsText(12)
+#check_previous = arcpy.GetParameterAsText(13)
+#previous_layer = arcpy.GetParameterAsText(14)
+
+
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
 
-
-# Get spatial refrence of the Active Map and set the WKID as the env.outputCoordSystem.
-# If the tool was launched from catalog view instead of the catalog pane, this will fail and the tool will exit.
+# Test for Pro project.
 try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
 except:
     arcpy.AddError("\nThis tool must be from an active ArcGIS Pro project. Exiting...\n")
     exit()
-activeMap = aprx.activeMap
 
-try:
-    activeMapName = activeMap.name
-    activeMapSR = activeMap.getDefinition('V2').spatialReference['latestWkid']
-    outSpatialRef = arcpy.SpatialReference(activeMapSR)
-    arcpy.env.outputCoordinateSystem = outSpatialRef
+# Set output Pro map
+if map_name != '':
+    activeMap = aprx.listMaps(map_name)[0]
+else:
+    activeMap = aprx.activeMap
 
-except:
-    arcpy.AddError("Could not get a spatial reference! Please run the tool from the Catalog Pane with an active ArcGIS Pro Map open! Exiting...")
-    exit()
+# Set output spatial reference
+if specific_sr != '':
+    sr = arcpy.SpatialReference()
+    sr.loadFromString(specific_sr)
+    outSpatialRef = sr
+else:
+    try:
+        activeMapName = activeMap.name
+        activeMapSR = activeMap.getDefinition('V2').spatialReference['latestWkid']
+        outSpatialRef = arcpy.SpatialReference(activeMapSR)
+    except:
+        arcpy.AddError("Could not get a spatial reference! Please run the tool from the Catalog Pane with an active ArcGIS Pro Map open! Exiting...")
+        exit()
 
+arcpy.env.outputCoordinateSystem = outSpatialRef
 
 # Set transformation (replace with assignment from Transformation lookup from cim object of active map object in the future)
 arcpy.env.geographicTransformations = "WGS_1984_(ITRF00)_To_NAD_1983"
 
-
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
 
+# Update the default aprx workspace to be the installed SCRATCH.gdb in case script validation didn't work or wasn't set
+aprx.defaultGeodatabase = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
 
-#### Check GeoPortal Connection right away
+
+#### Check GeoPortal Connection
 nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
 portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
 if not portalToken:
@@ -153,18 +186,10 @@ if not portalToken:
         
 #### Main procedures
 try:
-    #### Inputs
-    arcpy.AddMessage("Reading inputs...\n")
-    #sourceLUT = arcpy.GetParameterAsText(0)
-    #stateFld = arcpy.GetParameterAsText(1)
-    sourceState = arcpy.GetParameterAsText(2)
-    #countyFld = arcpy.GetParameterAsText(3)
-    sourceCounty = arcpy.GetParameterAsText(4)
-    tractNumber = arcpy.GetParameterAsText(5)
-    owFlag = arcpy.GetParameter(6)
-
-
-    #### Check Inputs for existence and create FIPS code variables
+    #### Set up initial project folder paths based on input choice for project Type
+    workspacePath = r'C:\Determinations'
+    
+    # Check Inputs for existence and create FIPS code variables
     lut = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "lut_census_fips")
     if not arcpy.Exists(lut):
         arcpy.AddError("Could not find state and county lookup table! Exiting...\n")
@@ -196,9 +221,6 @@ try:
     adminCounty = cofip
     postal = adStatePostal.lower()
 
-
-    #### Create additional variables for use in project naming.
-
     # Get the current year and month for use in project naming
     current = datetime.datetime.now()
     curyear = current.year
@@ -221,15 +243,28 @@ try:
     else:
         finalmonth = themonth
 
-    # Variables and project names
-    workspacePath = r'C:\Determinations'
-    projectFolder = workspacePath + os.sep + postal + adminCounty + "_t" + tractname + "_" + theyear + "_" + finalmonth
+    # Build project folder path
+    if projectType == "New":
+        projectFolder = workspacePath + os.sep + postal + adminCounty + "_t" + tractname + "_" + theyear + "_" + finalmonth
+        
+    else:
+        # Get project folder path from user input. Validation was done during script validations on the input
+        if existingFolder != '':
+            projectFolder = existingFolder
+        else:
+            arcpy.AddError('Project type was specified as Existing, but no existing project folder was selected. Exiting...')
+            exit()
+
+    #### Set additional variables based on constructed path
     folderName = os.path.basename(projectFolder)
     projectName = folderName
     basedataGDB_name = os.path.basename(projectFolder).replace(" ","_") + "_BaseData.gdb"
-    basedataGDB_path = projectFolder + os.sep + basedataGDB_name
+    basedataGDB_path = projectFolder + os.sep + basedataGDB_name     
     basedataFD = basedataGDB_path + os.sep + "Layers"
     outputWS = basedataGDB_path
+    templateCLU = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "master_clu")
+    cluTempName = "CLU_Temp_" + projectName
+    projectCLUTemp = basedataFD + os.sep + cluTempName
     cluName = "CLU_" + projectName
     projectCLU = basedataFD + os.sep + cluName
     projectTract = basedataFD + os.sep + "Tract_" + projectName
@@ -237,8 +272,8 @@ try:
     bufferDist = "500 Feet"
     bufferDistPlus = "550 Feet"
     projectAOI = basedataFD + os.sep + "AOI_" + projectName
-    extentName = "Extent_" + projectName
-    projectExtent = basedataFD + os.sep + extentName
+    DAOIname = "Define_AOI_" + projectName
+    projectDAOI = basedataFD + os.sep + DAOIname
 ##    helFolder = projectFolder + os.sep + "HEL"
 ##    helGDB_name = folderName + "_HEL.gdb"
 ##    helGDB_path = helFolder + os.sep + helGDB_name
@@ -264,8 +299,7 @@ try:
 
     # ArcMap Layer Names
     cluOut = "CLU_" + projectName
-    extentOut = "Extent_" + projectName
-
+    DAOIOut = "Define_AOI_" + projectName
 
     #### Create the project directory
 
@@ -290,7 +324,7 @@ try:
 
 
     #### Project folder now exists. Set up log file path and start logging
-    textFilePath = projectFolder + os.sep + folderName + "_PTD.txt"
+    textFilePath = projectFolder + os.sep + folderName + "_log.txt"
     logBasicSettings()
 
 
@@ -314,21 +348,26 @@ try:
 ##            exit()
 ##    else:
 ##        AddMsgAndPrint("\n\tThe HEL folder already exists within " + projectFolder + ".",0)
-
-
+##
+##
 ##    #### Copy the file templates from the install folder to the project directory
 ##    # This is done to make the install folder location indepedent on a given computer
 ##    # Check if the Doc_Templates folder exists within the projectFolder, else create it
 ##    if not os.path.exists(docs_folder):
 ##        try:
 ##            os.mkdir(docs_folder)
+##            AddMsgAndPrint("\n\tThe Doc_Templates folder has been created within " + projectFolder + ".",0)
+##        except:
+##            AddMsgAndPrint("\nCould not access C:\Determinations. Check your permissions for C:\Determinations. Exiting...\n",2)
+##            sys.exit()
+##        try:
 ##            shutil.copy2(source_028, target_028)
 ##            shutil.copy2(source_026h, target_026h)
 ##            shutil.copy2(source_026w, target_026w)
 ##            shutil.copy2(source_026wp, target_026wp)
-##            AddMsgAndPrint("\n\tThe Doc_Templates folder has been created within " + projectFolder + ".",0)
+##            AddMsgAndPrint("\n\tThe 026 form templates have been copied to the Doc_Templates folder within " + projectFolder + ".",0)
 ##        except:
-##            AddMsgAndPrint("\nCould not access C:\Determinations. Check your permissions for C:\Determinations. Exiting...\n",2)
+##            AddMsgAndPrint("\nCould not copy 026 form templates. Please make sure they are closed and try again. Exiting...\n",2)
 ##            sys.exit()
 ##    else:
 ##        # Make sure the .docx template files are in the Doc_Templates folder
@@ -341,6 +380,8 @@ try:
 ##        if not os.path.exists(target_026wp):
 ##            shutil.copy2(source_026wp, target_026wp)
 ##        AddMsgAndPrint("\n\tThe Doc_Templates folder already exists within " + projectFolder + ".",0)
+##
+##    AddMsgAndPrint("\nFolder: " + projectFolder + " and its contents have been created and/or updated within C:\Determinations!\n",1)
 
 
     #### If project geodatabases and feature datasets do not exist, create them.
@@ -434,7 +475,7 @@ try:
 
     #### Remove the existing projectCLU layer from the Map
     AddMsgAndPrint("\nRemoving CLU layer from project maps, if present...\n",0)
-    mapLayersToRemove = [cluOut, extentOut]
+    mapLayersToRemove = [cluOut, DAOIOut]
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
@@ -448,7 +489,7 @@ try:
     if owFlag == True:
         if arcpy.Exists(projectCLU):
             AddMsgAndPrint("\nOverwrite selected. Deleting existing data...",0)
-            datasetsToRemove = [projectCLU, projectTract, projectTractB, projectAOI, projectExtent]
+            datasetsToRemove = [projectCLU, projectTract, projectTractB, projectAOI, projectDAOI]
             for dataset in datasetsToRemove:
                 if arcpy.Exists(dataset):
                     try:
@@ -462,57 +503,64 @@ try:
     # If the CLU doesn't exist, download it
     if not arcpy.Exists(projectCLU):
         AddMsgAndPrint("\nDownloading latest CLU data for input tract number...",0)
+        # Download CLU
         cluTempPath = extract_CLU_by_Tract.start(adminState, adminCounty, tractNumber, outSpatialRef, basedataGDB_path)
 
-        # Copy the resulting feature class to the feature dataset of the project folder using projectCLU naming convention as resulting feature class
-        # This should work because the temp CLU feature class should have the same spatial reference as the target feature dataset
-        arcpy.FeatureClassToFeatureClass_conversion(cluTempPath, basedataFD, cluName)
+        # Convert feature class to the projectTempCLU layer in the project's feature dataset
+        # This should work because the input CLU feature class coming from the download should have the same spatial reference as the target feature dataset
+        arcpy.FeatureClassToFeatureClass_conversion(cluTempPath, basedataFD, cluTempName)
+
         # Delete the temporary CLU download
         arcpy.Delete_management(cluTempPath)
 
+        # Add state name and county name fields to the projectTempCLU feature class
+        # Add fields
+        arcpy.AddField_management(projectCLUTemp, "admin_state_name", "TEXT", "64")
+        arcpy.AddField_management(projectCLUTemp, "admin_county_name", "TEXT", "64")
+        arcpy.AddField_management(projectCLUTemp, "state_name", "TEXT", "64")
+        arcpy.AddField_management(projectCLUTemp, "county_name", "TEXT", "64")
 
-    #### Add state name and county name fields to the CLU feature class
-    # Add fields
-    arcpy.AddField_management(projectCLU, "admin_state_name", "TEXT", "64")
-    arcpy.AddField_management(projectCLU, "admin_county_name", "TEXT", "64")
-    arcpy.AddField_management(projectCLU, "state_name", "TEXT", "64")
-    arcpy.AddField_management(projectCLU, "county_name", "TEXT", "64")
+        # Search the downloaded CLU for geographic state and county codes
+        stateCo, countyCo = '', ''
+        field_names = ['state_code','county_code']
+        with arcpy.da.SearchCursor(projectCLUTemp, field_names) as cursor:
+            for row in cursor:
+                stateCo = row[0]
+                countyCo = row[1]
+                break
+                                       
+        # Search for names using FIPS codes.
+        stName, coName = '', ''
+        fields = ['STATEFP','COUNTYFP','NAME','STATE']
+        field1 = 'STATEFP'
+        field2 = 'COUNTYFP'
+        expression = "{} = '{}'".format(arcpy.AddFieldDelimiters(lut,field1), stateCo) + " AND " + "{} = '{}'".format(arcpy.AddFieldDelimiters(lut,field2), countyCo)
+        with arcpy.da.SearchCursor(lut, fields, where_clause = expression) as cursor:
+            for row in cursor:
+                coName = row[2]
+                stName = row[3]
+                break
 
-    # Search the downloaded CLU for geographic state and county codes
-    stateCo, countyCo = '', ''
-    field_names = ['state_code','county_code']
-    with arcpy.da.SearchCursor(projectCLU, field_names) as cursor:
-        for row in cursor:
-            stateCo = row[0]
-            countyCo = row[1]
-            break
-                                   
-    # Search for names using FIPS codes.
-    stName, coName = '', ''
-    fields = ['STATEFP','COUNTYFP','NAME','STATE']
-    field1 = 'STATEFP'
-    field2 = 'COUNTYFP'
-    expression = "{} = '{}'".format(arcpy.AddFieldDelimiters(lut,field1), stateCo) + " AND " + "{} = '{}'".format(arcpy.AddFieldDelimiters(lut,field2), countyCo)
-    with arcpy.da.SearchCursor(lut, fields, where_clause = expression) as cursor:
-        for row in cursor:
-            coName = row[2]
-            stName = row[3]
-            break
+        if stName == '' or coName == '':
+            arcpy.AddError("State and County Names for the site could not be retrieved! Exiting...\n")
+            exit()
 
-    if stName == '' or coName == '':
-        arcpy.AddError("State and County Names for the site could not be retrieved! Exiting...\n")
-        exit()
+        # Use Update Cursor to populate all rows of the downloaded CLU the same way for the new fields
+        field_names = ['admin_state_name','admin_county_name','state_name','county_name']
+        with arcpy.da.UpdateCursor(projectCLUTemp, field_names) as cursor:
+            for row in cursor:
+                row[0] = sourceState
+                row[1] = sourceCounty
+                row[2] = stName
+                row[3] = coName
+                cursor.updateRow(row)
+        del field_names
 
-    # Use Update Cursor to populate all rows of the downloaded CLU the same way for the new fields
-    field_names = ['admin_state_name','admin_county_name','state_name','county_name']
-    with arcpy.da.UpdateCursor(projectCLU, field_names) as cursor:
-        for row in cursor:
-            row[0] = sourceState
-            row[1] = sourceCounty
-            row[2] = stName
-            row[3] = coName
-            cursor.updateRow(row)
-    del field_names
+        # Create the projectCLU feature class and append projectCLUTemp to it. This is done as a cheat to using field mappings to re-order fields.
+        AddMsgAndPrint("\nWriting final CLU layer...",0)
+        arcpy.CreateFeatureclass_management(basedataFD, cluName, "POLYGON", templateCLU)
+        arcpy.Append_management(projectCLUTemp, projectCLU, "NO_TEST")
+        arcpy.Delete_management(projectCLUTemp)
 
     
     #### Buffer Tract and create extent layers
@@ -534,13 +582,13 @@ try:
         arcpy.Buffer_analysis(projectTract, projectAOI, bufferDistPlus, "FULL", "", "ALL", "")
 
 
-    #### Create the Determination Extent Layer as a copy of the CLU layer
-    if not arcpy.Exists(projectExtent):
-        AddMsgAndPrint("\nCreating Extent layer...",0)
-        arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, extentName)
+    #### Create the Determination Request Extent Layer as a copy of the CLU layer
+    if not arcpy.Exists(projectDAOI):
+        AddMsgAndPrint("\nCreating Define AOI layer...",0)
+        arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, DAOIname)
     if owFlag == True:
-        AddMsgAndPrint("\nCLU overwrite was selected. Resetting the layer extent as a result...",0)
-        arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, extentName)
+        AddMsgAndPrint("\nCLU overwrite was selected. Resetting the Define AOI layer as a result...",0)
+        arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, DAOIname)
 
 
     #### Zoom to tract quarter mile buffer (not possible to Implement in Pro?)
@@ -559,9 +607,9 @@ try:
 
     #### Prepare to add to map
     if not arcpy.Exists(cluOut):
-        arcpy.SetParameterAsText(7, projectCLU)
-    if not arcpy.Exists(extentOut):
-        arcpy.SetParameterAsText(8, projectExtent)
+        arcpy.SetParameterAsText(9, projectCLU)
+    if not arcpy.Exists(DAOIOut):
+        arcpy.SetParameterAsText(10, projectDAOI)
 
     
     #### Compact FGDB

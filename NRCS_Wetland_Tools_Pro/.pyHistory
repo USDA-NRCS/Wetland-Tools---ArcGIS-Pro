@@ -27,3 +27,162 @@ params
 def submitFSquery(url,INparams):     # This function will send a spatial query to a web feature service and convert the results into a python     # structure.  If the results from the service is an error due to an invalid token then a second attempt will     # be sent with using a newly generated arcgis token.  If the token is good but the request returned with an     # error a second attempt will be made.  The function takes in 2 parameters, the URL to the web service and a     # query string in URLencoded format.      # Error produced with invalid token     # {u'error': {u'code': 498, u'details': [], u'message': u'Invalid Token'}}      # The function returns requested data via a python dictionary      try:         # Data should be in bytes; new in Python 3.6         INparams = INparams.encode('ascii')         resp = urllib.request.urlopen(url,INparams)  # A failure here will probably throw an HTTP exception         responseStatus = resp.getcode()         responseMsg = resp.msg         jsonString = resp.read()          # json --> Python; dictionary containing 1 key with a list of lists         results = json.loads(jsonString)          # Check for expired token; Update if expired and try again         if 'error' in results.keys():             if results['error']['message'] == 'Invalid Token':                 AddMsgAndPrint("\tRegenerating ArcGIS Token Information...")                  # Get new ArcPro Token                 newToken = arcpy.GetSigninToken()                  # Update the original portalToken                 global portalToken                 portalToken = newToken                  # convert encoded string into python structure and update token                 # by parsing the encoded query strting into list of (name, value pairs)                 # i.e [('f', 'json'),('token','U62uXB9Qcd1xjyX1)]                 # convert to dictionary and update the token in dictionary                  queryString = parseQueryString(params)                  requestDict = dict(queryString)                 requestDict.update(token=newToken['token'])                  newParams = urllibEncode(requestDict)                 newParams = newParams.encode('ascii')                  # update incoming parameters just in case a 2nd attempt is needed                 INparams = newParams                  resp = urllib.request.urlopen(url,newParams)  # A failure here will probably throw an HTTP exception                  responseStatus = resp.getcode()                 responseMsg = resp.msg                 jsonString = resp.read()                  results = json.loads(jsonString)          # Check results before returning them; Attempt a 2nd request if results are bad.         if 'error' in results.keys() or len(results) == 0:             time.sleep(5)             resp = urllib.request.urlopen(url,INparams)  # A failure here will probably throw an HTTP exception              responseStatus = resp.getcode()             responseMsg = resp.msg             jsonString = resp.read()              results = json.loads(jsonString)              if 'error' in results.keys() or len(results) == 0:                 AddMsgAndPrint("\t2nd Request Attempt Failed - Error Code: " + str(responseStatus) + " -- " + responseMsg + " -- " + str(results),2)                 return False             else:                 return results          else:              return results      except httpErrors as e:          if int(e.code) >= 500:            #AddMsgAndPrint("\n\t\tHTTP ERROR: " + str(e.code) + " ----- Server side error. Probably exceed JSON imposed limit",2)            #AddMsgAndPrint("t\t" + str(request))            pass         elif int(e.code) >= 400:            #AddMsgAndPrint("\n\t\tHTTP ERROR: " + str(e.code) + " ----- Client side error. Check the following SDA Query for errors:",2)            #AddMsgAndPrint("\t\t" + getGeometryQuery)            pass         else:            AddMsgAndPrint('HTTP ERROR = ' + str(e.code),2)      except:         errorMsg()         return False
 fsMetadata = submitFSquery(cluRESTurl_Metadata,params)
 from importlib import reload
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+aprx.homeFolder
+aprx
+map = aprx.listMaps()[0]
+map
+map.name
+fm = arcpy.FieldMap()
+fms = arcpy.FieldMappings()
+fm.outputField
+clu = map.listLayers("CLU_in091*")[0]
+clu
+clu.name
+for field in arcpy.ListFields(clu):     fm.addInputField(clu, field.name)
+clu = r'C:\Determinations\in091_t0012564_2020_09\in091_t0012564_2020_09_BaseData.gdb\CLU_in091_t0012564_2020_09'
+for field in arcpy.ListFields(clu):     fm.addInputField(clu, field.name)
+del fm
+fm = arcpy.FieldMap()
+for field in arcpy.ListFields(clu):     fm.addInputField(clu, field.name)
+for field in arcpy.ListFields(clu):     print(field.name)
+for field in arcpy.ListFields(clu):     fm.addInputField(clu, field.name)
+fm
+fm.removeAll()
+fm
+for field in arcpy.ListFields(clu):     fm.addInputField(clu, field.name)
+import arcpy
+for field in arcpy.ListFields(clu):     fm.addInputField(clu, field.name)
+fm.removeAll()
+del fm
+del fms
+fm_clu = arcpy.FieldMap()
+fm_clu.addInputField(clu, "admin_state")
+fm_clu.getInputFieldName()[0]
+fm_clu.getInputFieldName()
+fm_clu.getInputFieldName(0)
+aprx
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+map_name = "Determinations"
+activeMap = aprx.listMaps(map_name)[0]
+activeMap
+activeMap.spatialReference
+activeMap.spatialReference.name
+clu = r'C:\Determinations\in091_t0012564_2020_09\in091_t0012564_2020_09_BaseData.gdb\Layers\CLU_in091_t0012564_2020_09'
+arcpy.Exists(clu)
+fm = arcpy.FieldMap()
+for field in arcpy.ListFields(clu):     fm.addInputField(clu, field.name)
+for field in arcpy.ListFields(clu, '*'):     fm.addInputField(clu, field.name)
+fm.inputFieldCount
+fm.getInputFieldName(0)
+fm.getInputFieldName(1)
+fm.getInputFieldName(2)
+fm.removeAll()
+fm.inputFieldCount
+del fm
+fm = arcpy.FieldMap()
+fm.inputFieldCount
+fields = arcpy.listFields(clu, "*")
+fields = arcpy.ListFields(clu, "*")
+for field in fields:     fm.addInputField(clu, field.name)
+fm.inputFieldCount
+fm.getInputFieldName(0)
+fm.removeAll()
+for field in fields:     print(field.name)
+for field in fields:     if field.name == "OBJECTID":         fields.remove(field)
+for field in fields:     if field.name == "Shape":         fields.remove(field)
+for field in fields:     print(field.name)
+for field in fields:     fm.addInputField(clu, field.name)
+fm.getInputFieldName(10)
+fm.inputFieldCount
+x = 0
+while x <= 32:     fm.getInputFieldName(x)     x += 1
+map
+aprx
+my_map = aprx.listMaps("*Det*")[0]
+my_map
+my_mapSR = activeMap.getDefinition('V2').spatialReference['latestWkid']
+my_mapSR.name
+sr = arcpy.SpatialReference(my_mapSR)
+sr.name
+activeMap
+definition = activeMap.getDefinition('V2')
+tr = definition.datumTransforms
+del tr
+sr = definition.spatialReference
+sr
+tr = definition.datumTransforms
+tr
+sr = activeMap.spatialReference
+sr.name
+trs = definition.datumTransforms
+trs
+trs0 = trs[0]
+trs0.geoTransformation
+trs1 = trs[1]
+trs1
+trs1.name
+trs1.geoTransformation
+trs2 = trs[2]
+trs2.geoTransformation
+versionFlt = 10.6
+test = False
+if versionFlt >= 10.6:     test = True
+test
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+m = aprx.listMaps("Determinations")[0]
+m
+m.name
+sun = m.listLayers("Sampling Units New")[0]
+sun.name
+sud = m.listLayers("sampling_units_dissolve")
+sun = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\Conversions.gdb\sampling_units'
+sud = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\Conversions.gdb\sampling_units_dissolve'
+arcpy.Exists(sun)
+arcpy.Exists(sud)
+sud_cursor = arcpy.da.SearchCursor(sud)
+sud_cursor = arcpy.da.SearchCursor(sud, '*')
+x = 0
+sud_cursor.fields
+for row in sud_cursor:     print(row[5])     break
+sud_cursor = arcpy.da.SearchCursor(sud, '*')
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+map = aprx.listMaps("*Determinations*")[0]
+map.name
+deflyrs = map.listLayers("*Define_AOI_*")
+for lyr in deflyrs:     print(lyr.name)
+apr
+aprx
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+map = aprx.listMaps()[0]
+map.name
+for lyr in map.listLayers():     print(lyr.name)
+anno_lyr = map.listLayers("*09Anno*")[0]
+anno_lyr.name
+anno_lyr.visible = False
+anno_lyr.visible = True
+arcpy.env.workspace
+aprx.defaultGeodatabase
+aprx.defaultGeodatabase = r'C:\Determinations\in091_t0012564_2020_09\in091_t0012564_2020_09_BaseData.gdb'
+s_path = r'C:\GIS_Tools\NRCS_Wetland_Tools\Pro\SUPPORT'
+import o
+import os
+os.path.dirname(s_path)
+s_path = r'C:\GIS_Tools\NRCS_Wetland_Tools\Pro\SUPPORT\create_project.py'
+os.path.dirname(s_path)
+os.path.join(os.path.dirname(s_path), "SUPPORT.gdb")
+arcpy.Exists(os.path.join(os.path.dirname(s_path), "SUPPORT.gdb"))
+s_path = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\create_project.py'
+arcpy.Exists(os.path.join(os.path.dirname(s_path), "SUPPORT.gdb"))
+fields = ['first','second']
+'three' not in fields
+'second' not in fields
+import os
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+map = aprx.listMaps()[0]
+map.name
+test_lyr = map.listLayers("Certified Wetland Determinations (Server)")[0]
+test_lyr.name
+desc = arcpy.Describe(test_lyr)
+desc.catalogpath
+arcpy.Exists("https://gis-staging.usda.net/server/rest/services/Hosted/Certified_Wetland_Determinations_Test_Feature_Layer/FeatureServer/0")

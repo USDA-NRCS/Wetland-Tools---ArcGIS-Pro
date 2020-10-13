@@ -149,7 +149,7 @@ try:
 
 
     #### Set up log file path and start logging
-    textFilePath = userWorkspace + os.sep + projectName + "_PTD.txt"
+    textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
 
