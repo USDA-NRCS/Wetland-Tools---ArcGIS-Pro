@@ -186,3 +186,137 @@ test_lyr.name
 desc = arcpy.Describe(test_lyr)
 desc.catalogpath
 arcpy.Exists("https://gis-staging.usda.net/server/rest/services/Hosted/Certified_Wetland_Determinations_Test_Feature_Layer/FeatureServer/0")
+time.strftime('%m/%d/%Y')
+time.ctime()
+aprx = ararcpy.mp.ArcGISProject("CURRENT")
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+map = aprx.listMaps("Determinations")[0]
+sourceDefine = map.listLayers("*Define_AOI_*")[0]
+sourceDefine.name
+desc = arcpy.Describe(sourceDefine)
+disc.FIDset
+desc.FIDset
+desc = arcpy.Describe(sourceDefine)
+desc.FIDset
+sourceDefine_path = arcpy.Describe(sourceDefine).CatalogPath
+sourceDefine_path
+basedataGDB_path = sourceDefine_path[:sourceDefine_path.find('.gdb')+4]
+basedataGDB_path
+workspace = basedataGDB_path
+edit = arcpy.da.Editor(workspace)
+edit.isEditing
+basedataGDB_name = os.path.basename(basedataGDB_path)
+import os
+basedataGDB_name = os.path.basename(basedataGDB_path)
+basedataFD = basedataGDB_path + os.sep + "Layers"
+userWorkspace = os.path.dirname(basedataGDB_path)
+userWorkspace
+projectName = os.path.basename(userWorkspace)
+projectName
+wholeTract = "No"
+selectFields = "Yes"
+keepFields = "No"
+resetROPs = "No"
+resetDrains = "No"
+existing_cwd = 'https://gis-staging.usda.net/server/rest/services/Hosted/Certified_Wetland_Determinations_Test_Feature_Layer/FeatureServer/0'
+wetDir = userWorkspace + os.sep + "Wetlands"
+wcGDB_name = os.path.basename(userWorkspace).replace(" ", "_") + "_WC.gdb"
+wcGDB_path = wetDir + os.sep + wcGDB_name
+wcFD = wcGDB_path + os.sep + "WC_Data"
+projectCLU = basedataFD + os.sep + "CLU_" + projectName
+projectTract = basedataFD + os.sep + "Tract_" + projectName
+projectTractB = basedataFD + os.sep + "Tract_Buffer_" + projectName
+projectTable = basedataGDB_path + os.sep + "Table_" + projectName
+projectAOI = basedataFD + os.sep + "AOI_" + projectName
+projectDAOI = basedataFD + os.sep + "Define_AOI_" + projectName
+suTemp1 = "in_memory" + os.sep + "SU_Temp1_" + projectName
+suTemp2 = "in_memory" + os.sep + "SU_Temp2_" + projectName
+suName = "SU_" + projectName
+projectSU = wcFD + os.sep + suName
+templateSU = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "master_sampling_units")
+templateSU = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\SUPPORT.gdb\master_sampling_units'
+projectROP = wcFD + os.sep + "ROPs_" + projectName
+templateROP = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\SUPPORT.gdb\master_rop'
+templateLines = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\SUPPORT.gdb\master_drainage_lines'
+projectLines = wcFD + os.sep + "Drainage_Lines_" + projectName
+extentName = "Extent_" + projectName
+projectExtent = basedataFD + os.sep + extentName
+extTempName = "Extent_temp1_" + projectName
+extentTemp1 = basedataFD + os.sep + extTempName
+extentTemp2 = basedataFD + os.sep + "Extent_temp2_" + projectName
+extentTemp3 = basedataFD + os.sep + "Extent_temp3_" + projectName
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+map = aprx.listMaps("Determinations")[0]
+suLyr = map.listLayers("*SU_*")[0]
+suLyr.name
+suLyr.listLayers()
+lyr = suLyr.listLayers()[0]
+suLyr.visible = False
+suLyr.visible = True
+su = suLyr.CatalogPath
+su = suLyr.CatalogPath()
+suLyr.dataSource
+su = suLyr.dataSource
+arcpy.ListFields('SU_in091_t0012564_2020_09', "*su_number")[0]
+su_field = arcpy.ListFields('SU_in091_t0012564_2020_09', "*su_number")[0]
+su_field.name
+suSym = r"C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Sampling_Units.lyrx"
+arcpy.management.ApplySymbologyFromLayer(suLyr, suSym, 'VALUE_FIELD # #', 'MAINTAIN')
+suLyr.name
+arcpy.management.ApplySymbologyFromLayer(suLyr, suSym)
+del suLyr
+del su_field
+del su
+suLyr = map.listLayers("*SU_*")[0]
+suLyr.name
+suSym
+arcpy.management.ApplySymbologyFromLayer(suLyr, suSym)
+dlyr = map.listLayers("Define_*")[0]
+dlyr.nam
+dlyr.name
+dlyr.setSelectionSet([], 'NEW')
+arcpy.management.SelectLayerByAttribute(dlyr, 'CLEAR_SELECTION')
+my_name = dlyr.name
+arcpy.management.ApplySymbologyFromLayer('ROPs_in091_t0012564_2020_09', 'ROPs')
+drainSym = r"C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Drainage_Lines.lyrx"
+arcpy.management.ApplySymbologyFromLayer('Drainage_Lines_in091_t0012564_2020_09', drainSym)
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+m1 = aprx.listMaps("Determinations")[0]
+dLyr = r"C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Drainage_Lines.lyrx"
+m1.addLayer(dLyr)
+m1.addLayer(dLyr, 'AUTO_ARRANGE')
+dLyr
+dLyr = arcpy.mp.LayerFile(r"C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Drainage_Lines.lyrx")
+m1.addLayer(dLyr)
+drainNew = m1.listLayers("*Drainage_Lines*")[0]
+drainNew.name
+drainNew.dataSource
+drainNew.name
+drainCIM = drainNew.getDefinition('V2')
+dc = drainCIM.featureTable.dataConnection
+dc
+dc.dataset
+dc.featureDataset
+drainNew.connectionProperties
+dc.workspaceFactory
+dc.workspaceConnectionString
+shapefile = map.listLayers("AOI")[0]
+m1.listLayers("AOI")[0]
+shapefile = m1.listLayers("AOI")[0]
+shapefile.name
+shapeCIM = shapefile.getDefinition('V2')
+shapeDC = shapeCIM.featureTable.dataConnection
+shapeDC.workspaceConnectionString
+my_string = 'DATABASE=Tests'
+my_string[9:]
+my_string[:9]
+new_fc = 'fc2'
+cur_lyr = m1.listLayers("*fc1*")[0]
+cur_lyr.name
+lyrCIM = cur_lyr.getDefinition('V2')
+dc = lyrCIM.featureTable.dataConnection
+new_ws = r'C:\Temp\Testing2.gdb'
+dc.workspaceConnectionString = 'DATABASE=' + new_ws
+dc.workspaceConnectionString
+dc.dataset = new_fc
+cur_lyr.setDefinition(lyrCIM)

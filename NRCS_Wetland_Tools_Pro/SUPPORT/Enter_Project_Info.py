@@ -135,7 +135,7 @@ try:
     
     wcGDB_name = os.path.basename(userWorkspace).replace(" ", "_") + "_WC.gdb"
     wcGDB_path = wetDir + os.sep + wcGDB_name
-    wc_fd = wcGDB_path + os.sep + "WC_Data"
+    wcFD = wcGDB_path + os.sep + "WC_Data"
 
 ##    helGDB_name = os.path.basename(userWorkspace).replace(" ", "_") + "_HEL.gdb"
 ##    helGDB_path = helDir + os.sep + helGDB_name

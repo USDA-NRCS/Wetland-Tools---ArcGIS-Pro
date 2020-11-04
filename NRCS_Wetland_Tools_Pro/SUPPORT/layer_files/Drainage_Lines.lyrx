@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.5.0",
-  "build" : 22081,
+  "version" : "2.6.0",
+  "build" : 24783,
   "layers" : [
     "CIMPATH=map/drainage_lines2.xml"
   ],
@@ -14,6 +14,7 @@
         "type" : "TimeInstant",
         "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/08fc96d3549f008edf86a928a6f018ab.xml",
       "useSourceMetadata" : true,
       "description" : "Drainage Lines",
       "layerElevation" : {
@@ -176,13 +177,7 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Drainage Ditch,Pre-1985",
           "tags" : "Line",
-          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
-          "toolFilter" : [
-            "09c6f589-a3ce-48ab-81bc-46965c58f264",
-            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
-            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf",
-            "e00209dd-05c5-4424-be62-51581f9f811d"
-          ],
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -197,13 +192,7 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Drainage Ditch,Post-1985",
           "tags" : "Line",
-          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
-          "toolFilter" : [
-            "09c6f589-a3ce-48ab-81bc-46965c58f264",
-            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
-            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf",
-            "e00209dd-05c5-4424-be62-51581f9f811d"
-          ],
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -218,13 +207,7 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Manipulated Natural Water Course,Pre-1985",
           "tags" : "Line",
-          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
-          "toolFilter" : [
-            "09c6f589-a3ce-48ab-81bc-46965c58f264",
-            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
-            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf",
-            "e00209dd-05c5-4424-be62-51581f9f811d"
-          ],
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -239,13 +222,7 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Manipulated Natural Water Course,Post-1985",
           "tags" : "Line",
-          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
-          "toolFilter" : [
-            "09c6f589-a3ce-48ab-81bc-46965c58f264",
-            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
-            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf",
-            "e00209dd-05c5-4424-be62-51581f9f811d"
-          ],
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -260,13 +237,7 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Underground Tile,Pre-1985",
           "tags" : "Line",
-          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
-          "toolFilter" : [
-            "09c6f589-a3ce-48ab-81bc-46965c58f264",
-            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
-            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf",
-            "e00209dd-05c5-4424-be62-51581f9f811d"
-          ],
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -281,13 +252,7 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Underground Tile,Post-1985",
           "tags" : "Line",
-          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
-          "toolFilter" : [
-            "09c6f589-a3ce-48ab-81bc-46965c58f264",
-            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
-            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf",
-            "e00209dd-05c5-4424-be62-51581f9f811d"
-          ],
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -302,13 +267,7 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Other,Pre-1985",
           "tags" : "Line",
-          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
-          "toolFilter" : [
-            "09c6f589-a3ce-48ab-81bc-46965c58f264",
-            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
-            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf",
-            "e00209dd-05c5-4424-be62-51581f9f811d"
-          ],
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -323,13 +282,7 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Other,Post-1985",
           "tags" : "Line",
-          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
-          "toolFilter" : [
-            "09c6f589-a3ce-48ab-81bc-46965c58f264",
-            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
-            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf",
-            "e00209dd-05c5-4424-be62-51581f9f811d"
-          ],
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -344,6 +297,7 @@
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "displayFiltersType" : "ByScale",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
@@ -569,7 +523,7 @@
           "minAlpha" : 100,
           "maxAlpha" : 100
         },
-        "defaultLabel" : "<all other values>",
+        "defaultLabel" : "Type Unassigned",
         "defaultSymbol" : {
           "type" : "CIMSymbolReference",
           "symbol" : {
@@ -582,13 +536,13 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 1,
+                "width" : 1.5,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
+                    255,
+                    0,
+                    0,
                     100
                   ]
                 }
@@ -1555,10 +1509,18 @@
             "heading" : "Line Type,Era"
           }
         ],
+        "useDefaultSymbol" : true,
         "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
       "snappable" : true
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/08fc96d3549f008edf86a928a6f018ab.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201022</CreaDate><CreaTime>13304600</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     }
   ],
   "elevationSurfaces" : [

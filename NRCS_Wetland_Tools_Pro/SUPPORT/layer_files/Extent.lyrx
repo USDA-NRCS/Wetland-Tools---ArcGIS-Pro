@@ -3,18 +3,18 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=Determinations/98e561284c8745ac89eaabf5527eef17.xml"
+    "CIMPATH=determinations/extent.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Extent_in091_t0012564_2020_09",
-      "uRI" : "CIMPATH=Determinations/98e561284c8745ac89eaabf5527eef17.xml",
+      "name" : "Extent",
+      "uRI" : "CIMPATH=determinations/extent.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
       "useSourceMetadata" : true,
-      "description" : "Extent_in091_t0012564_2020_09",
+      "description" : "Extent",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
@@ -22,7 +22,7 @@
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -36,11 +36,10 @@
         "displayField" : "admin_state_name",
         "editable" : true,
         "dataConnection" : {
-          "type" : "CIMFeatureDatasetDataConnection",
-          "featureDataset" : "Layers",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in091_t0012564_2020_09\\in091_t0012564_2020_09_BaseData.gdb",
+          "type" : "CIMStandardDataConnection",
+          "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "Extent_in091_t0012564_2020_09",
+          "dataset" : "master_extent",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
@@ -49,7 +48,7 @@
       "featureTemplates" : [
         {
           "type" : "CIMFeatureTemplate",
-          "name" : "Extent_in091_t0012564_2020_09",
+          "name" : "Extent",
           "tags" : "Polygon",
           "toolProgID" : "00000000-0000-0000-0000-000000000000"
         }
@@ -61,7 +60,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.clu_number",
+          "expression" : "$feature.admin_state_name",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -227,28 +226,10 @@
               "fontEffects" : "Normal",
               "fontEncoding" : "Unicode",
               "fontFamilyName" : "Tahoma",
-              "fontStyleName" : "Bold",
+              "fontStyleName" : "Regular",
               "fontType" : "Unspecified",
               "haloSize" : 1,
-              "haloSymbol" : {
-                "type" : "CIMPolygonSymbol",
-                "symbolLayers" : [
-                  {
-                    "type" : "CIMSolidFill",
-                    "enable" : true,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        78,
-                        78,
-                        78,
-                        100
-                      ]
-                    }
-                  }
-                ]
-              },
-              "height" : 11,
+              "height" : 10,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
               "kerning" : true,
@@ -264,21 +245,14 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        255,
-                        255,
-                        255,
+                        0,
+                        0,
+                        0,
                         100
                       ]
                     }
                   }
                 ]
-              },
-              "symbol3DProperties" : {
-                "type" : "CIM3DSymbolProperties",
-                "dominantSizeAxis3D" : "Z",
-                "rotationOrder3D" : "YXZ",
-                "scaleZ" : 1,
-                "scaleY" : 1
               },
               "textCase" : "Normal",
               "textDirection" : "LTR",
@@ -293,7 +267,6 @@
           "iD" : -1
         }
       ],
-      "labelVisibility" : true,
       "renderer" : {
         "type" : "CIMSimpleRenderer",
         "patch" : "Default",
@@ -314,7 +287,7 @@
                   "type" : "CIMRGBColor",
                   "values" : [
                     255,
-                    85,
+                    0,
                     0,
                     100
                   ]
@@ -326,9 +299,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
+                    236.28999999999999,
                     252.44999999999999,
-                    201.96000000000001,
-                    247.40000000000001,
+                    191.86000000000001,
                     0
                   ]
                 }

@@ -282,7 +282,7 @@ try:
     wetDir = wetlandsFolder
     wcGDB_name = folderName + "_WC.gdb"
     wcGDB_path = wetlandsFolder + os.sep + wcGDB_name
-    wc_fd = wcGDB_path + os.sep + "WC_Data"
+    wcFD = wcGDB_path + os.sep + "WC_Data"
 ##    docs_folder = projectFolder + os.sep + "Doc_Templates"
 ##    doc028 = "NRCS-CPA-028.docx"
 ##    doc026h = "NRCS-CPA-026-HELC.docx"
@@ -399,7 +399,7 @@ try:
         AddMsgAndPrint("\nCreating Wetlands geodatabase...",0)
         arcpy.CreateFileGDB_management(wetlandsFolder, wcGDB_name, "10.0")
 
-    if not arcpy.Exists(wc_fd):
+    if not arcpy.Exists(wcFD):
         AddMsgAndPrint("\nCreating Wetlands feature dataset...",0)
         arcpy.CreateFeatureDataset_management(wcGDB_path, "WC_Data", outSpatialRef)
         

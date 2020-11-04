@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.5.0",
-  "build" : 22081,
+  "version" : "2.6.0",
+  "build" : 24783,
   "layers" : [
     "CIMPATH=map/sampling_units.xml"
   ],
@@ -14,6 +14,7 @@
         "type" : "TimeInstant",
         "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/6592a3a3c50d3ba379577db6ea5cf99d.xml",
       "useSourceMetadata" : true,
       "description" : "Sampling Units",
       "layerElevation" : {
@@ -71,6 +72,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Admin State",
             "fieldName" : "admin_state",
+            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -157,6 +159,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Evaluation Status",
             "fieldName" : "eval_status",
+            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -184,7 +187,9 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
+              "roundingValue" : 2,
+              "useSeparator" : true,
+              "zeroPad" : true
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -274,7 +279,6 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 6
             },
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -289,7 +293,6 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 6
             },
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           }
@@ -309,21 +312,18 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Sampling Units",
           "tags" : "Polygon",
-          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
-          "toolFilter" : [
-            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
-            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
-          ]
+          "toolProgID" : "00000000-0000-0000-0000-000000000000"
         }
       ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "displayFiltersType" : "ByScale",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.admin_state_name",
-          "expressionEngine" : "Arcade",
+          "expression" : "[su_number] & vbNewLine & [acres] & \" ac\" & vbNewLine & [three_factors]",
+          "expressionEngine" : "VBScript",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
             "type" : "CIMMaplexLabelPlacementProperties",
@@ -487,17 +487,10 @@
               "fontEffects" : "Normal",
               "fontEncoding" : "Unicode",
               "fontFamilyName" : "Tahoma",
-              "fontStyleName" : "Regular",
+              "fontStyleName" : "Bold",
               "fontType" : "Unspecified",
-              "haloSize" : 1,
-              "height" : 10,
-              "hinting" : "Default",
-              "horizontalAlignment" : "Left",
-              "kerning" : true,
-              "letterWidth" : 100,
-              "ligatures" : true,
-              "lineGapType" : "ExtraLeading",
-              "symbol" : {
+              "haloSize" : 1.5,
+              "haloSymbol" : {
                 "type" : "CIMPolygonSymbol",
                 "symbolLayers" : [
                   {
@@ -515,6 +508,39 @@
                   }
                 ]
               },
+              "height" : 10,
+              "hinting" : "Default",
+              "horizontalAlignment" : "Left",
+              "kerning" : true,
+              "letterSpacing" : -5,
+              "letterWidth" : 100,
+              "ligatures" : true,
+              "lineGapType" : "ExtraLeading",
+              "symbol" : {
+                "type" : "CIMPolygonSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidFill",
+                    "enable" : true,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        255,
+                        170,
+                        0,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              },
+              "symbol3DProperties" : {
+                "type" : "CIM3DSymbolProperties",
+                "dominantSizeAxis3D" : "Z",
+                "rotationOrder3D" : "YXZ",
+                "scaleZ" : 1,
+                "scaleY" : 1
+              },
               "textCase" : "Normal",
               "textDirection" : "LTR",
               "verticalAlignment" : "Bottom",
@@ -528,6 +554,7 @@
           "iD" : -1
         }
       ],
+      "labelVisibility" : true,
       "renderer" : {
         "type" : "CIMSimpleRenderer",
         "patch" : "Default",
@@ -547,8 +574,8 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    0,
-                    0,
+                    255,
+                    170,
                     0,
                     100
                   ]
@@ -573,6 +600,13 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/6592a3a3c50d3ba379577db6ea5cf99d.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201022</CreaDate><CreaTime>13312100</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     }
   ],
   "elevationSurfaces" : [
