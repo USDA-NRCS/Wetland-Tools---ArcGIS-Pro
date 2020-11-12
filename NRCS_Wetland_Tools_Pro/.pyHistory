@@ -320,3 +320,28 @@ dc.workspaceConnectionString = 'DATABASE=' + new_ws
 dc.workspaceConnectionString
 dc.dataset = new_fc
 cur_lyr.setDefinition(lyrCIM)
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+m = aprx.listMaps("Determinations")
+m = aprx.listMaps("Determinations")[0]
+m.name
+lyr = arcpy.mp.LayerFile(r"C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Sampling_Units.lyrx")
+m.addLayer(lyr)
+rlyr = m.listLayers("Sampling Units")[0]
+rlyr.catalogpath
+rlyr.dataSource
+m.removeLayer(rlyr)
+bmlyt = aprx.listLayouts("Base Map")[0]
+bmlyt.name
+bmeles = bmlyt.listElements('LEGEND_ELEMENT')
+first_ele = bmeles[0]
+arcpy.Describe('LaPorte LiDAR DEM 2013')
+arcpy.Describe('LaPorte LiDAR DEM 2013').SpatialReference
+arcpy.Describe('LaPorte LiDAR DEM 2013').SpatialReference.name
+cluDesc = arcpy.Describe('CLU_in091_t0012564_2020_09')
+cluDesc.extent
+cluDesc.featureTyp
+cluDesc.featureType
+cluDesc.extent.XMin
+cluDesc.Extent.XMin
+gdb = r"C:\Determinations\in091_t0012564_2020_09\Wetlands\in091_t0012564_2020_09_WC.gdb"
+arcpy.AlterDomain_management(gdb, "CWD Status", "", "", 'DUPLICATE')

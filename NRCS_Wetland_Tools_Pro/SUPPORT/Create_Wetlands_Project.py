@@ -423,36 +423,47 @@ try:
     if not "CWD Status" in domains:
         cwdTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_cwd_status")
         arcpy.TableToDomain_management(cwdTable, "Code", "Description", wcGDB_path, "CWD Status", "Choices for wetland determination status", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "CWD Status", "", "", "DUPLICATE")
     if not "Data Form" in domains:
         dataTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_data_form")
         arcpy.TableToDomain_management(dataTable, "Code", "Description", wcGDB_path, "Data Form", "Choices for data form completion", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "Data Form", "", "", "DUPLICATE")
     if not "Evaluation Status" in domains:
         evalTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_evaluation_status")
         arcpy.TableToDomain_management(evalTable, "Code", "Description", wcGDB_path, "Evaluation Status", "Choices for evaluation workflow status", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "Evaluation Status", "", "", "DUPLICATE")
     if not "Line Type" in domains:
         lineTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_line_type")
         arcpy.TableToDomain_management(lineTable, "Code", "Description", wcGDB_path, "Line Type", "Drainage line types", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "Line Type", "", "", "DUPLICATE")
     if not "Method" in domains:
         methodTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_method")
         arcpy.TableToDomain_management(methodTable, "Code", "Description", wcGDB_path, "Method", "Choices for wetland determination method", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "Method", "", "", "DUPLICATE")
     if not "Pre Post" in domains:
         prepostTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_pre_post")
         arcpy.TableToDomain_management(prepostTable, "Code", "Description", wcGDB_path, "Pre Post", "Choices for date relative to 1985", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "Pre Post", "", "", "DUPLICATE")
     if not "Request Type" in domains:
         requestTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_request_type")
         arcpy.TableToDomain_management(requestTable, "Code", "Description", wcGDB_path, "Request Type", "Choices for request type form", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "Request Type", "", "", "DUPLICATE")
     if not "ROP Status" in domains:
         ropTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_rop_status")
         arcpy.TableToDomain_management(ropTable, "Code", "Description", wcGDB_path, "ROP Status", "Choices for ROP status", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "ROP Status", "", "", "DUPLICATE")
     if not "Wetland Labels" in domains:
         wetTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_wetland_labels")
         arcpy.TableToDomain_management(wetTable, "Code", "Description", wcGDB_path, "Wetland Labels", "Choices for wetland determination labels", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "Wetland Labels", "", "", "DUPLICATE")
     if not "Yes No" in domains:
         yesnoTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_yesno")
         arcpy.TableToDomain_management(yesnoTable, "Code", "Description", wcGDB_path, "Yes No", "Yes or no options", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "Yes No", "", "", "DUPLICATE")
     if not "YN" in domains:
         ynTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_yn")
         arcpy.TableToDomain_management(ynTable, "Code", "Description", wcGDB_path, "YN", "Y or N options", "REPLACE")
+        arcpy.AlterDomain_management(wcGDB_path, "YN", "", "", "DUPLICATE")
 
     del descGDB, domains
 
