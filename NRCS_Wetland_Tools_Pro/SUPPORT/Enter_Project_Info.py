@@ -22,6 +22,9 @@
 ## Updated attributes for new data model of national tool.
 ## Added optional entries for client address information for use in creating forms and letters.
 ##
+## rev. 11/24/2020
+## Add section to update template map layouts with the administrative information
+##
 ## ===============================================================================================================
 ## ===============================================================================================================  
 def AddMsgAndPrint(msg, severity=0):
@@ -80,6 +83,39 @@ def logBasicSettings():
     f.write("\tRequest Date: " + requestDate + "\n")
     f.close
     del f
+
+## ================================================================================================================
+def getLayout(lyt_name):
+    try:
+        layout = arpx.listLayouts(lyt_name)[0]
+        return layout
+    except:
+        AddMsgAndPrint("\t" + lyt_name + " layout missing from project. Skipping layout automation for " + lyt_name + ".", 1)
+        AddMsgAndPrint("\tImporting the missing " + lyt_name + " layout from the install directory is recommended. Continuing...",1)
+        return False
+
+## ================================================================================================================
+def updateLayoutText(layout_object, layout_farm, layout_tract, layout_CoName, layout_adminName, layout_client):
+    ## Updates various text elements specific to the current request
+    
+    # Look for the elements, else error out
+    try:
+        Farm_ele = layout_object.listElements("TEXT_ELEMENT", "Farm")[0]
+        Tract_ele = layout_object.listElements("TEXT_ELEMENT", "Tract")[0]
+        GeoCo_ele = layout_object.listElements("TEXT_ELEMENT", "GeoCo")[0]
+        AdminCo_ele = layout_object.listElements("TEXT_ELEMENT", "AdminCo")[0]
+        Customer_ele = layout_object.listElements("TEXT_ELEMENT", "Customer")[0]
+    except:
+        AddMsgAndPrint("\nOne or more expected elements are missing or had its name changed in the " + layout_object.name + " layout.",1)
+        AddMsgAndPrint("\nLayout text cannot be updated automatically. Import the appropriate layout from the installation folder and try again.",1)
+        AddMsgAndPrint("\nContinuing execution without updating the " + layout_object.name + " layout...",1)
+
+    # Update the elements with the passed in information
+    Farm_ele.text = "Farm: " + layout_farm
+    Tract_ele.text = "Tract: " + layout_tract
+    GeoCo_ele.text = "Geographic County: " + layout_CoName
+    AdminCo_ele.text = "Administrative County: " + layout_AdminName
+    Customer_ele.text = "Customer: " + layout_client
     
 ## ================================================================================================================
 #### Import system modules
@@ -89,6 +125,15 @@ import arcpy, os, traceback
 #### Update Environments
 # Set overwrite
 arcpy.env.overwriteOutput = True
+
+
+#### Check for active map
+try:
+    aprx = arcpy.mp.ArcGISProject("CURRENT")
+    m = aprx.listMaps("Determinations")[0]
+except:
+    arcpy.AddError("\nThis tool must be from an active ArcGIS Pro project. Exiting...\n")
+    exit()
 
 
 #### Main procedures
@@ -108,7 +153,7 @@ try:
     #### Set base path
     # Get the basedataGDB_path from the input CLU layer. If else retained in case of other project path oddities.
     sourceCLU_path = arcpy.Describe(sourceCLU).CatalogPath
-    if sourceCLU_path.find('.gdb') > 0 and sourceCLU_path.find('Determinations') > 0 and sourceCLU_path.find('CLU_') > 0:
+    if sourceCLU_path.find('.gdb') > 0 and sourceCLU_path.find('Determinations') > 0 and sourceCLU_path.find('Site_CLU') > 0:
         basedataGDB_path = sourceCLU_path[:sourceCLU_path.find('.gdb')+4]
     else:
         arcpy.AddError("\nSelected CLU layer is not from a Determinations project folder. Exiting...")
@@ -239,6 +284,23 @@ try:
     textTable = "Admin_Info_" + projectName + ".txt"
     arcpy.TableToTable_conversion(projectTable, userWorkspace, textTable)
 
+
+    #### Update template map layouts in the project
+    AddMsgAndPrint("\nUpdating map layouts with project information...",0)
+    
+    # Define the layouts
+    LM_layout = getLayout("Location Map")
+    BM_layout = getLayout("Base Map")
+    DM_layout = getLayout("Determination Map")
+    
+    # call function to update the text on the various layouts
+    if LM_layout:
+        updateLayoutText(LM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
+    if BM_layout:
+        updateLayoutText(BM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
+    if DM_layout:
+        updateLayoutText(DM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
+    
 
     #### Compact FGDB
     try:

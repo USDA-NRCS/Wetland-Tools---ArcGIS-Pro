@@ -265,14 +265,14 @@ try:
     templateCLU = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "master_clu")
     cluTempName = "CLU_Temp_" + projectName
     projectCLUTemp = basedataFD + os.sep + cluTempName
-    cluName = "CLU_" + projectName
+    cluName = "Site_CLU"
     projectCLU = basedataFD + os.sep + cluName
-    projectTract = basedataFD + os.sep + "Tract_" + projectName
-    projectTractB = basedataFD + os.sep + "Tract_Buffer_" + projectName
+    projectTract = basedataFD + os.sep + "Site_Tract"
+    projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
     bufferDist = "500 Feet"
     bufferDistPlus = "550 Feet"
-    projectAOI = basedataFD + os.sep + "AOI_" + projectName
-    DAOIname = "Define_AOI_" + projectName
+    projectAOI = basedataFD + os.sep + "Site_AOI"
+    DAOIname = "Site_Define_AOI"
     projectDAOI = basedataFD + os.sep + DAOIname
 ##    helFolder = projectFolder + os.sep + "HEL"
 ##    helGDB_name = folderName + "_HEL.gdb"
@@ -297,9 +297,9 @@ try:
 ##    target_026w = docs_folder + os.sep + doc026w
 ##    target_026wp = docs_folder + os.sep + doc026wp
 
-    # ArcMap Layer Names
-    cluOut = "CLU_" + projectName
-    DAOIOut = "Define_AOI_" + projectName
+    # Map Layer Names
+    cluOut = "Site_CLU"
+    DAOIOut = "Site_Define_AOI"
 
     #### Create the project directory
 

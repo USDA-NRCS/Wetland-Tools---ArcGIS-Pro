@@ -345,3 +345,16 @@ cluDesc.extent.XMin
 cluDesc.Extent.XMin
 gdb = r"C:\Determinations\in091_t0012564_2020_09\Wetlands\in091_t0012564_2020_09_WC.gdb"
 arcpy.AlterDomain_management(gdb, "CWD Status", "", "", 'DUPLICATE')
+arcpy.management.ApplySymbologyFromLayer('Slope_Pct_in091_t0012564_2020_09', r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Slope_Pct.lyrx', 'VALUE_FIELD', 'MAINTAIN')
+arcpy.Exists("https://gis-staging.usda.net/server/rest/services/Hosted/Certified_Wetland_Determinations_Test_Feature_Layer/FeatureServer/0")
+arcpy.Exists("string")
+layout
+aprx = arcpy.mp.ArcGISProject("CURRENT")
+layout = aprx.listLayouts("Base Map")[0]
+legend = layout.listElements('LEGEND_ELEMENT', "BM Legend")[0]
+legend.type
+Farm_ele = layout.listElements('TEXT_ELEMENT',"BM Farm")[0]
+layout.name
+if layout:
+layout
+if layout:     print("Yep")

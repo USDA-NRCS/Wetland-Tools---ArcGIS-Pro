@@ -18,6 +18,10 @@
 ## rev. 11/04/2020
 ## Start revisions of Validate Topology ArcMap tool to National Wetlands Tool in ArcGIS Pro.
 ##
+## rev. 11/18/2020
+## Check for internal gaps will have to be handled differently because SUs can go beyond extent/tract edges
+##      -Use the outer edge of the extent layer itself in place of the tract layer.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):

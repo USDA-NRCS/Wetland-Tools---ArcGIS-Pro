@@ -3,21 +3,22 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=determinations/extent.xml"
+    "CIMPATH=data_templates/extent.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Extent",
-      "uRI" : "CIMPATH=determinations/extent.xml",
+      "name" : "Request_Extent",
+      "uRI" : "CIMPATH=data_templates/extent.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
+      "metadataURI" : "CIMPATH=Metadata/8a8295aa2dfe90fade19f6aa8026e268.xml",
       "useSourceMetadata" : true,
       "description" : "Extent",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
+        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -48,7 +49,7 @@
       "featureTemplates" : [
         {
           "type" : "CIMFeatureTemplate",
-          "name" : "Extent",
+          "name" : "Request Extent",
           "tags" : "Polygon",
           "toolProgID" : "00000000-0000-0000-0000-000000000000"
         }
@@ -314,13 +315,20 @@
       "snappable" : true
     }
   ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/8a8295aa2dfe90fade19f6aa8026e268.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201103</CreaDate><CreaTime>09323000</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Extent</resTitle></idCitation><idAbs>Extent</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    }
+  ],
   "elevationSurfaces" : [
     {
       "type" : "CIMMapElevationSurface",
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+      "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

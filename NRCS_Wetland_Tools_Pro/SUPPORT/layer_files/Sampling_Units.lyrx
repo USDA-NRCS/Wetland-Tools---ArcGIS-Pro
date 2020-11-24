@@ -3,13 +3,13 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=map/sampling_units.xml"
+    "CIMPATH=data_templates/sampling_units.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Sampling Units",
-      "uRI" : "CIMPATH=map/sampling_units.xml",
+      "name" : "Site_Sampling_Units",
+      "uRI" : "CIMPATH=data_templates/sampling_units.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -19,12 +19,12 @@
       "description" : "Sampling Units",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
+        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
       },
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -159,7 +159,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Evaluation Status",
             "fieldName" : "eval_status",
-            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -310,7 +309,7 @@
       "featureTemplates" : [
         {
           "type" : "CIMFeatureTemplate",
-          "name" : "Sampling Units",
+          "name" : "Site Sampling Units",
           "tags" : "Polygon",
           "toolProgID" : "00000000-0000-0000-0000-000000000000"
         }
@@ -322,8 +321,8 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "[su_number] & vbNewLine & [acres] & \" ac\" & vbNewLine & [three_factors]",
-          "expressionEngine" : "VBScript",
+          "expression" : "$feature.su_number + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\" + TextFormatting.NewLine + $feature.three_factors",
+          "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
             "type" : "CIMMaplexLabelPlacementProperties",
@@ -615,7 +614,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+      "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

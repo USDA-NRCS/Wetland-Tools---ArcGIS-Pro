@@ -82,54 +82,9 @@ def logBasicSettings():
     del f
 
 ## ===============================================================================================================
-def changeSource(cur_lyr, new_ws='', new_fd='', new_fc=''):
-    # This function will update the input layer through the CIM to change connection properties for the layer
-    # utilizing the provided new workspace path, new feature dataset name, or new feature class name if they were
-    # provided to the function.
-    # Requires a layer object from a map within an APRX.
-    # cur_lyr:  A layer in a map in the current APRX.
-    # new_ws:   A path to a folder or workspace (e.g. file geodatabase) that contains the desired feature class.
-    # new_fd:   A string that specifies an existing feature dataset name in the specified workspace.
-    # new_fc:   A string that represents an existing feature class name in the specified workspace.
-    
-    lyrCIM = cur_lyr.getDefinition('V2')
-    dc = lyrCIM.featureTable.dataConnection
-
-    if new_ws != '':
-        if arcpy.Exists(new_ws):
-            dc.workspaceConnectionString = 'DATABASE=' + new_ws
-
-    if new_fd != '':
-        if new_ws != '':
-            fd_path = new_ws + os.sep + new_fd
-        else:
-            fd_path = dc.workspaceConnectionString[:9] + os.sep + new_fd
-
-        if arcpy.Exists(fd_path):
-            dc.featureDataset = new_fd
-
-    if new_fc != '':
-        if new_ws!= '':
-            if new_fd != '':
-                fc_path = new_ws + os.sep + new_fd + os.sep + new_fc
-            else:
-                fc_path = new_ws + os.sep + dc.featureDataset + os.sep + new_fc
-        else:
-            if new_fd != '':
-                fc_path = dc.workspaceConnectionString[:9] + os.sep + new_fd + os.sep + new_fc
-            else:
-                fc_path = dc.workspaceConnectionString[:9] + os.sep + dc.featureDataset + os.sep + new_fc
-
-        if arcpy.Exists(fc_path):
-            dc.dataset = new_fc
-
-    if new_ws != '' or new_fd != '' or new_fc != '':
-        cur_lyr.setDefinition(lyrCIM)
-
-## ===============================================================================================================
 def deleteTempLayers(lyrs):
     for lyr in lyrs:
-        if arcpy.Exists(lyr)
+        if arcpy.Exists(lyr):
             try:
                 arcpy.Delete_management(lyr)
             except:
@@ -175,11 +130,6 @@ try:
     demSR = arcpy.GetParameterAsText(4)
     cluSR = arcpy.GetParameterAsText(5)
     transform = arcpy.GetParameterAsText(6)
-    
-    #suLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(8))
-    #ropLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(9))
-    #drainLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(10))
-    #extentLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(11))
 
 
     #### Manage spatial references
@@ -193,11 +143,11 @@ try:
 
                 
     #### Set base path
-    sourceCLU_path = arcpy.Describe(sourceDefine).CatalogPath
-    if sourceCLU_path.find('.gdb') > 0 and sourceCLU_path.find('Determinations') > 0 and sourceCLU_path.find('CLU_') > 0:
+    sourceCLU_path = arcpy.Describe(sourceCLU).CatalogPath
+    if sourceCLU_path.find('.gdb') > 0 and sourceCLU_path.find('Determinations') > 0 and sourceCLU_path.find('Site_CLU') > 0:
         basedataGDB_path = sourceCLU_path[:sourceCLU_path.find('.gdb')+4]
     else:
-        arcpy.AddError("\nSelected project CLU layer is not from a Determinations project folder. Exiting...")
+        arcpy.AddError("\nSelected Site CLU layer is not from a Determinations project folder. Exiting...")
         exit()
 
 
@@ -220,23 +170,22 @@ try:
     basedataGDB_name = os.path.basename(basedataGDB_path)
     basedataFD_name = "Layers"
     basedataFD = basedataGDB_path + os.sep + basedataFD_name
-    demFD_name = "DEM_Vectors"
-    demFD = basedataGDB_path + os.sep + demFD_name
+    #demFD_name = "DEM_Vectors"
+    #demFD = basedataGDB_path + os.sep + demFD_name
     userWorkspace = os.path.dirname(basedataGDB_path)
     projectName = os.path.basename(userWorkspace).replace(" ", "_")
     wetDir = userWorkspace + os.sep + "Wetlands"
 
-    projectTract = basedataFD + os.sep + "Tract_" + projectName
-    projectTractB = basedataFD + os.sep + "Tract_Buffer_" + projectName
-    projectAOI = basedataFD + os.sep + "AOI_" + projectName
-    extentName = "Extent_" + projectName
-    projectExtent = basedataFD + os.sep + extentName
+    projectTract = basedataFD + os.sep + "Site_Tract"
+    projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
+    projectAOI = basedataFD + os.sep + "Site_AOI"
+    projectExtent = basedataFD + os.sep + "Request_Extent"
 
-    projectDEM = basedataGDB_path + os.sep + "DEM_" + projectName
-    projectHillshade = basedataGDB_path + os.sep + "Hillshade_" + projectName
-    projectDepths = basedataGDB_path + os.sep + "Local_Depths_" + projectName
-    projectSlope = basedataGDB_path + os.sep + "Slope_Pct_" + projectName
-    projectContours = demFD + os.sep + "Contours_" + projectName
+    projectDEM = basedataGDB_path + os.sep + "Site_DEM"
+    projectHillshade = basedataGDB_path + os.sep + "Site_Hillshade"
+    projectDepths = basedataGDB_path + os.sep + "Site_Depth_Grid"
+    projectSlope = basedataGDB_path + os.sep + "Site_Slope_Pct"
+    projectContours = basedataGDB_path + os.sep + "Site_Contours"
 
     tempDEM = scratchGDB + os.sep + "tempDEM"
     DEMagg = scratchGDB + os.sep + "aggDEM"
@@ -248,11 +197,11 @@ try:
     FilMinus = scratchGDB + os.sep + "FilMinus"
 
     # ArcPro Map Layer Names
-    contoursOut = "Contours_" + projectName
-    demOut = "DEM_" + projectName
-    depthOut = "Local_Depths_" + projectName
-    slopeOut = "Slope_Pct_" + projectName
-    hillshadeOut = "Hillshade_" + projectName
+    contoursOut = "Site_Contours"
+    demOut = "Site_DEM"
+    depthOut = "Site_Depth_Grid"
+    slopeOut = "Site_Slope_Pct"
+    hillshadeOut = "Site_Hillshade"
 
     # Temp layers list for cleanup at the start and at the end
     tempLayers = [tempDEM, DEMsmooth, ContoursTemp, extendedContours, Temp_DEMbase, Fill_DEMaoi, FilMinus]
@@ -522,9 +471,11 @@ try:
     #### Add layers to Pro Map
     AddMsgAndPrint("\nAdding Layers to Map...",0)
     arcpy.SetParameterAsText(7, projectContours)
-    arcpy.SetParameterAsText(8, projectDEM)
-    arcpy.SetParameterAsText(9, projectDepths)
-    arcpy.SetParameterAsText(10, projectSlope)
+    arcpy.SetParameterAsText(8, projectSlope)
+    arcpy.SetParameterAsText(9, projectDEM)
+    arcpy.SetParameterAsText(10, projectHillshade)
+    arcpy.SetParameterAsText(11, projectDepths)
+    
     
 
 except SystemExit:

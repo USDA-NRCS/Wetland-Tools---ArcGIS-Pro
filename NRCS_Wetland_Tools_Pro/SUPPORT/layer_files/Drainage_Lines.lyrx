@@ -3,13 +3,13 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=map/drainage_lines2.xml"
+    "CIMPATH=data_templates/drainage_lines.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Drainage Lines",
-      "uRI" : "CIMPATH=map/drainage_lines2.xml",
+      "name" : "Site_Drainage_Lines",
+      "uRI" : "CIMPATH=data_templates/drainage_lines.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -19,12 +19,12 @@
       "description" : "Drainage Lines",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
+        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
       },
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -1505,8 +1505,7 @@
                 ],
                 "visible" : true
               }
-            ],
-            "heading" : "Line Type,Era"
+            ]
           }
         ],
         "useDefaultSymbol" : true,
@@ -1529,7 +1528,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+      "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

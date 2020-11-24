@@ -3,13 +3,13 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=map/rops.xml"
+    "CIMPATH=data_templates/rops.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "ROPs",
-      "uRI" : "CIMPATH=map/rops.xml",
+      "name" : "Site_ROPs",
+      "uRI" : "CIMPATH=data_templates/rops.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -19,12 +19,12 @@
       "description" : "ROPs",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
+        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
       },
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -217,7 +217,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Determination Staff",
             "fieldName" : "deter_staff",
-            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -490,8 +489,8 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
+                        85,
                         255,
-                        170,
                         0,
                         100
                       ]
@@ -723,9 +722,9 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        255,
-                        255,
-                        115,
+                        205,
+                        170,
+                        102,
                         100
                       ]
                     }
@@ -956,7 +955,7 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        255,
+                        230,
                         0,
                         0,
                         100
@@ -1039,7 +1038,7 @@
                                 2
                               ],
                               [
-                                5.3784155883733518e-16,
+                                5.5219772430106657e-16,
                                 0
                               ],
                               0,
@@ -1142,7 +1141,7 @@
                                         2
                                       ],
                                       [
-                                        1.4404068210952788e-15,
+                                        1.8415196820375221e-15,
                                         0
                                       ],
                                       0,
@@ -1179,8 +1178,8 @@
                                   "color" : {
                                     "type" : "CIMRGBColor",
                                     "values" : [
-                                      255,
-                                      170,
+                                      76,
+                                      230,
                                       0,
                                       100
                                     ]
@@ -1247,7 +1246,7 @@
                                         2
                                       ],
                                       [
-                                        1.4260813327256346e-15,
+                                        1.7842178447600589e-15,
                                         0
                                       ],
                                       0,
@@ -1284,9 +1283,9 @@
                                   "color" : {
                                     "type" : "CIMRGBColor",
                                     "values" : [
-                                      255,
-                                      255,
-                                      115,
+                                      205,
+                                      170,
+                                      102,
                                       100
                                     ]
                                   }
@@ -1313,8 +1312,7 @@
                 ],
                 "visible" : true
               }
-            ],
-            "heading" : "ROP Status"
+            ]
           }
         ],
         "useDefaultSymbol" : true,
@@ -1337,7 +1335,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+      "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [
