@@ -252,11 +252,11 @@ try:
     projectAOI = basedataFD + os.sep + "Site_AOI"
     projectDAOI = basedataFD + os.sep + "Site_Define_AOI"
 
+    suName = "Site_Sampling_Units"
+    projectSU = wcFD + os.sep + suName
     suMulti = scratchGDB + os.sep + "SU_Multi" + projectName
     suTemp1 = scratchGDB + os.sep + "SU_Temp1_" + projectName
     suTemp2 = scratchGDB + os.sep + "SU_Temp2_" + projectName
-    suName = "Site_Sampling_Units"
-    projectSU = wcFD + os.sep + suName
 
     ropName = "Site_ROPs"
     projectROP = wcFD + os.sep + ropName
@@ -272,7 +272,7 @@ try:
     extentTemp3 = scratchGDB + os.sep + "Extent_temp3_" + projectName
     tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
 
-    suTopoName = "SU_Topology_" + projectName
+    suTopoName = "Sampling_Units_Topology_" + projectName
     suTopo = wcFD + os.sep + suTopoName
 
     prevCertMulti = scratchGDB + os.sep + "pCertMulti_" + projectName
@@ -281,8 +281,6 @@ try:
     prevAdmin = wcFD + os.sep + "PCWD_Admin_" + projectName
     updatedCert = wcFD + os.sep + "MCWD_" + projectName
     updatedAdmin = wcFD + os.sep + "MCWD_Admin" + projectName
-
-    projectTable = basedataGDB_path + os.sep + "Table_" + projectName
     
     # ArcPro Map Layer Names
     suOut = "Site_Sampling_Units"
@@ -769,7 +767,7 @@ try:
     
     #### Compact FGDB
     try:
-        AddMsgAndPrint("\nCompacting File Geodatabase..." ,0)
+        AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         AddMsgAndPrint("\tSuccessful",0)

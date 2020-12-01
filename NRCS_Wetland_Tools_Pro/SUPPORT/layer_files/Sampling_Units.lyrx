@@ -481,6 +481,33 @@
             "symbol" : {
               "type" : "CIMTextSymbol",
               "blockProgression" : "TTB",
+              "callout" : {
+                "type" : "CIMSimpleLineCallout",
+                "lineSymbol" : {
+                  "type" : "CIMLineSymbol",
+                  "symbolLayers" : [
+                    {
+                      "type" : "CIMSolidStroke",
+                      "enable" : true,
+                      "capStyle" : "Round",
+                      "joinStyle" : "Round",
+                      "lineStyle3D" : "Strip",
+                      "miterLimit" : 10,
+                      "width" : 1,
+                      "color" : {
+                        "type" : "CIMRGBColor",
+                        "values" : [
+                          0,
+                          0,
+                          0,
+                          100
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "autoSnap" : true
+              },
               "depth3D" : 1,
               "extrapolateBaselines" : true,
               "fontEffects" : "Normal",
