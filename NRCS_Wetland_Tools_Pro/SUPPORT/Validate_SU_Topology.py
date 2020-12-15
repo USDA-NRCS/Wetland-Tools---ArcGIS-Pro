@@ -202,7 +202,7 @@ try:
 
     #### Set base path
     sourceSU_path = arcpy.Describe(sourceSU).CatalogPath
-    if sourceSU_path.find('.gdb') > 0 and sourceSU_path.find('Determinations') > 0 and sourceSU_path.find('SU_') > 0:
+    if sourceSU_path.find('.gdb') > 0 and sourceSU_path.find('Determinations') > 0 and sourceSU_path.find('Site_Sampling_Units') > 0:
         wcGDB_path = sourceSU_path[:sourceSU_path.find('.gdb')+4]
     else:
         arcpy.AddError("\nSelected Samplint Units layer is not from a Determinations project folder. Exiting...")
@@ -243,6 +243,7 @@ try:
     ropName = "Site_ROPs"
     projectROP = wcFD + os.sep + ropName
     rop_Temp = wcFD + os.sep + "rop_temp"
+    rop_Temp2 = wcFD + os.sep + "rop_temp2"
     
     extentName = "Request_Extent"
     projectExtent = basedataFD + os.sep + extentName
@@ -275,7 +276,7 @@ try:
 ##    anno_list.append(suAnnoString)
     
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [rop_Temp, extMulti, extentTemp1, extentTemp2, extentTemp3]
+    tempLayers = [rop_Temp, rop_Temp2, extMulti, extentTemp1, extentTemp2, extentTemp3]
     deleteTempLayers(tempLayers)
     
 
@@ -403,13 +404,14 @@ try:
     AddMsgAndPrint("\nChecking for overlaps within the Sampling Units layer...",0)
 
     # Delete the existing topology if it is present
-    if arcpy.exists(suTopo):
+    if arcpy.Exists(suTopo):
         arcpy.Delete_management(suTopo)
 
     # Create and validate the topology for Must Not Overlap
     cluster = 0.001
     arcpy.CreateTopology_management(wcFD, suTopoName, cluster)
-    arcpy.AddFeatureClassToTopology_management(suTopo, "Must Not Overlap (Area)", projectSU)
+    arcpy.AddFeatureClassToTopology_management(suTopo, projectSU, 1, 1)
+    arcpy.AddRuleToTopology_management(suTopo, "Must Not Overlap (Area)", projectSU)
     arcpy.ValidateTopology_management(suTopo)
 
     # Export the errors and check for results
@@ -435,7 +437,11 @@ try:
 
         # Clean up previous topology check results and rules
         arcpy.Delete_management(polysTopoFC)
-        arcpy.RemoveRuleFromTopology_management(suTopo, "Must Not Overlap (Area)")
+##        rule_num = str(arcpy.Describe(projectSU).DSID)
+##        rule = "Must Not Overlap (" + rule_num + ")"
+##        arcpy.RemoveRuleFromTopology_management(suTopo, rule)
+        arcpy.RemoveFeatureClassFromTopology_management(suTopo, suName)
+        #arcpy.RemoveRuleFromTopology_management(suTopo, "Must Not Overlap (Area)")
         del result
 
         # Clip the SU layer using the extent layer
@@ -445,8 +451,8 @@ try:
 
         # Build and validate the topology
         arcpy.AddFeatureClassToTopology_management(suTopo, extTemp, 1, 1)
-        arcpy.AddFeatureClassToTopology_management(suTopo, suTemp1, 1, 1)
-        arcpy.AddRuleToTopology_management(suTopo, "Must Cover Each Other (Area-Area)", suTemp1, "", extTemp, "")
+        arcpy.AddFeatureClassToTopology_management(suTopo, suTemp1, 2, 2)
+        arcpy.AddRuleToTopology_management(suTopo, "Must Cover Each Other (Area-Area)", extTemp, "", suTemp1, "")
         arcpy.ValidateTopology_management(suTopo)
 
         # Export the errors and check for results
@@ -473,26 +479,37 @@ try:
             arcpy.Delete_management(polysTopoFC)
 
 
-    #### Topology review 3 (check that all official ROPs are within the sampling units layer)
+    #### Delete the topology
+    if arcpy.Exists(suTopo):
+        arcpy.Delete_management(suTopo)
+    if arcpy.Exists(suTemp1):
+        arcpy.Delete_management(suTemp1)
+    if arcpy.Exists(extTemp):
+        arcpy.Delete_management(extTemp)
+
+
+    #### "Topology" review 3 (check that all official ROPs are within the sampling units layer)
     AddMsgAndPrint("\nChecking official ROPs positions relative to sampling units...",0)
 
     # Make a feature layer of the ROPs and select only the official ROPs
-    arcpy.MakeFeatureLayer_management(projectROP, "rop_temp")
-    arcpy.SelectLayerByAttribute_management("rop_temp", "NEW_SELECTION", "\"rop_status\" = 'Official'")
-    result = int(arcpy.GetCount_management("rop_temp").getOutput(0))
+    #arcpy.MakeFeatureLayer_management(projectROP, "rop_temp")
+    off_rops = arcpy.SelectLayerByAttribute_management(projectROP, "NEW_SELECTION", "\"rop_status\" = 'Official'")
+    #arcpy.SelectLayerByAttribute_management("rop_temp", "NEW_SELECTION", "\"rop_status\" = 'Official'")
+    arcpy.CopyFeatures_management(off_rops, rop_Temp2)
+    result = int(arcpy.GetCount_management(rop_Temp2).getOutput(0))
     if result <= 1:
         AddMsgAndPrint("\tNo official ROPs found. Please digitize and attribute official ROPs and then re-run this tool. Exiting...",2)
         exit()
     else:
         # Use the result count as the base line number of ROPs, and intersect the feature layer with the Sampling Units layer
-        arcpy.Intersect_analysis(["rop_temp", projectSU], rop_temp, "NO_FID")
-        count = int(arcpy.GetCount_management(rop_temp).getOutput(0))
+        arcpy.Intersect_analysis([rop_Temp2, projectSU], rop_Temp, "NO_FID")
+        count = int(arcpy.GetCount_management(rop_Temp).getOutput(0))
         if count != result:
             AddMsgAndPrint("\tOne or more official ROPs are not withing Sampling Units. Please correct and re-run this tool. Exiting...",2)
-            arcpy.Delete_management("rop_temp")
+            arcpy.Delete_management(rop_Temp2, rop_Temp)
             exit()
         else:
-            arcpy.Delete_management("rop_temp")
+            arcpy.Delete_management(rop_Temp2, rop_Temp)
             AddMsgAndPrint("\tROP locations are valid within Sampling Units. Continuing...",0)
 
 

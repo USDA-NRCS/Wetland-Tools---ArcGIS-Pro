@@ -1,0 +1,109 @@
+{
+  "type" : "CIMLayerDocument",
+  "version" : "2.6.0",
+  "build" : 24783,
+  "layers" : [
+    "CIMPATH=determinations/esri_world_streets__nrcs_geoportal_.xml"
+  ],
+  "layerDefinitions" : [
+    {
+      "type" : "CIMTiledServiceLayer",
+      "name" : "ESRI World Streets (GeoPortal)",
+      "uRI" : "CIMPATH=determinations/esri_world_streets__nrcs_geoportal_.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "metadataURI" : "CIMPATH=Metadata/648e38fa25dbade8a1e42a0a97c59d76.xml",
+      "useSourceMetadata" : true,
+      "description" : "This map presents transportation data, including highways, roads, railroads, and airports for the world. The map was developed by Esri using Esri highway data; DeLorme basemap layers; NAVTEQ street data for North America, most countries in Europe, Australia, New Zealand, most of the Middle East, parts of South America (Argentina, Brazil, Chile, Colombia, and Venezuela), and parts of Southern Africa (Botswana, Lesotho, Namibia, South Africa, and Swaziland).\n\nFor more information on this map, visit us online at http://goto.arcgisonline.com/maps/Reference/World_Transportation",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
+      },
+      "layerType" : "Operational",
+      "showLegends" : true,
+      "visibility" : false,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "serviceConnection" : {
+        "type" : "CIMAGSServiceConnection",
+        "description" : "This map presents transportation data, including highways, roads, railroads, and airports for the world. The map was developed by Esri using Esri highway data; DeLorme basemap layers; NAVTEQ street data for North America, most countries in Europe, Australia, New Zealand, most of the Middle East, parts of South America (Argentina, Brazil, Chile, Colombia, and Venezuela), and parts of Southern Africa (Botswana, Lesotho, Namibia, South Africa, and Swaziland).\n\nFor more information on this map, visit us online at http://goto.arcgisonline.com/maps/Reference/World_Transportation",
+        "objectName" : "transportation/world_transportation",
+        "objectType" : "MapServer",
+        "url" : "https://gis.sc.egov.usda.gov/data/rest/services/transportation/world_transportation/MapServer",
+        "capabilities" : "Map",
+        "serverConnection" : {
+          "type" : "CIMInternetServerConnection",
+          "anonymous" : true,
+          "hideUserProperty" : true,
+          "url" : "https://gis.sc.egov.usda.gov/data/rest/services"
+        }
+      },
+      "subLayers" : [
+        {
+          "type" : "CIMDynamicServiceSubLayer",
+          "description" : "This map presents transportation data, including highways, roads, railroads, and airports for the world. The map was developed by Esri using Esri highway data; DeLorme basemap layers; NAVTEQ street data for North America, most countries in Europe, Australia, New Zealand, most of the Middle East, parts of South America (Argentina, Brazil, Chile, Colombia, and Venezuela), and parts of Southern Africa (Botswana, Lesotho, Namibia, South Africa, and Swaziland).\n\nFor more information on this map, visit us online at http://goto.arcgisonline.com/maps/Reference/World_Transportation",
+          "name" : "World Transportation",
+          "showLegends" : true,
+          "subLayerID" : "0",
+          "visibility" : true,
+          "serviceLayerID" : -1,
+          "timeOffsetUnits" : "esriTimeUnitsUnknown",
+          "showPopups" : true
+        }
+      ],
+      "transparentColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          253,
+          253,
+          253,
+          100
+        ]
+      },
+      "backgroundColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          253,
+          253,
+          253,
+          100
+        ]
+      }
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/648e38fa25dbade8a1e42a0a97c59d76.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201208</CreaDate><CreaTime>13391200</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>ESRI World Streets (NRCS GeoPortal)</resTitle></idCitation><idAbs>This map presents transportation data, including highways, roads, railroads, and airports for the world. The map was developed by Esri using Esri highway data; DeLorme basemap layers; NAVTEQ street data for North America, most countries in Europe, Australia, New Zealand, most of the Middle East, parts of South America (Argentina, Brazil, Chile, Colombia, and Venezuela), and parts of Southern Africa (Botswana, Lesotho, Namibia, South Africa, and Swaziland).\r\n\r\nFor more information on this map, visit us online at http://goto.arcgisonline.com/maps/Reference/World_Transportation</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    }
+  ],
+  "elevationSurfaces" : [
+    {
+      "type" : "CIMMapElevationSurface",
+      "elevationMode" : "BaseGlobeSurface",
+      "name" : "Ground",
+      "verticalExaggeration" : 1,
+      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+      "color" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          255,
+          255,
+          100
+        ]
+      },
+      "surfaceTINShadingMode" : "Smooth",
+      "visibility" : true,
+      "expanded" : true
+    }
+  ],
+  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+  "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
+}

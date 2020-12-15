@@ -87,7 +87,7 @@ def logBasicSettings():
 ## ================================================================================================================
 def getLayout(lyt_name):
     try:
-        layout = arpx.listLayouts(lyt_name)[0]
+        layout = aprx.listLayouts(lyt_name)[0]
         return layout
     except:
         AddMsgAndPrint("\t" + lyt_name + " layout missing from project. Skipping layout automation for " + lyt_name + ".", 1)
@@ -114,7 +114,7 @@ def updateLayoutText(layout_object, layout_farm, layout_tract, layout_CoName, la
     Farm_ele.text = "Farm: " + layout_farm
     Tract_ele.text = "Tract: " + layout_tract
     GeoCo_ele.text = "Geographic County: " + layout_CoName
-    AdminCo_ele.text = "Administrative County: " + layout_AdminName
+    AdminCo_ele.text = "Administrative County: " + layout_adminName
     Customer_ele.text = "Customer: " + layout_client
     
 ## ================================================================================================================

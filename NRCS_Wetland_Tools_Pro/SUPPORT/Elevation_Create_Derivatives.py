@@ -89,7 +89,7 @@ def deleteTempLayers(lyrs):
                 arcpy.Delete_management(lyr)
             except:
                 pass
-            
+
 ## ===============================================================================================================
 #### Import system modules
 import arcpy, sys, os, traceback
@@ -204,7 +204,7 @@ try:
     hillshadeOut = "Site_Hillshade"
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [tempDEM, DEMsmooth, ContoursTemp, extendedContours, Temp_DEMbase, Fill_DEMaoi, FilMinus]
+    tempLayers = [tempDEM, DEMagg, DEMsmooth, ContoursTemp, extendedContours, Temp_DEMbase, Fill_DEMaoi, FilMinus]
     deleteTempLayers(tempLayers)
 
 
@@ -475,8 +475,7 @@ try:
     arcpy.SetParameterAsText(9, projectDEM)
     arcpy.SetParameterAsText(10, projectHillshade)
     arcpy.SetParameterAsText(11, projectDepths)
-    
-    
+
 
 except SystemExit:
     pass

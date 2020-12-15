@@ -58,7 +58,6 @@ def errorMsg():
         AddMsgAndPrint("Unhandled error in unHandledException method", 2)
         pass
 
-            
 ## ===============================================================================================================
 #### Import system modules
 import arcpy, os, sys
@@ -89,6 +88,7 @@ try:
     depthsSym = arcpy.GetParameterAsText(3)
     #slpSym = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Slope_Pct.lyrx'
     #depthsSym = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Local_Depths.lyrx'
+
 
     #### Get the layers
     slopeLayer = m.listLayers(slpLyr)[0]

@@ -128,7 +128,7 @@ try:
 
     #### Set base path
     sourceCLU_path = arcpy.Describe(sourceCLU).CatalogPath
-    if sourceCLU_path.find('.gdb') > 0 and sourceCLU_path.find('Determinations') > 0 and sourceCLU_path.find('CLU_') > 0:
+    if sourceCLU_path.find('.gdb') > 0 and sourceCLU_path.find('Determinations') > 0 and sourceCLU_path.find('Site_CLU') > 0:
         basedataGDB_path = sourceCLU_path[:sourceCLU_path.find('.gdb')+4]
     else:
         arcpy.AddError("\nSelected Site CLU layer is not from a Determinations project folder. Exiting...")
