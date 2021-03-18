@@ -33,6 +33,11 @@
 ## Change processing to create a template blank CLU feature class and then append downloaded CLU features to it
 ## Incorporated option to update an existing project after the month/year that the project was started has passed
 ##
+## rev. 03/02/2021
+## -Removed tract buffer and tract AOI generation steps. Moved them to Define Request Extent to tie to the
+##  extent of the request, instead of defaulting to the extent of the tract. This was done to limit processing of
+##  the entirety of very large tracts where only small requests in one part of the tract take place and are needed.
+## -Added the Job ID generation to the CLU and Tract layer outputs.
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -105,7 +110,7 @@ def logBasicSettings():
 
 ## ===============================================================================================================
 #### Import system modules
-import sys, string, os, traceback, re
+import sys, string, os, traceback, re, uuid
 import datetime, shutil
 import arcpy
 from importlib import reload
@@ -140,8 +145,9 @@ arcpy.AddMessage("Setting Environments...\n")
 # Test for Pro project.
 try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
+    m = aprx.listMaps("Determinations")[0]
 except:
-    arcpy.AddError("\nThis tool must be from an active ArcGIS Pro project. Exiting...\n")
+    arcpy.AddError("\nThis tool must be run from a active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
 # Set output Pro map
@@ -268,10 +274,10 @@ try:
     cluName = "Site_CLU"
     projectCLU = basedataFD + os.sep + cluName
     projectTract = basedataFD + os.sep + "Site_Tract"
-    projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
-    bufferDist = "500 Feet"
-    bufferDistPlus = "550 Feet"
-    projectAOI = basedataFD + os.sep + "Site_AOI"
+##    projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
+##    bufferDist = "500 Feet"
+##    bufferDistPlus = "550 Feet"
+##    projectAOI = basedataFD + os.sep + "Site_AOI"
     DAOIname = "Site_Define_AOI"
     projectDAOI = basedataFD + os.sep + DAOIname
 ##    helFolder = projectFolder + os.sep + "HEL"
@@ -297,9 +303,13 @@ try:
 ##    target_026w = docs_folder + os.sep + doc026w
 ##    target_026wp = docs_folder + os.sep + doc026wp
 
+    # Job ID
+    jobid = uuid.uuid4()
+
     # Map Layer Names
     cluOut = "Site_CLU"
     DAOIOut = "Site_Define_AOI"
+
 
     #### Create the project directory
 
@@ -420,14 +430,14 @@ try:
     descGDB = arcpy.Describe(wcGDB_path)
     domains = descGDB.domains
 
-    if not "CWD Status" in domains:
-        cwdTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_cwd_status")
-        arcpy.TableToDomain_management(cwdTable, "Code", "Description", wcGDB_path, "CWD Status", "Choices for wetland determination status", "REPLACE")
-        arcpy.AlterDomain_management(wcGDB_path, "CWD Status", "", "", "DUPLICATE")
-    if not "Data Form" in domains:
-        dataTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_data_form")
-        arcpy.TableToDomain_management(dataTable, "Code", "Description", wcGDB_path, "Data Form", "Choices for data form completion", "REPLACE")
-        arcpy.AlterDomain_management(wcGDB_path, "Data Form", "", "", "DUPLICATE")
+##    if not "CWD Status" in domains:
+##        cwdTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_cwd_status")
+##        arcpy.TableToDomain_management(cwdTable, "Code", "Description", wcGDB_path, "CWD Status", "Choices for wetland determination status", "REPLACE")
+##        arcpy.AlterDomain_management(wcGDB_path, "CWD Status", "", "", "DUPLICATE")
+##    if not "Data Form" in domains:
+##        dataTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_data_form")
+##        arcpy.TableToDomain_management(dataTable, "Code", "Description", wcGDB_path, "Data Form", "Choices for data form completion", "REPLACE")
+##        arcpy.AlterDomain_management(wcGDB_path, "Data Form", "", "", "DUPLICATE")
     if not "Evaluation Status" in domains:
         evalTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_evaluation_status")
         arcpy.TableToDomain_management(evalTable, "Code", "Description", wcGDB_path, "Evaluation Status", "Choices for evaluation workflow status", "REPLACE")
@@ -448,10 +458,10 @@ try:
         requestTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_request_type")
         arcpy.TableToDomain_management(requestTable, "Code", "Description", wcGDB_path, "Request Type", "Choices for request type form", "REPLACE")
         arcpy.AlterDomain_management(wcGDB_path, "Request Type", "", "", "DUPLICATE")
-    if not "ROP Status" in domains:
-        ropTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_rop_status")
-        arcpy.TableToDomain_management(ropTable, "Code", "Description", wcGDB_path, "ROP Status", "Choices for ROP status", "REPLACE")
-        arcpy.AlterDomain_management(wcGDB_path, "ROP Status", "", "", "DUPLICATE")
+##    if not "ROP Status" in domains:
+##        ropTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_rop_status")
+##        arcpy.TableToDomain_management(ropTable, "Code", "Description", wcGDB_path, "ROP Status", "Choices for ROP status", "REPLACE")
+##        arcpy.AlterDomain_management(wcGDB_path, "ROP Status", "", "", "DUPLICATE")
     if not "Wetland Labels" in domains:
         wetTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_wetland_labels")
         arcpy.TableToDomain_management(wetTable, "Code", "Description", wcGDB_path, "Wetland Labels", "Choices for wetland determination labels", "REPLACE")
@@ -500,7 +510,7 @@ try:
     if owFlag == True:
         if arcpy.Exists(projectCLU):
             AddMsgAndPrint("\nOverwrite selected. Deleting existing data...",0)
-            datasetsToRemove = [projectCLU, projectTract, projectTractB, projectAOI, projectDAOI]
+            datasetsToRemove = [projectCLU, projectTract, projectDAOI]
             for dataset in datasetsToRemove:
                 if arcpy.Exists(dataset):
                     try:
@@ -526,6 +536,7 @@ try:
 
         # Add state name and county name fields to the projectTempCLU feature class
         # Add fields
+        arcpy.AddField_management(projectCLUTemp, "job_id", "TEXT", "128")
         arcpy.AddField_management(projectCLUTemp, "admin_state_name", "TEXT", "64")
         arcpy.AddField_management(projectCLUTemp, "admin_county_name", "TEXT", "64")
         arcpy.AddField_management(projectCLUTemp, "state_name", "TEXT", "64")
@@ -557,48 +568,49 @@ try:
             exit()
 
         # Use Update Cursor to populate all rows of the downloaded CLU the same way for the new fields
-        field_names = ['admin_state_name','admin_county_name','state_name','county_name']
+        field_names = ['job_id','admin_state_name','admin_county_name','state_name','county_name']
         with arcpy.da.UpdateCursor(projectCLUTemp, field_names) as cursor:
             for row in cursor:
-                row[0] = sourceState
-                row[1] = sourceCounty
-                row[2] = stName
-                row[3] = coName
+                row[0] = jobid
+                row[1] = sourceState
+                row[2] = sourceCounty
+                row[3] = stName
+                row[4] = coName
                 cursor.updateRow(row)
         del field_names
 
         # Create the projectCLU feature class and append projectCLUTemp to it. This is done as a cheat to using field mappings to re-order fields.
-        AddMsgAndPrint("\nWriting final CLU layer...",0)
+        AddMsgAndPrint("\nWriting Site CLU layer...",0)
         arcpy.CreateFeatureclass_management(basedataFD, cluName, "POLYGON", templateCLU)
         arcpy.Append_management(projectCLUTemp, projectCLU, "NO_TEST")
         arcpy.Delete_management(projectCLUTemp)
 
     
-    #### Buffer Tract and create extent layers
-    # If the Tract layer doesn't exist, create it and overwrite its related buffer layers
+    #### Create the Tract layer by dissolving the CLU layer.
+    # If the Tract layer doesn't exist, create it
     if not arcpy.Exists(projectTract):
-        AddMsgAndPrint("\nCreating tract data...",0)
+        AddMsgAndPrint("\nCreating Tract data...",0)
 
-        dis_fields = ['admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number']
+        dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number']
         arcpy.Dissolve_management(projectCLU, projectTract, dis_fields, "", "MULTI_PART", "")
         del dis_fields
 
-        # Always re-create the buffered areas if you have updated the tract
-        arcpy.Buffer_analysis(projectTract, projectTractB, bufferDist, "FULL", "", "ALL", "")
-        arcpy.Buffer_analysis(projectTract, projectAOI, bufferDistPlus, "FULL", "", "ALL", "")
+##        # Always re-create the buffered areas if you have updated the tract
+##        arcpy.Buffer_analysis(projectTract, projectTractB, bufferDist, "FULL", "", "ALL", "")
+##        arcpy.Buffer_analysis(projectTract, projectAOI, bufferDistPlus, "FULL", "", "ALL", "")
+##
+##    # If the tract exists, but the buffer doesn't, re-create both buffers. Overwrite flag applies to the 2nd one.
+##    if not arcpy.Exists(projectTractB):
+##        arcpy.Buffer_analysis(projectTract, projectTractB, bufferDist, "FULL", "", "ALL", "")
+##        arcpy.Buffer_analysis(projectTract, projectAOI, bufferDistPlus, "FULL", "", "ALL", "")
 
-    # If the tract exists, but the buffer doesn't, re-create both buffers. Overwrite flag applies to the 2nd one.
-    if not arcpy.Exists(projectTractB):
-        arcpy.Buffer_analysis(projectTract, projectTractB, bufferDist, "FULL", "", "ALL", "")
-        arcpy.Buffer_analysis(projectTract, projectAOI, bufferDistPlus, "FULL", "", "ALL", "")
 
-
-    #### Create the Determination Request Extent Layer as a copy of the CLU layer
+    #### Create the Site Define AOI layer as a copy of the CLU layer
     if not arcpy.Exists(projectDAOI):
-        AddMsgAndPrint("\nCreating Define AOI layer...",0)
+        AddMsgAndPrint("\nCreating the Site Define AOI layer...",0)
         arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, DAOIname)
     if owFlag == True:
-        AddMsgAndPrint("\nCLU overwrite was selected. Resetting the Define AOI layer as a result...",0)
+        AddMsgAndPrint("\nCLU overwrite was selected. Resetting the Site Define AOI layer to match...",0)
         arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, DAOIname)
 
 

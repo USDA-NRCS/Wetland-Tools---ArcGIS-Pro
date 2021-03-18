@@ -17,18 +17,23 @@
 ## ===============================================================================================================
 ##
 ## rev. 10/06/2020
-## Start revisions of Create SU Layer ArcMap tool to National Wetlands Tool in ArcGIS Pro.
-## CLU and derived layers now use GeoPortal based web service extract attribute schema.
+## -Start revisions of Create SU Layer ArcMap tool to National Wetlands Tool in ArcGIS Pro.
+## -CLU and derived layers now use GeoPortal based web service extract attribute schema.
 ##
 ## rev. 10/14/2020
-## Incorporate download of previously certified determination areas; used later to restrict request extent
-##      -Add check for GeoPortal login using getPortalTokenInfo call to the extract_CLU_by_Tract tool
-##      -Add creation of prevCert feature class
-##      -Add creation of prevAdmin feature class
+## -Incorporate download of previously certified determination areas; used later to restrict request extent
+##      -Added check for GeoPortal login using getPortalTokenInfo call to the extract_CLU_by_Tract tool
+##      -Added creation of prevCert feature class
+##      -Added creation of prevAdmin feature class
 ##
 ## rev. 11/17/2020
-## Add a check for the input extent to make sure it is within the FSA Tract for the project
-## Revised the methodology for developing the sampling unit layer to not include previously certified append to it.
+## -Added a check for the input extent to make sure it is within the FSA Tract for the project.
+## -Revised the methodology for developing the sampling unit layer to not include previously certified append step.
+##
+## rev. 03/02/2021
+## -Updated tool to focus on creating the Request Extent layer and display New Request vs Certified-Digital areas
+##  within the user entered AOI parameter(s).
+## -Removed Sampling Unit and ROP data creation from this tool and moved it to the Create Base Map Layers tool.
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -82,7 +87,6 @@ def logBasicSettings():
     f.write("User Parameters:\n")
     f.write("\tWhole Tract?: " + str(wholeTract) + "\n")
     f.write("\tSelected Fields or Subfields?: " + str(selectFields) + "\n")
-    f.write("\tRetain Field Lines?: " + str(keepFields) + "\n")
     f.close
     del f
 
@@ -163,7 +167,7 @@ try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
     m = aprx.listMaps("Determinations")[0]
 except:
-    arcpy.AddError("\nThis tool must be from an active ArcGIS Pro project. Exiting...\n")
+    arcpy.AddError("\nThis tool must be run from a active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
 
@@ -183,14 +187,8 @@ try:
     wholeTract = arcpy.GetParameterAsText(1)
     selectFields = arcpy.GetParameterAsText(2)
     sourceAOI = arcpy.GetParameterAsText(3)
-    keepFields = arcpy.GetParameterAsText(4)
-    resetROPs = arcpy.GetParameterAsText(5)
-    resetDrains = arcpy.GetParameterAsText(6)
-    existing_cwd = arcpy.GetParameterAsText(7)
-    suLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(8))
-    ropLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(9))
-    drainLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(10))
-    extentLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(11))
+    existing_cwd = arcpy.GetParameterAsText(4)
+    extentLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(5))
 
 
     #### Initial Validations
@@ -228,9 +226,9 @@ try:
     arcpy.AddMessage("Setting variables...\n")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
-    templateSU = supportGDB + os.sep + "master_sampling_units"
-    templateROP = supportGDB + os.sep + "master_rop"
-    templateLines = supportGDB + os.sep + "master_drainage_lines"
+    #templateSU = supportGDB + os.sep + "master_sampling_units"
+    #templateROP = supportGDB + os.sep + "master_rop"
+    #templateLines = supportGDB + os.sep + "master_drainage_lines"
     templateExtent = supportGDB + os.sep + "master_extent"
     
     basedataGDB_name = os.path.basename(basedataGDB_path)
@@ -247,64 +245,70 @@ try:
     
     projectCLU = basedataFD + os.sep + "Site_CLU"
     projectTract = basedataFD + os.sep + "Site_Tract"
-    projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
+    daoiName = "Site_Define_AOI"
+    projectDAOI = basedataFD + os.sep + daoiName
+##    projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
     projectTable = basedataGDB_path + os.sep + "Table_" + projectName
-    projectAOI = basedataFD + os.sep + "Site_AOI"
-    projectDAOI = basedataFD + os.sep + "Site_Define_AOI"
 
-    suName = "Site_Sampling_Units"
-    projectSU = wcFD + os.sep + suName
-    suMulti = scratchGDB + os.sep + "SU_Multi" + projectName
-    suTemp1 = scratchGDB + os.sep + "SU_Temp1_" + projectName
-    suTemp2 = scratchGDB + os.sep + "SU_Temp2_" + projectName
+##    suName = "Site_Sampling_Units"
+##    projectSU = wcFD + os.sep + suName
+##    suMulti = scratchGDB + os.sep + "SU_Multi" + projectName
+##    suTemp1 = scratchGDB + os.sep + "SU_Temp1_" + projectName
+##    suTemp2 = scratchGDB + os.sep + "SU_Temp2_" + projectName
 
-    ropName = "Site_ROPs"
-    projectROP = wcFD + os.sep + ropName
-
-    drainName = "Site_Drainage_Lines"
-    projectLines = wcFD + os.sep + drainName
+##    ropName = "Site_ROPs"
+##    projectROP = wcFD + os.sep + ropName
+##
+##    drainName = "Site_Drainage_Lines"
+##    projectLines = wcFD + os.sep + drainName
 
     extentName = "Request_Extent"
     projectExtent = basedataFD + os.sep + extentName
+##    projectAOI = basedataFD + os.sep + "project_AOI"
+##    projectAOI_B = basedataFD + os.sep + "project_AOI_B"
+##    bufferDist = "500 Feet"
+##    bufferDistPlus = "550 Feet"
     extTempName = "Extent_temp1_" + projectName
     extentTemp1 = scratchGDB + os.sep + extTempName
     extentTemp2 = scratchGDB + os.sep + "Extent_temp2_" + projectName
     extentTemp3 = scratchGDB + os.sep + "Extent_temp3_" + projectName
     tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
 
-    suTopoName = "Sampling_Units_Topology_" + projectName
-    suTopo = wcFD + os.sep + suTopoName
+##    suTopoName = "Sampling_Units_Topology_" + projectName
+##    suTopo = wcFD + os.sep + suTopoName
 
     prevCertMulti = scratchGDB + os.sep + "pCertMulti_" + projectName
     prevCertTemp1 = scratchGDB + os.sep + "pCertTemp_" + projectName
     prevCert = wcFD + os.sep + "PCWD_" + projectName
+    prevCertSite = wcFD + os.sep + "Site_PCWD_" + projectName
     prevAdmin = wcFD + os.sep + "PCWD_Admin_" + projectName
-    updatedCert = wcFD + os.sep + "MCWD_" + projectName
-    updatedAdmin = wcFD + os.sep + "MCWD_Admin" + projectName
+    prevAdminSite = wcFD + os.sep + "Site_PCWD_Admin_" + projectName
+##    updatedCert = wcFD + os.sep + "MCWD_" + projectName
+##    updatedAdmin = wcFD + os.sep + "MCWD_Admin" + projectName
     
     # ArcPro Map Layer Names
-    suOut = "Site_Sampling_Units"
-    ropOut = "Site_ROPs"
-    drainOut = "Site_Drainage_Lines"
-    extentOut = "Request_Extent"
-    suTopoOut = suTopoName
+##    suOut = "Site_Sampling_Units"
+##    ropOut = "Site_ROPs"
+##    drainOut = "Site_Drainage_Lines"
+##    extentOut = "Request_Extent"
+##    suTopoOut = suTopoName
 
-    # Annotation Layer Names (in map)
-    anno_list = []
-    suAnnoString = "Site_Sampling_Units" + "Anno*"
-    ropAnnoString = "Site_ROPs" + "Anno*"
-    drainAnnoString = "Site_Drainage_Lines" + "Anno*"
-
-    anno_list.append(suAnnoString)
-    anno_list.append(ropAnnoString)
-    anno_list.append(drainAnnoString)
-    
-    # Attribute rules files
-    rules_su = os.path.join(os.path.dirname(sys.argv[0]), "Rules_SU.csv")
-    rules_lines = os.path.join(os.path.dirname(sys.argv[0]), "Rules_Drains.csv")
+##    # Annotation Layer Names (in map)
+##    anno_list = []
+##    suAnnoString = "Site_Sampling_Units" + "Anno*"
+##    ropAnnoString = "Site_ROPs" + "Anno*"
+##    drainAnnoString = "Site_Drainage_Lines" + "Anno*"
+##
+##    anno_list.append(suAnnoString)
+##    anno_list.append(ropAnnoString)
+##    anno_list.append(drainAnnoString)
+##    
+##    # Attribute rules files
+##    rules_su = os.path.join(os.path.dirname(sys.argv[0]), "Rules_SU.csv")
+##    rules_lines = os.path.join(os.path.dirname(sys.argv[0]), "Rules_Drains.csv")
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [suMulti, suTemp1, suTemp2, extentTemp1, extentTemp2, extentTemp3, prevCertMulti, prevCertTemp1, tractTest]
+    tempLayers = [extentTemp1, extentTemp2, extentTemp3, prevCertMulti, prevCertTemp1, tractTest]
     deleteTempLayers(tempLayers)
 
 
@@ -333,14 +337,14 @@ try:
     descGDB = arcpy.Describe(wcGDB_path)
     domains = descGDB.domains
 
-    if not "CWD Status" in domains:
-        cwdTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_cwd_status")
-        arcpy.TableToDomain_management(cwdTable, "Code", "Description", wcGDB_path, "CWD Status", "Choices for wetland determination status", "REPLACE")
-        arcpy.AlterDomain_management(wcGDB_path, "CWD Status", "", "", "DUPLICATE")
-    if not "Data Form" in domains:
-        dataTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_data_form")
-        arcpy.TableToDomain_management(dataTable, "Code", "Description", wcGDB_path, "Data Form", "Choices for data form completion", "REPLACE")
-        arcpy.AlterDomain_management(wcGDB_path, "Data Form", "", "", "DUPLICATE")
+##    if not "CWD Status" in domains:
+##        cwdTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_cwd_status")
+##        arcpy.TableToDomain_management(cwdTable, "Code", "Description", wcGDB_path, "CWD Status", "Choices for wetland determination status", "REPLACE")
+##        arcpy.AlterDomain_management(wcGDB_path, "CWD Status", "", "", "DUPLICATE")
+##    if not "Data Form" in domains:
+##        dataTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_data_form")
+##        arcpy.TableToDomain_management(dataTable, "Code", "Description", wcGDB_path, "Data Form", "Choices for data form completion", "REPLACE")
+##        arcpy.AlterDomain_management(wcGDB_path, "Data Form", "", "", "DUPLICATE")
     if not "Evaluation Status" in domains:
         evalTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_evaluation_status")
         arcpy.TableToDomain_management(evalTable, "Code", "Description", wcGDB_path, "Evaluation Status", "Choices for evaluation workflow status", "REPLACE")
@@ -361,10 +365,10 @@ try:
         requestTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_request_type")
         arcpy.TableToDomain_management(requestTable, "Code", "Description", wcGDB_path, "Request Type", "Choices for request type form", "REPLACE")
         arcpy.AlterDomain_management(wcGDB_path, "Request Type", "", "", "DUPLICATE")
-    if not "ROP Status" in domains:
-        ropTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_rop_status")
-        arcpy.TableToDomain_management(ropTable, "Code", "Description", wcGDB_path, "ROP Status", "Choices for ROP status", "REPLACE")
-        arcpy.AlterDomain_management(wcGDB_path, "ROP Status", "", "", "DUPLICATE")
+##    if not "ROP Status" in domains:
+##        ropTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_rop_status")
+##        arcpy.TableToDomain_management(ropTable, "Code", "Description", wcGDB_path, "ROP Status", "Choices for ROP status", "REPLACE")
+##        arcpy.AlterDomain_management(wcGDB_path, "ROP Status", "", "", "DUPLICATE")
     if not "Wetland Labels" in domains:
         wetTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_wetland_labels")
         arcpy.TableToDomain_management(wetTable, "Code", "Description", wcGDB_path, "Wetland Labels", "Choices for wetland determination labels", "REPLACE")
@@ -385,13 +389,13 @@ try:
     AddMsgAndPrint("\nRemoving layers from project maps, if present...\n",0)
     
     # Set starting layers to be removed
-    mapLayersToRemove = [suOut, ropOut, drainOut, extentOut, suTopoOut]
+    mapLayersToRemove = [extentName]
 
-    # Look for annotation related to the layers to be removed and append them to the mapLayersToRemove list
-    for maps in aprx.listMaps():
-        for name in anno_list:
-            for lyr in maps.listLayers(name):
-                mapLayersToRemove.append(lyr.name)
+##    # Look for annotation related to the layers to be removed and append them to the mapLayersToRemove list
+##    for maps in aprx.listMaps():
+##        for name in anno_list:
+##            for lyr in maps.listLayers(name):
+##                mapLayersToRemove.append(lyr.name)
     
     # Remove the layers in the list
     try:
@@ -406,29 +410,29 @@ try:
     #### Remove existing sampling unit related layers from the geodatabase
     AddMsgAndPrint("\nRemoving layers from project database, if present...\n",0)
 
-    # Remove topology first, if it exists
-    toposToRemove = [suTopo]
-    for topo in toposToRemove:
-        if arcpy.Exists(topo):
-            try:
-                arcpy.Delete_management(topo)
-            except:
-                pass
+##    # Remove topology first, if it exists
+##    toposToRemove = [suTopo]
+##    for topo in toposToRemove:
+##        if arcpy.Exists(topo):
+##            try:
+##                arcpy.Delete_management(topo)
+##            except:
+##                pass
 
     # Set starting datasets to remove
-    datasetsToRemove = [projectSU, projectExtent]
+    datasetsToRemove = [projectExtent]
 
-    # Look for annotation datasets related to the datasets to be removed and delete them
-    startWorkspace = arcpy.env.workspace
-    arcpy.env.workspace = wcGDB_path
-    fcs = []
-    for fds in arcpy.ListDatasets('', 'feature') + ['']:
-        for fc in arcpy.ListFeatureClasses('*Sampling_Units*', 'Annotation', fds):
-            fcs.append(os.path.join(wcGDB_path, fds, fc))
-    for fc in fcs:
-        datasetsToRemove.append(fc)
-    arcpy.env.workspace = startWorkspace
-    del startWorkspace
+##    # Look for annotation datasets related to the datasets to be removed and delete them
+##    startWorkspace = arcpy.env.workspace
+##    arcpy.env.workspace = wcGDB_path
+##    fcs = []
+##    for fds in arcpy.ListDatasets('', 'feature') + ['']:
+##        for fc in arcpy.ListFeatureClasses('*Sampling_Units*', 'Annotation', fds):
+##            fcs.append(os.path.join(wcGDB_path, fds, fc))
+##    for fc in fcs:
+##        datasetsToRemove.append(fc)
+##    arcpy.env.workspace = startWorkspace
+##    del startWorkspace
 
     # Remove the datasets in the list
     for dataset in datasetsToRemove:
@@ -441,15 +445,21 @@ try:
 
     #### Create the Extent Layer
     AddMsgAndPrint("\nCreating extent layer...",0)
-    
-    # If wholeTract was set to 'Yes', create via dissolve on the projectDAOI layer (or could use the projectCLU layer)
-    dissolve_fields = ['admin_state', 'admin_state_name', 'admin_county', 'admin_county_name', 'state_code', 'state_name', 'county_code', 'county_name', 'farm_number', 'tract_number']
-    if wholeTract == 'Yes':
-        arcpy.Dissolve_management(projectDAOI, extentTemp2, dissolve_fields, "", "MULTI_PART")
 
+    # If wholeTract was set to 'Yes', create by copying the projectTract layer.
+    # If wholeTract was set to 'No' and selected fields was 'Yes', create via dissolve on the projectDAOI layer (with its selections)
+    # If wholeTract was set to 'No' and selected fields was 'No', create via clip on the projectDAOI layer using the input drawn or selected AOI and then dissolve
+
+    # Setup dissolve fields
+    dissolve_fields = ['job_id','admin_state', 'admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number']
+
+    if wholeTract == 'Yes':
+        #arcpy.Dissolve_management(projectDAOI, extentTemp2, dissolve_fields, "", "MULTI_PART")
+        arcpy.CopyFeatures_management(projectTract, extentTemp2)
+        
     else:
         if selectFields == 'Yes':
-            # Use the sourceDefine layer to grab selections
+            # Use the sourceDefine layer to grab selections, and dissolve field lines
             arcpy.Dissolve_management(sourceDefine, extentTemp2, dissolve_fields, "", "MULTI_PART")
             
         else:
@@ -493,9 +503,9 @@ try:
     if len(drop_fields) > 0:
         arcpy.DeleteField_management(extentTemp2, drop_fields)
     del drop_fields, existing_fields
+    
 
-
-    #### Use the temp extent to extract data from the CWD layer and check for overlap
+    #### Check for Existing CWD data on the tract from the statewide layer and create the previous certication layers if found.
     if arcpy.Exists(existing_cwd):
         AddMsgAndPrint("\tChecking for existing CWD data in the Tract...",0)
         process_cwd = False
@@ -518,14 +528,23 @@ try:
             arcpy.CacluateField_management(prevCert, "eval_status", expression, "PYTHON_9.3")
             del expression
 
-            # Create the prevAdmin layer using Dissolve
-            dis_fields = ['admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+            # Transer the job_id_1 attributes to the job_id field
+            fields = ['job_id','job_id_1']
+            cursor = arcpy.da.UpdateCursor(prevCert, fields)
+            for row in cursor:
+                row[0] = row[1]
+                cursor.updateRow(row)
+            del fields
+            del cursor
+            
+            # Create the prevAdmin layer using Dissolve.
+            dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
             arcpy.Dissolve_management(prevCert, prevAdmin, dis_fields, "", "SINGLE_PART", "")
             del dis_fields
 
-            # Delete excess tabular fields from the prevCert layer
+            # Also Delete excess tabular fields from the prevCert layer
             existing_fields = []
-            drop_fields = ['admin_state_1','admin_state_name_1','admin_county_1','admin_county_name_1','state_code_1','state_name_1','county_code_1','county_name_1','farm_number_1',
+            drop_fields = ['job_id_1','admin_state_1','admin_state_name_1','admin_county_1','admin_county_name_1','state_code_1','state_name_1','county_code_1','county_name_1','farm_number_1',
                            'tract_number_1', 'eval_status_1']
             
             for fld in arcpy.ListFields(prevCert):
@@ -539,7 +558,7 @@ try:
                 arcpy.DeleteField_management(prevCert, drop_fields)
                 
             del drop_fields, existing_fields
-            
+
         else:
             AddMsgAndPrint("\tNo previous certifications found! Continuing...",0)
             arcpy.Delete_management(prevCert)
@@ -551,141 +570,152 @@ try:
         del result
 
 
-    #### Erase any prevAdmin areas from the Extent layer to refine the extent
-    fullCWD = False
+    #### Use the prevAdmin areas to update the request extent if there is overlap between them
     if arcpy.Exists(prevAdmin):
-        AddMsgAndPrint("Updating request extent to eliminate areas that overlap existing CWDs...",0)
-        # Erase the prevAdmin from the extent
-        arcpy.Erase_analysis(extentTemp2, prevAdmin, extentTemp3)
+        AddMsgAndPrint("Checking request extent relative to existing CWDs...",0)
 
-        # Check the results to count if anything is left
-        result = int(arcpy.GetCount_management(extentTemp3).getOutput(0))
+        # Clip the prevAdmin layer with the extent (also do a clip to create prevCertSite for future steps while we're at it)
+        arcpy.Clip_analysis(prevAdmin, extentTemp2, prevAdminSite)
+        arcpy.Clip_analysis(prevCert, extentTemp2, prevCertSite)
+        
+        # Check for any actual overlap
+        result = int(arcpy.GetCount_management(prevAdminSite).getOutput(0))
         if result > 0:
-            # We have some area left over and extentTemp3 can be made into projectExtent, otherwise extentTemp2 is made into projectExtent
+            AddMsgAndPrint("Existing CWDs found within Request Extent! Integrating CWD extents to the Request Extent...",0)
+            # Previous CWDs overlap the Request Extent. Erase the prevAdmin from the new extent and use Append combine them
+            arcpy.Erase_analysis(extentTemp2, prevAdminSite, extentTemp3)
+            arcpy.Append_management(prevAdminSite, extentTemp3, "NO_TEST")
             arcpy.FeatureClassToFeatureClass_conversion(extentTemp3, basedataFD, extentName)
         else:
-            # All of the requested area is covered by certified determinations, therefore use the original extent
-            fullCWD = True
+            # Previous CWDs do not overlap the Request Extent.
+            AddMsgAndPrint("Existing CWDs not found within Request Extent! Using original Request Extent...",0)
             arcpy.FeatureClassToFeatureClass_conversion(extentTemp2, basedataFD, extentName)
     else:
         # There are no previous CWDs. Just use the newly defined extent.
         arcpy.FeatureClassToFeatureClass_conversion(extentTemp2, basedataFD, extentName)
-    
-
-    #### Create the Sampling Unit Layer
-    # Create an empty Sampling Unit feature class
-    arcpy.CreateFeatureclass_management(wcFD, suName, "POLYGON", templateSU)
-
-    # Create the SU layer by intersecting the extent with the CLU
-    arcpy.Intersect_analysis([projectExtent, projectCLU], suMulti, "NO_FID", "#", "INPUT")
-    arcpy.MultipartToSinglepart_management(suMulti, suTemp1)
-
-    # Dissolve out field lines if that option was selected
-    if keepFields == "No":
-        dis_fields = ['admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
-        arcpy.Dissolve_management(suTemp1, suTemp2, dis_fields, "", "SINGLE_PART", "")
-        arcpy.Append_management(suTemp2, projectSU, "NO_TEST")
-    else:
-        arcpy.Append_management(suTemp1, projectSU, "NO_TEST")
 
 
-    #### Assign domains to the SU layer
-    arcpy.AssignDomainToField_management(projectSU, "locked", "Yes No")
-    arcpy.AssignDomainToField_management(projectSU, "eval_status", "Evaluation Status")
-    arcpy.AssignDomainToField_management(projectSU, "three_factors", "YN")
-    arcpy.AssignDomainToField_management(projectSU, "request_type", "Request Type")
-    arcpy.AssignDomainToField_management(projectSU, "deter_method", "Method")
+##    #### Create the projectAOI and projectAOI_B feature classes with the buffer tool against the projectExtent
+##    arcpy.Buffer_analysis(projectExtent, projectAOI, bufferDist, "FULL", "", "ALL", "")
+##    arcpy.Buffer_analysis(projectExtent, projectAOI_B, bufferDistPlus, "FULL", "", "ALL", "")
 
 
-    #### Update SU layer attributes
-    # Assign eval_status attribute as "New Request"
-    fields = ['eval_status','locked']
-    cursor = arcpy.da.UpdateCursor(projectSU, fields)
-    for row in cursor:
-        row[0] = "New Request"
-        row[1] = "No"
-        cursor.updateRow(row)
-    del cursor
-
-    # If entire request area is certified, update the attributes for eval status to Revision
-    if fullCWD:
-        fields = ['eval_status']
-        cursor = arcpy.da.UpdateCursor(projectSU, fields)
-        for row in cursor:
-            row[0] = "Revision"
-            cursor.updateRow(row)
-        del cursor
-
-    # Update calculated acres
-    expression = "!Shape.Area@acres!"
-    arcpy.CalculateField_management(projectSU, "acres", expression, "PYTHON_9.3")
-    del expression
-
-    ## Update attributes: request_date, request_type, deter_staff, dig_staff, and dig_date (current date) from projectTable for New/Revised areas
-    # Get admin attributes from project table for request_date, request_type, deter_staff, dig_staff, and dig_date (current date) and assign them to New/Revised (all?) areas
-    if arcpy.Exists(projectTable):
-        fields = ['request_date','request_type','deter_staff','dig_staff']
-        cursor = arcpy.da.SearchCursor(projectTable, fields)
-        for row in cursor:
-            rDate = row[0]
-            rType = row[1]
-            detStaff = row[2]
-            digStaff = row[3]
-            break
-        del cursor, fields
-
-        digDate = time.strftime('%m/%d/%Y')
-
-        fields = ['eval_status','request_date','request_type','deter_staff','dig_staff','dig_date']
-        cursor = arcpy.da.UpdateCursor(projectSU, fields)
-        for row in cursor:
-            if row[0] == "New Request" or row[0] == "Revision":
-                row[1] = rDate
-                row[2] = rType
-                row[3] = detStaff
-                row[4] = digStaff
-                row[5] = digDate
-            cursor.updateRow(row)
-    
-        
-    #### Create ROP Layer
-    # Don't pull in any ROPs for previously certified areas (people will see them in the display and can copy/paste if needed)
-    # Import ROPs will be a separate utility tool that appends features to existing ROP layer.
-    if resetROPs == 'Yes':
-        arcpy.Delete_management(projectROP)
-
-    if not arcpy.Exists(projectROP):
-        AddMsgAndPrint("\nCreating ROPs layer...",0)
-        fcName = os.path.basename(projectROP)
-        arcpy.CreateFeatureclass_management(wcFD, fcName, "POINT", templateROP)
-        del fcName
-
-        arcpy.AssignDomainToField_management(projectROP, "locked", "Yes No")
-        arcpy.AssignDomainToField_management(projectROP, "rop_status", "ROP Status")
-        arcpy.AssignDomainToField_management(projectROP, "three_factors", "YN")
-        arcpy.AssignDomainToField_management(projectROP, "request_type", "Request Type")
-        arcpy.AssignDomainToField_management(projectROP, "data_form", "Data Form")
-        arcpy.AssignDomainToField_management(projectROP, "deter_method", "Method")
-    
-
-    #### Create Drainage Lines Layer
-    # Don't pull in any Drainage Lines for previously certified areas (people will see them in the display and can copy/paste if needed)
-    if resetDrains == 'Yes':
-        arcpy.Delete_management(projectLines)
-
-    if not arcpy.Exists(projectLines):
-        AddMsgAndPrint("\nCreating Drainage Lines layer...",0)
-        fcName = os.path.basename(projectLines)
-        arcpy.CreateFeatureclass_management(wcFD, fcName, "POLYLINE", templateLines)
-        del fcName
-
-        arcpy.AssignDomainToField_management(projectLines, "line_type", "Line Type")
-        arcpy.AssignDomainToField_management(projectLines, "manip_era", "Pre Post")
-
-
-    #### Import attribute rules to various layers in the project.
-    arcpy.ImportAttributeRules_management(projectSU, rules_su)
-    arcpy.ImportAttributeRules_management(projectLines, rules_lines)
+##    #### Create the Sampling Unit Layer
+##    # Create an empty Sampling Unit feature class
+##    arcpy.CreateFeatureclass_management(wcFD, suName, "POLYGON", templateSU)
+##
+##    # Create the SU layer by intersecting the extent with the CLU
+##    arcpy.Intersect_analysis([projectExtent, projectCLU], suMulti, "NO_FID", "#", "INPUT")
+##    arcpy.MultipartToSinglepart_management(suMulti, suTemp1)
+##
+##    # Dissolve out field lines if that option was selected
+##    if keepFields == "No":
+##        dis_fields = ['admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+##        arcpy.Dissolve_management(suTemp1, suTemp2, dis_fields, "", "SINGLE_PART", "")
+##        arcpy.Append_management(suTemp2, projectSU, "NO_TEST")
+##    else:
+##        arcpy.Append_management(suTemp1, projectSU, "NO_TEST")
+##
+##
+##    #### Assign domains to the SU layer
+##    arcpy.AssignDomainToField_management(projectSU, "locked", "Yes No")
+##    arcpy.AssignDomainToField_management(projectSU, "eval_status", "Evaluation Status")
+##    arcpy.AssignDomainToField_management(projectSU, "three_factors", "YN")
+##    arcpy.AssignDomainToField_management(projectSU, "request_type", "Request Type")
+##    arcpy.AssignDomainToField_management(projectSU, "deter_method", "Method")
+##
+##
+##    #### Update SU layer attributes
+##    # Assign eval_status attribute as "New Request"
+##    fields = ['eval_status','locked']
+##    cursor = arcpy.da.UpdateCursor(projectSU, fields)
+##    for row in cursor:
+##        row[0] = "New Request"
+##        row[1] = "No"
+##        cursor.updateRow(row)
+##    del fields
+##    del cursor
+##
+##    # If entire request area is certified, update the attributes for eval status to Revision
+##    if fullCWD:
+##        fields = ['eval_status']
+##        cursor = arcpy.da.UpdateCursor(projectSU, fields)
+##        for row in cursor:
+##            row[0] = "Revision"
+##            cursor.updateRow(row)
+##        del fields
+##        del cursor
+##
+##    # Update calculated acres
+##    expression = "!Shape.Area@acres!"
+##    arcpy.CalculateField_management(projectSU, "acres", expression, "PYTHON_9.3")
+##    del expression
+##
+##    ## Update attributes: request_date, request_type, deter_staff, dig_staff, and dig_date (current date) from projectTable for New/Revised areas
+##    # Get admin attributes from project table for request_date, request_type, deter_staff, dig_staff, and dig_date (current date) and assign them to New/Revised (all?) areas
+##    if arcpy.Exists(projectTable):
+##        fields = ['request_date','request_type','deter_staff','dig_staff']
+##        cursor = arcpy.da.SearchCursor(projectTable, fields)
+##        for row in cursor:
+##            rDate = row[0]
+##            rType = row[1]
+##            detStaff = row[2]
+##            digStaff = row[3]
+##            break
+##        del cursor, fields
+##
+##        digDate = time.strftime('%m/%d/%Y')
+##
+##        fields = ['eval_status','request_date','request_type','deter_staff','dig_staff','dig_date']
+##        cursor = arcpy.da.UpdateCursor(projectSU, fields)
+##        for row in cursor:
+##            if row[0] == "New Request" or row[0] == "Revision":
+##                row[1] = rDate
+##                row[2] = rType
+##                row[3] = detStaff
+##                row[4] = digStaff
+##                row[5] = digDate
+##            cursor.updateRow(row)
+##    
+##        
+##    #### Create ROP Layer
+##    # Don't pull in any ROPs for previously certified areas (people will see them in the display and can copy/paste if needed)
+##    # Import ROPs will be a separate utility tool that appends features to existing ROP layer.
+##    if resetROPs == 'Yes':
+##        arcpy.Delete_management(projectROP)
+##
+##    if not arcpy.Exists(projectROP):
+##        AddMsgAndPrint("\nCreating ROPs layer...",0)
+##        fcName = os.path.basename(projectROP)
+##        arcpy.CreateFeatureclass_management(wcFD, fcName, "POINT", templateROP)
+##        del fcName
+##
+##        arcpy.AssignDomainToField_management(projectROP, "locked", "Yes No")
+##        arcpy.AssignDomainToField_management(projectROP, "rop_status", "ROP Status")
+##        arcpy.AssignDomainToField_management(projectROP, "three_factors", "YN")
+##        arcpy.AssignDomainToField_management(projectROP, "request_type", "Request Type")
+##        arcpy.AssignDomainToField_management(projectROP, "data_form", "Data Form")
+##        arcpy.AssignDomainToField_management(projectROP, "deter_method", "Method")
+##    
+##
+##    #### Create Drainage Lines Layer
+##    # Don't pull in any Drainage Lines for previously certified areas (people will see them in the display and can copy/paste if needed)
+##    if resetDrains == 'Yes':
+##        arcpy.Delete_management(projectLines)
+##
+##    if not arcpy.Exists(projectLines):
+##        AddMsgAndPrint("\nCreating Drainage Lines layer...",0)
+##        fcName = os.path.basename(projectLines)
+##        arcpy.CreateFeatureclass_management(wcFD, fcName, "POLYLINE", templateLines)
+##        del fcName
+##
+##        arcpy.AssignDomainToField_management(projectLines, "line_type", "Line Type")
+##        arcpy.AssignDomainToField_management(projectLines, "manip_era", "Pre Post")
+##
+##
+##    #### Import attribute rules to various layers in the project.
+##    arcpy.ImportAttributeRules_management(projectSU, rules_su)
+##    arcpy.ImportAttributeRules_management(projectLines, rules_lines)
 
 
     #### Clean up Temporary Datasets
@@ -710,22 +740,22 @@ try:
 
     #### Add to map
     # Use starting reference layer files for the tool installation to add layer with automatic placement
-    m.addLayer(suLyr)
-    m.addLayer(ropLyr)
-    m.addLayer(drainLyr)
+    #m.addLayer(suLyr)
+    #m.addLayer(ropLyr)
+    #m.addLayer(drainLyr)
     m.addLayer(extentLyr)
 
     # Replace data sources of layer files from installed layers to the project layers
     # First get the current layers in the map
-    suNew = m.listLayers("Site_Sampling_Units")[0]
-    ropNew = m.listLayers("Site_ROPs")[0]
-    drainNew = m.listLayers("Site_Drainage_Lines")[0]
-    extentNew = m.listLayers("Request_Extent")[0]
+    #suNew = m.listLayers("Site_Sampling_Units")[0]
+    #ropNew = m.listLayers("Site_ROPs")[0]
+    #drainNew = m.listLayers("Site_Drainage_Lines")[0]
+    extentNew = m.listLayers(extentName)[0]
 
     # Call the function to change the data source via CIM
-    changeSource(suNew, new_ws=wcGDB_path, new_fd=wcFD_name, new_fc=suName)
-    changeSource(ropNew, new_ws=wcGDB_path, new_fd=wcFD_name, new_fc=ropName)
-    changeSource(drainNew, new_ws=wcGDB_path, new_fd=wcFD_name, new_fc=drainName)
+    #changeSource(suNew, new_ws=wcGDB_path, new_fd=wcFD_name, new_fc=suName)
+    #changeSource(ropNew, new_ws=wcGDB_path, new_fd=wcFD_name, new_fc=ropName)
+    #changeSource(drainNew, new_ws=wcGDB_path, new_fd=wcFD_name, new_fc=drainName)
     changeSource(extentNew, new_ws=basedataGDB_path, new_fd=basedataFD_name, new_fc=extentName)
 
     # Update the layer names to the development names (now redundant; can comment out or remove)
@@ -734,28 +764,10 @@ try:
 ##    drainNew.name = drainName
 ##    extentNew.name = extentName
     
-    #arcpy.SetParameterAsText(8, projectSU)
-    #arcpy.SetParameterAsText(9, projectROP)
-    #arcpy.SetParameterAsText(10, projectLines)
-    #arcpy.SetParameterAsText(11, projectExtent)
-
-    
-    #### Adjust visibility of layers to aid in moving to the next step in the process
-    # Turn off all CLUs/Common, Define_AOI, and Extent layers
-    off_names = ["CLU","Common","Site_Define_AOI","Request_Extent"]
-    for maps in aprx.listMaps():
-        for lyr in maps.listLayers():
-            for name in off_names:
-                if name in lyr.name:
-                    lyr.visible = False
-
-    # Turn on all SU, ROP, and Drainage_Lines layers
-    on_names = ["Site_Sampling_Units","Site_Drainage_Lines","Site_ROPs"]
-    for maps in aprx.listMaps():
-        for lyr in maps.listLayers():
-            for name in on_names:
-                if (lyr.name).startswith(name):
-                    lyr.visible = True
+    #arcpy.SetParameterAsText(5, projectSU)
+    #arcpy.SetParameterAsText(6, projectROP)
+    #arcpy.SetParameterAsText(7, projectLines)
+    #arcpy.SetParameterAsText(8, projectExtent)
 
 
     #### Clear selections from source AOI layer if it was used with selections
@@ -763,8 +775,26 @@ try:
         define_name = "Site_Define_AOI"
         define_lyr = m.listLayers(define_name)[0]
         arcpy.SelectLayerByAttribute_management(define_lyr, "CLEAR_SELECTION")
-    
-    
+
+
+    #### Adjust visibility of layers to aid in moving to the next step in the process
+    # Turn off Define_AOI layers
+    off_names = [daoiName]
+    for maps in aprx.listMaps():
+        for lyr in maps.listLayers():
+            for name in off_names:
+                if name in lyr.name:
+                    lyr.visible = False
+
+    # Turn on Request Extent layer
+    on_names = [extentName]
+    for maps in aprx.listMaps():
+        for lyr in maps.listLayers():
+            for name in on_names:
+                if (lyr.name).startswith(name):
+                    lyr.visible = True
+
+
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)

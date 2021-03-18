@@ -1,11 +1,7 @@
 #-------------------------------------------------------------------------------
 # Name:        getSSURGO_WCT.py
-# Purpose:
-#
-# Author:      Chad.Ferguson
-#
-# Created:     19/07/2016
-# Copyright:   (c) Charles.Ferguson 2016
+# Purpose:     Develop SSURGO layers to be referenced within the Wetland
+#              Compliance process.
 
 # Author: Adolfo.Diaz
 #         GIS Specialist
@@ -14,12 +10,21 @@
 # e-mail: adolfo.diaz@usda.gov
 # phone: 608.662.4422 ext. 216
 
-# Electrial Conductivity 1:5 by volume - Rep Value was removed, exists in rslvProp, just remoed from validator
-# Exchangeable Sodium Percentage - Rep Value was removed, exists in rslvProp, just remoed from validator
-# Ki ditto
-# Kr ditto
-# Unrubber Fiber % - Rep Value
-# Rubbed Fiber % - Rep Value
+# Author:      Chad.Ferguson
+#              Soil Scientist
+# Created:     07/19/2016
+# Copyright:   (c) Charles.Ferguson 2016
+
+# ==========================================================================================
+# Updated  2/12/2021 - Adolfo Diaz
+# - Hydric Classification Presence was added as an additional optional interpreation.
+# - Added the simple soils geometry as a layer.
+# - Added 'datetime' as a library to be imported; not sure why it was functioning
+#   correclty without it.
+# - replaced the reserved python keyword 'property' with soilProperty
+# - slightly updated the metadata description
+#
+
 #-------------------------------------------------------------------------------
 
 
@@ -178,7 +183,13 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
         arcpy.management.AddField(outSSURGOlayerPath, "MUNAME", "TEXT", "#", "#", "175", field_alias="Mapunit Name")
         arcpy.management.AddField(outSSURGOlayerPath, "MUKEY", "TEXT", "#","#","30",field_alias="Mapunit Key")
 
-        gQry = """
+        now = datetime.datetime.now()
+        timeStamp = now.strftime('%Y-%m-%d T%H:%M:%S')
+
+        header = """/** SDA Query application "Wetland Compliance Tool" **/"""
+        gQry = header + "\n-- " + timeStamp
+
+        gQry += """
         ~DeclareGeometry(@aoi)~
         select @aoi = geometry::STPolyFromText('POLYGON (( """ + coorStr + """))', 4326)\n
 
@@ -233,7 +244,6 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
             rows =  arcpy.da.InsertCursor(outSSURGOlayerPath, ["AREASYMBOL","MUSYM","MUNAME","MUKEY","SHAPE@WKT"])
 
             for rec in resLst:
-
                 areasym = rec[0]
                 musym = rec[1]
                 muname = rec[2]
@@ -245,10 +255,42 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
 
             AddMsgAndPrint("\nSuccessfully Created SSURGO Layer from Soil Data Access")
             AddMsgAndPrint("Output location: " + str(outSSURGOlayerPath))
+
+            # Update Basic Metadata for the SSURGO_WCT layer
+            ssurgoWCTmetadata = md.Metadata(outSSURGOlayerPath)
+
+            if not ssurgoWCTmetadata.isReadOnly:
+                AddMsgAndPrint("\n\n Updating Metadata for " + outSSURGOlayerPath)
+                newSSURGOmeta = md.Metadata()
+                newSSURGOmeta.title = "SSURGO WCT"
+                newSSURGOmeta.tags = "USDA, NRCS, Soil and Plant Science Division, Wetland Compliance Tool"
+                newSSURGOmeta.summary = "SSURGO Layer used for Wetland Compliance reference - Created: " + timeStamp
+                newSSURGOmeta.credits = "USDA - NRCS, Soil and Plant Science Division"
+                newSSURGOmeta.description = "\
+This layer was produced using SSURGO (Soil Survey Geographic Database)\n\
+data derived from Soil Data Access.\n\
+"
+                newSSURGOmeta.accessConstraints = "\
+Soil survey data seldom contain detailed, site-specific information.\n\
+They are not intended for use as primary regulatory tools in site-\n\
+specific permitting decisions. They are, however, useful for broad\n\
+regulatory planning and application.\n\
+\n\
+Soil survey information cannot replace site-specific details, which\n\
+require onsite investigation. It is a valuable tool where acquiring\n\
+onsite data is not feasible or is cost prohibitive. It is most useful\n\
+as a tool for planning onsite investigation. Understanding the\n\
+capability and limitations of the different types of soil data is\n\
+essential for making the best conservation-planning decisions."
+
+                ssurgoWCTmetadata.copy(newSSURGOmeta)
+                ssurgoWCTmetadata.save()
+
             return outSSURGOlayerPath
 
         else:
             AddMsgAndPrint("Failed to create geometry from SDA",2)
+            AddMsgAndPrint(gQry,1)
             return False
 
     except socket.timeout as e:
@@ -261,6 +303,7 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
 
     except HTTPError as e:
         AddMsgAndPrint('HTTP Error' + str(e),2)
+        AddMsgAndPrint(gQry,1)
         return False
 
     except URLError as e:
@@ -272,7 +315,186 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
         return False
 
 # ==============================================================================================================================
+def updateMetadataDescription(ssurgoProperty,layerPath):
+
+    try:
+
+        propertyDescriptionDict ={'Drainage Class': "\
+Drainage Class (drainagecl)\n\
+Drainage class (natural) refers to the frequency and duration of wet\n\
+periods under conditions similar those under which the soil formed.\n\
+Alterations of the water regime by human activities, either through drainage\n\
+or irrigation, are not a consideration unless they have significantly\n\
+changed the morphology of the soil. Seven classes of natural soil drainage\n\
+are recognized-excessively drained, somewhat excessively drained, well drained,\n\
+moderately well drained, somewhat poorly drained, poorly drained, and very poorly\n\
+drained. These classes are defined in the Soil Survey Manual.",
+
+                                  'Ecological Classification Type Name': "\
+Ecological Classification Type Name (ecoclasstypename)\n\
+An ecological site name provides a general description of a particular\n\
+ecological site. An ecological site is the product of all the environmental\n\
+factors responsible for its development. It has characteristic soils that\n\
+have developed over time; a characteristic hydrology particularly\n\
+infiltration and runoff, that has developed over time; and a characteristic\n\
+plant community (kind and amount of vegetation). The vegetation, soils, and\n\
+hydrology are all interrelated. Each is influenced by the others and influences\n\
+the development of the others. For example, the hydrology of the site is\n\
+influenced by development of the soil and plant community. The plant community\n\
+on an ecological site is typified by an association of species that differs\n\
+from that of other ecological sites in the kind and/or proportion of species\n\
+or in total production.  Descriptions of ecological sites are provided in the\n\
+Field Office Technical Guide, which is available in local offices of the Natural\n\
+Resources Conservation Service. Descriptions of those displayed in this map\n\
+and summary table may also be accessed through the Ecological\n\
+Site Assessment tab in Web Soil Survey.",
+
+                                    'Ecological Classification Name': "\
+Ecological Classification Name (ecoclassname)\n\
+The descriptive name of a particular ecological community. For NRCS ecological\n\
+sites, it is the concatenated form of three or six other fields. The actual\n\
+fields that are concatenated together to form this name differ between range\n\
+and forest ecological sites.",
+
+                                    'Ecological Classification ID': "\
+Ecological Classification ID (ecoclassid) \n\
+The identifier of a particular ecological community. For NRCS ecological sites,\n\
+it is the concatenated form of ecological site type, ecological site MLRA,\n\
+ecological site LRU, ecological site number and ecological site state FIPS\n\
+alpha code.",
+
+                                    'Flooding Frequency': "\
+Flooding Frequency (flodfreqdcd)\n\
+The annual probability of a flood event expressed as a class. This column displays\n\
+the dominant flood frequency class for the map unit, based on composition percentage\n\
+of map unit components whose composition in the map unit is equal to or exceeds 15%.",
+
+                                    'Hydric Rating': "\
+Hydric Rating (hydricrating)\n\
+A yes/no field that indicates whether or not a map unit component is classified\n\
+as a \"hydric soil\". If rated as hydric, the specific criteria met are listed\n\
+in the Component Hydric Criteria table.\n\
+\n\
+Hydric soils are defined by the National Technical Committee for Hydric Soils (NTCHS)\n\
+as soils that formed under conditions of saturation, flooding, or ponding long enough\n\
+during the growing season to develop anaerobic conditions in the upper part\n\
+(Federal Register, 1994). Under natural conditions, these soils are either saturated or\n\
+inundated long enough during the growing season to support the growth and reproduction\n\
+of hydrophytic vegetation.",
+
+                                    'Hydric Condition': "\
+Hydric Condition (hydricon)\n\
+Natural condition of the soil component",
+
+                                    'Hydrologic Soil Group':"\
+Hydrologic Soil Group (hydgrp)\n\
+Hydrologic soil groups are based on estimates of runoff potential. Soils are assigned to\n\
+one of four groups according to the rate of water infiltration when the soils are not\n\
+protected by vegetation, are thoroughly wet, and receive precipitation from\n\
+long-duration storms.\n\
+\n\
+The soils in the United States are assigned to four groups (A, B, C, and D) and three\n\
+dual classes (A/D, B/D, and C/D). The groups are defined as follows:\n\
+\n\
+\tGroup A. Soils having a high infiltration rate (low runoff potential) when thoroughly wet.\n\
+\tThese consist mainly of deep, well drained to excessively drained sands or gravelly sands.\n\
+\tThese soils have a high rate of water transmission.\n\
+\n\
+\tGroup B. Soils having a moderate infiltration rate when thoroughly wet. These consist chiefly\n\
+\tof moderately deep or deep, moderately well drained or well drained soils that have moderately\n\
+\tfine texture to moderately coarse texture. These soils have a moderate rate of water transmission.\n\
+\n\
+\tGroup C. Soils having a slow infiltration rate when thoroughly wet. These consist chiefly of\n\
+\tsoils having a layer that impedes the downward movement of water or soils of moderately fine\n\
+\ttexture or fine texture. These soils have a slow rate of water transmission.\n\
+\n\
+\tGroup D. Soils having a very slow infiltration rate (high runoff potential) when thoroughly wet.\n\
+\tThese consist chiefly of clays that have a high shrink-swell potential, soils that have a high water\n\
+\ttable, soils that have a claypan or clay layer at or near the surface, and soils that are shallow\n\
+\tover nearly impervious material. These soils have a very slow rate of water transmission.\n\
+\n\
+\tIf a soil is assigned to a dual hydrologic group (A/D, B/D, or C/D), the first letter is for drained\n\
+\tareas and the second is for undrained areas. Only the soils that in their natural condition are in\n\
+\tgroup D are assigned to dual classes.",
+
+                                    'Ponding Frequency Class':"\
+Ponding Frequency - Presence (pondfreqprs)\n\
+Ponding is standing water in a closed depression. The water is removed only by deep percolation,\n\
+transpiration, or evaporation or by a combination of these processes. Ponding frequency classes are\n\
+based on the number of times that ponding occurs over a given period. Frequency is expressed as none,\n\
+rare, occasional, and frequent.\n\
+\n\
+\"None\" means that ponding is not probable. The chance of ponding is nearly 0 percent in any year.\n\
+\n\
+\"Rare\" means that ponding is unlikely but possible under unusual weather conditions. The chance of\n\
+ponding is nearly 0 percent to 5 percent in any year.\n\
+\n\
+\"Occasional\" means that ponding occurs, on the average, once or less in 2 years. The chance of ponding\n\
+is 5 to 50 percent in any year.\n\
+\n\
+\"Frequent\" means that ponding occurs, on the average, more than once in 2 years. The chance of ponding\n\
+is more than 50 percent in any year.",
+
+                                    'Water Table Depth Annual Minimum':"\
+Water Table Depth Annual Minimum (wtdepannmin)\n\
+The shallowest depth to a wet soil layer (water table) at any time during the year expressed as centimeters\n\
+from the soil surface, for components whose composition in the map unit is equal to or exceeds 15%.",
+
+                                    'Hydric Classification Presence':"\
+Hydric Classification Presence (hydclprs)\n\
+This rating indicates the percentage of map units that meets the criteria for hydric soils. Map units are\n\
+composed of one or more map unit components or soil types, each of which is rated as hydric soil or not hydric.\n\
+Map units that are made up dominantly of hydric soils may have small areas of minor nonhydric components in the\n\
+higher positions on the landform, and map units that are made up dominantly of nonhydric soils may have small\n\
+areas of minor hydric components in the lower positions on the landform. Each map unit is rated based on its\n\
+respective components and the percentage of each component within the map unit.\n\
+\n\
+The thematic map is color coded based on the composition of hydric components. The five color classes are\n\
+separated as 100 percent hydric components, 66 to 99 percent hydric components, 33 to 65 percent hydric\n\
+components, 1 to 32 percent hydric components, and less than one percent hydric components.\n\
+\n\
+Hydric soils are defined by the National Technical Committee for Hydric Soils (NTCHS) as soils that formed\n\
+under conditions of saturation, flooding, or ponding long enough during the growing season to develop anaerobic\n\
+conditions in the upper part (Federal Register, 1994). Under natural conditions, these soils are either saturated\n\
+or inundated long enough during the growing season to support the growth and reproduction of hydrophytic\n\
+vegetation."}
+
+
+        if not ssurgoProperty in propertyDescriptionDict:
+            AddMsgAndPrint("Could not update metadata description for " + ssurgoProperty)
+            return False
+
+        # Update Metadata description for the SSURGO_WCT layer
+        lyrMetadata = md.Metadata(layerPath)
+
+        if not lyrMetadata.isReadOnly:
+
+            lyrDescription = lyrMetadata.description
+            updatedMetadata = md.Metadata()           # New metadata
+
+            # preserve existing metadata by coping all elements into new one
+            updatedMetadata.copy(lyrMetadata)
+
+            # Append to current description if currently populated
+            if lyrDescription is None or len(str(lyrDescription)) < 1:
+                updatedMetadata.description = propertyDescriptionDict[ssurgoProperty]
+            else:
+                updatedMetadata.description = lyrDescription + "\n" + (77 * "-") + "\n" + propertyDescriptionDict[ssurgoProperty]
+
+            lyrMetadata.copy(updatedMetadata)
+            lyrMetadata.save()
+            AddMsgAndPrint("Successfully updated metadata for " + ssurgoProperty)
+
+        else:
+            AddMsgAndPrint("Metadata is Read-only.  Could not update Description metadata for: " + ssurgoProperty,1)
+
+    except:
+        errorMsg()
+        return False
+
+# ==============================================================================================================================
 def compileSQLquery(ssurgoProperty,aggregationMethod,mukeyList):
+
     # Description:
     # This function will compile an SQL query ready to use in Soil Data Access (SDA).
     # There are query templates for the 5 different aggregation methods:
@@ -311,10 +533,83 @@ def compileSQLquery(ssurgoProperty,aggregationMethod,mukeyList):
     try:
         # convert list of mukeys to a string of mukeys to pass to SDA
         keys = ",".join(mukeyList)
-
         ssurgoFld = lookupSSURGOFieldName(ssurgoProperty).strip()
 
-        if aggregationMethod == "Dominant Component (Category)":
+        # This is for aggregating fields within the Component Ecological Classification
+        # Table using the 'Dominant Condition' aggregation method and only returning
+        # ecological class names that pertain to the the NRCS classification type
+        if aggregationMethod == 'coecoclass':
+            # If you want to see the sum of the components and the maximum sum of the components
+            # substitute the following SELECT statement with the last SELECT statement
+            # " SELECT #domcondition.areasymbol, #domcondition.mukey, #domcondition.musym, #domcondition.sumofcomppct_r, #domcondition2.maxsumofcomppct_R, #domcondition." + ssurgoFld + "\n"\
+
+            pQry = "SELECT areasymbol, mapunit.mukey, musym, SUM(comppct_r) as sumofcomppct_r, " + ssurgoFld + "\n"\
+            " INTO #domcondition\n"\
+            " FROM legend\n"\
+            " JOIN mapunit on mapunit.lkey = legend.lkey\n"\
+            " AND mapunit.mukey IN (" + keys + ")\n"\
+            " JOIN component on component.mukey = mapunit.mukey\n"\
+            " LEFT OUTER JOIN coecoclass ON component.cokey = coecoclass.cokey\n"\
+            " AND ecoclasstypename LIKE 'NRCS%'\n"\
+            " GROUP BY  areasymbol, mapunit.mukey, musym, " + ssurgoFld + "\n"\
+            " order by areasymbol, musym, mapunit.mukey\n"\
+            " SELECT areasymbol, mukey, musym, max(sumofcomppct_r) as maxsumofcomppct_R\n"\
+            " INTO #domcondition2\n"\
+            " from #domcondition\n"\
+            " GROUP BY areasymbol,mukey, musym\n"\
+            " SELECT #domcondition.areasymbol, #domcondition.mukey, #domcondition.musym, #domcondition." + ssurgoFld + "\n"\
+            " FROM #domcondition\n"\
+            " JOIN #domcondition2 on #domcondition2.maxsumofcomppct_R = #domcondition.sumofcomppct_r AND #domcondition.mukey = #domcondition2.mukey\n"\
+            " order by  #domcondition.areasymbol,#domcondition.musym, #domcondition.mukey\n"\
+
+        elif aggregationMethod == 'comonth':
+            pQry = " SELECT areasymbol, mapunit.mukey, musym, component.cokey, component.compname, component.comppct_r,\n"\
+            " (SELECT top 1 comonth2." + ssurgoFld + " FROM comonth comonth2 join component component2 on component2.cokey = comonth2.cokey and component2.cokey = component.cokey\n"\
+            " ORDER BY (CASE WHEN comonth2." + ssurgoFld + " = 'Frequent' Then 1\n"\
+            " WHEN comonth2." + ssurgoFld + " = 'Common' Then 1\n"\
+            " WHEN comonth2." + ssurgoFld + " = 'Occasional' Then 2\n"\
+            " WHEN comonth2." + ssurgoFld + " = 'Rare' Then 3\n"\
+            " WHEN comonth2." + ssurgoFld + " = 'None' Then 4\n"\
+            " WHEN comonth2." + ssurgoFld + "  IS NULL Then 4 END) ASC) " + ssurgoFld + "\n"\
+            " INTO #mostfrequent\n"\
+            " FROM legend\n"\
+            " JOIN mapunit on mapunit.lkey = legend.lkey\n"\
+            " AND mapunit.mukey IN (" + keys + ")\n"\
+            " JOIN component on component.mukey = mapunit.mukey\n"\
+            " LEFT OUTER JOIN comonth ON component.cokey = comonth.cokey\n"\
+            " GROUP BY  areasymbol, mapunit.mukey, musym,  component.cokey, component.compname, component.comppct_r\n"\
+            " order by areasymbol, musym, mapunit.mukey, component.compname\n"\
+            " SELECT areasymbol,mukey, musym, SUM(comppct_r) as sumofcomppct_r, CASE WHEN " + ssurgoFld + " IS NULL THEN 'None' ELSE " + ssurgoFld + " END as " + ssurgoFld + "\n"\
+            " INTO #domcondition\n"\
+            " FROM #mostfrequent\n"\
+            " GROUP BY  areasymbol, mukey, " + ssurgoFld + ", musym\n"\
+            " order by areasymbol, musym, mukey\n"\
+            " SELECT areasymbol, mukey, musym, max(sumofcomppct_r) as maxsumofcomppct_R\n"\
+            " INTO #domcondition2\n"\
+            " from #domcondition\n"\
+            " GROUP BY areasymbol,mukey, musym\n"\
+            " SELECT DISTINCT #domcondition.areasymbol, #domcondition.mukey, #domcondition.musym, #domcondition.sumofcomppct_r, #domcondition2.maxsumofcomppct_R,  #domcondition." + ssurgoFld + "\n"\
+            " into #domcondition3\n"\
+            " FROM #domcondition\n"\
+            " JOIN #domcondition2 on #domcondition2.maxsumofcomppct_R = #domcondition.sumofcomppct_r AND #domcondition.mukey = #domcondition2.mukey\n"\
+            " order by  #domcondition.areasymbol,#domcondition.musym,  #domcondition.mukey\n"\
+            " select areasymbol, mukey, musym, \n"\
+            " (SELECT top 1 SUB." + ssurgoFld + " FROM #domcondition3 sub\n"\
+            " WHERE sub.mukey = #domcondition3.mukey\n"\
+            " ORDER BY (CASE WHEN sub." + ssurgoFld + " = 'Frequent' Then 1\n"\
+            " WHEN sub." + ssurgoFld + " = 'Common' Then 1\n"\
+            " WHEN sub." + ssurgoFld + " = 'Occasional' Then 2\n"\
+            " WHEN sub." + ssurgoFld + " = 'Rare' Then 3\n"\
+            " WHEN sub." + ssurgoFld + " = 'None' Then 4\n"\
+            " WHEN sub." + ssurgoFld + "  IS NULL Then 4 END) ASC) " + ssurgoFld + "\n"\
+            " FROM #domcondition3\n"\
+            " GROUP BY  areasymbol, mukey, musym, " + ssurgoFld + "\n"\
+
+        elif aggregationMethod == "Mapunit Aggregate":
+            # SELECT mukey,musym,muname,wtdepannmin FROM muaggatt where mukey IN (398974)
+            pQry = "SELECT mukey,musym,muname," + ssurgoFld + " FROM muaggatt where mukey IN (" + keys + ")\n"\
+
+        elif aggregationMethod == "Dominant Component (Category)":
 
             pQry = "SELECT areasymbol, musym, muname, mu.mukey  AS mukey, " + ssurgoFld + " AS " + ssurgoFld + "\n"\
             " FROM legend  AS l\n"\
@@ -521,7 +816,11 @@ def lookupSSURGOFieldName(ssurgoProperty,returnAlias=False):
                     'Corrosion of Steel': 'corsteel',
                     'Hydric Condition':'hydricon',
                     'Hydric Rating':'hydricrating',
+                    'Hydric Classification Presence':'hydclprs',
                     'Drainage Class': 'drainagecl',
+                    'Ecological Classification ID':'ecoclassid',
+                    'Ecological Classification Name':'ecoclassname',
+                    'Ecological Classification Type Name':'ecoclasstypename',
                     'Effective Cation Exchange Capcity - Rep Value': 'ecec_r',
                     'Electrial Conductivity 1:5 by volume - Rep Value': 'ec15_r',
                     'Electrical Conductivity - Rep Value': 'ec_r',
@@ -530,13 +829,15 @@ def lookupSSURGOFieldName(ssurgoProperty,returnAlias=False):
                     'Extractable Acidity - Rep Value': 'extracid_r',
                     'Fine Sand - Rep Value': 'sandfine_r',
                     'Fine Silt - Rep Value': 'siltfine_r',
+                    'Flooding Frequency': 'flodfreqdcd',
+                    'Flooding Frequency - Maximum': 'flodfreqmax',
                     'Free Iron - Rep Value': 'freeiron_r',
                     'Gypsum - Rep Value': 'gypsum_r',
-                    'Hydrologic Group': 'hydgrp',
+                    'Hydrologic Soil Group': 'hydgrp',
                     'Kf': 'kffact',
-                    'Ki ': 'kifact',
-                    'Kr ': 'krfact',
-                    'Kw ': 'kwfact',
+                    'Ki': 'kifact',
+                    'Kr': 'krfact',
+                    'Kw': 'kwfact',
                     'LEP - Rep Value': 'lep_r',
                     'Liquid Limit - Rep Value': 'll_r',
                     'Medium Sand - Rep Value': 'sandmed_r',
@@ -545,6 +846,8 @@ def lookupSSURGOFieldName(ssurgoProperty,returnAlias=False):
                     'Oxalate Iron - Rep Value': 'feoxalate_r',
                     'Oxalate Phosphate - Rep Value': 'poxalate_r',
                     'Plasticity Index - Rep Value': 'pi_r',
+                    'Ponding Frequency Class': 'pondfreqcl',  # comonth table
+                    'Ponding Frequency - Presence': 'pondfreqprs', # muaggat table
                     'Rock Fragments 3 - 10 cm - Rep Value': 'frag3to10_r',
                     'Rock Fragments > 10 cm - Rep Value': 'fraggt10_r',
                     'Rubbed Fiber % - Rep Value': 'fiberrubbedpct_r',
@@ -565,6 +868,7 @@ def lookupSSURGOFieldName(ssurgoProperty,returnAlias=False):
                     'Very Coarse Sand - Rep Value': 'sandvc_r',
                     'Very Fine Sand - Rep Value': 'sandvf_r',
                     'Water Soluble Phosphate - Rep Value': 'ph2osoluble_r',
+                    'Water Table Depth Annual Minimum': 'wtdepannmin',
                     'Wind Erodibility Group': 'weg',
                     'Wind Erodibility Index': 'wei',
                     'no. 10 sieve - Rep Value': 'sieveno10_r',
@@ -798,33 +1102,61 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
 
     # ------------------------------------------------------------------
     def UpdateLyrxSymbology(lyrxObj):
-
         sym = lyrxObj.symbology
 
         if sym.renderer.type == 'UniqueValueRenderer':
-            sym.updateRenderer('UniqueValueRenderer')
+            # This will essentially reset the values
+            # sym.updateRenderer('UniqueValueRenderer')
 
             # This is the field used to render the symbology i.e. [hydgrp]
             rendererFld = sym.renderer.fields
 
-            # These are the values found in the FC being symbolized
-            uniqueValues = list(set([row[0] for row in arcpy.da.SearchCursor(ssurgoFC,rendererFld)]))
+            # In order to add or remove values from a symbology list the group
+            # heading must be populated.  For the SSURGO_WCT Tool, the group heading
+            # name used was the Field Alias Name of the renderer field.
+            fieldAlias = ""
+            if rendererFld[0] in [f.name for f in arcpy.ListFields(ssurgoFC)]:
+                fieldAlias = [f.aliasName for f in arcpy.ListFields(ssurgoFC,rendererFld[0] + "*")][0]
+            else:
+                return None
 
-            # Get a list of unique Values in the symbology renderer
-            uniqueRendererValues = list()
+            # These are the values found in the FC being symbolized
+            uniqueFCvalues = list(set([row[0] for row in arcpy.da.SearchCursor(ssurgoFC,rendererFld)]))
+
+            uniqueRendererValues = list() # list of unique values in the symbology renderer
+            valuesToAdd = list()          # list of values that need to be added to renderer
+            bUpdateRenderer = False       # flag to update symbology
+
+            # Get a list of unique values in symbology renderer. Each value is an item
+            # and each item is associated within an ItemGroup.
             for grp in sym.renderer.groups:
                 for itm in grp.items:
                     uniqueRendererValues.append(itm.values[0][0])
 
-            # remove symbology values that are not present in the FC
-            for val in uniqueValues:
+            # determine whether FC values will be removed or added to
+            # symbology renderer
+            for val in uniqueFCvalues:
                 if val in uniqueRendererValues:
                     uniqueRendererValues.remove(val)
+                else:
+                    valuesToAdd.append(val)
 
+            # Remove values from Symbology renderer
             if len(uniqueRendererValues) > 0:
+                bUpdateRenderer = True
                 for val in uniqueRendererValues:
-                    sym.renderer.removeValues({rendererFld[0]: [val]})
-                    lyrxObj.symbology = sym
+                    sym.renderer.removeValues({fieldAlias: [val]})
+                    #AddMsgAndPrint("Removing " + str(val) + " from " + str(fieldAlias),1)
+
+            # Add values to Symbology renderer
+            if len(valuesToAdd) > 0:
+                bUpdateRenderer = True
+                for val in valuesToAdd:
+                    sym.renderer.addValues({fieldAlias: [val]})
+                    #AddMsgAndPrint("Adding " + str(val) + " to " + str(fieldAlias),1)
+
+            if bUpdateRenderer:
+                lyrxObj.symbology = sym
     # ------------------------------------------------------------------
 
     try:
@@ -832,14 +1164,14 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
         scriptPath = os.path.dirname(__file__)
 
         # isolate the property names (remove aggregation method)
-        propertyNames = [property.split('-')[0] for property in listOfProperties]
+        propertyNames = [soilproperty.split('-')[0] for soilproperty in listOfProperties]
         lyrxToAddToArcPro = []
 
         # Update the connection properties for the .lyrx files that will be added to ArcGIS Pro
-        for property in listOfProperties:
+        for soilproperty in listOfProperties:
 
             # 'Drainage Class - Dominant Condition'
-            propSplit = property.split('-')                   # ['Drainage Class ', ' Dominant Condition']
+            propSplit = soilproperty.split('-')               # ['Drainage Class ', ' Dominant Condition']
             propName = propSplit[0].strip().replace(" ","")   # DrainageClass
             aggMethod = propSplit[1].strip().replace(" ","")  # DominantCondition
 
@@ -860,8 +1192,11 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
                 lyrxObject.updateConnectionProperties(lyrxObject.connectionProperties,lyrxConnectProperties)
                 lyrxToAddToArcPro.append(lyrxObject)
 
+            # The layer is missing a .lyrx.  Exception is Ecological class ID and Type
             else:
-                AddMsgAndPrint(property + " is missing .lyrx file",1)
+                if not soilproperty in ['Ecological Classification ID - coecoclass','Ecological Classification Type Name - coecoclass']:
+                    AddMsgAndPrint(soilproperty + " is missing .lyrx file",1)
+                    AddMsgAndPrint(str(lyrxPath),2)
 
         aprx = arcpy.mp.ArcGISProject("CURRENT")
 
@@ -877,7 +1212,7 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
         # This is the map object where the lyrx files were added to
         mapObject = ""
 
-        # G
+        # Add Layer to existing ArcGIS Pro 'SSURGO Layers' Group
         for map in aprx.listMaps():
             for mapLyr in map.listLayers():
 
@@ -911,7 +1246,7 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
                 bAddedLyrxFilesToPro = True
                 AddMsgAndPrint("Adding Layer to ArcGIS Pro: " + lyrx.name)
 
-        # Update symbology
+        # Update symbology for newly added SSURGO_WCT layers
         aprx = arcpy.mp.ArcGISProject("CURRENT")
         for lyr in mapObject.listLayers():
 
@@ -927,6 +1262,7 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
         AddMsgAndPrint("Couldn't Add Layers to your ArcGIS Pro Session",1)
         pass
 
+
 # ==============================================================================================================================
 def start(aoi,soilPropertyList,outputWS):
 
@@ -937,25 +1273,83 @@ def start(aoi,soilPropertyList,outputWS):
 
     try:
 
-        # get SSURGO polgyons from SDA
-        outSSURGOlayer = getSSURGOgeometryFromSDA(aoi, outputWS, "SSURGO_WCT")
+        # This section is for Ecological Classification interps.
+        ecoList = ['Ecological Classification Name - Dominant Condition',
+                   'Ecological Classification ID - Dominant Condition',
+                   'Ecological Classification Type Name - Dominant Condition']
 
-        listOfMukeys = [row[0] for row in arcpy.da.SearchCursor(outSSURGOlayer,["MUKEY"])]
+        tempList = soilPropertyList
+        bEcoInterpPresent = False    # boolean
+
+        # iterate through the soilPropertyList and modify the ecological interp.
+        # If any Ecological Classification interp is included in the soil
+        # property list then include all and make sure they are the last
+        # 3 in the list.  Also, update the 'Dominant Condition' aggregation
+        # method to 'coecoclass'
+        for tempProp in tempList:
+            if tempProp in ecoList:
+                bEcoInterpPresent = True
+                ecoList.pop(ecoList.index(tempProp)) # remove eco interp from ecoList
+
+                # rename item from:
+                # 'Ecological Classification Type Name - Dominant Condition' TO
+                # 'Ecological Classification Type Name - coecoclass'
+                updatePropertyName = tempProp[0:tempProp.find('-')+2] + 'coecoclass'
+                soilPropertyList = [x.replace(tempProp,updatePropertyName) for x in soilPropertyList]
+
+                # Put the newly updated eco interp to the end of the list so that
+                # all eco interps are together.
+                soilPropertyList.sort(key=updatePropertyName.__eq__)
+
+        # If Ecological Classification interp was included in user selection then
+        # Add Eco Class ID and Type name
+        if bEcoInterpPresent and ecoList:
+            for ecoInterp in ecoList:
+                updateEcoName = ecoInterp[0:ecoInterp.find('-')+2] + 'coecoclass'
+                soilPropertyList.append(updateEcoName)
+
+        # iterate through the soilPropertyList and rename the ponding interp
+        # from Dominant Condition' aggregation method to 'comonth'
+        for tempProp in tempList:
+            if tempProp == 'Ponding Frequency Class - Dominant Condition':
+
+                # rename item from:
+                # 'Ponding Frequency Class - Dominant Condition' TO
+                # 'Ponding Frequency Class - comonth'
+                updatePropertyName = tempProp[0:tempProp.find('-')+2] + 'comonth'
+                soilPropertyList = [x.replace(tempProp,updatePropertyName) for x in soilPropertyList]
+
+
+        # get SSURGO polgyons from SDA
+        outSSURGOlayer = getSSURGOgeometryFromSDA(aoi, outputWS, "SSURGO_Mapunits")
+        #outSSURGOlayer = r'E:\python_scripts\GitHub\SSURGO_WCT\Wetland_Workspace.gdb\SSURGO_WCT'
+
+        if not outSSURGOlayer:
+            AddMsgAndPrint("Failed to get SSURGO from Soil Data Access",2)
+            exit()
+
+        listOfMukeys = list(set([row[0] for row in arcpy.da.SearchCursor(outSSURGOlayer,["MUKEY"])]))
 
         if listOfMukeys:
 
-            for property in soilPropertyList:
+            for soilproperty in soilPropertyList:
 
-                propSplit = property.split('-')
-                property = propSplit[0].strip()
+                propSplit = soilproperty.split('-')
+                soilproperty = propSplit[0].strip()
                 aggMethod = propSplit[1].strip()
 
-                theQuery = compileSQLquery(property,aggMethod,listOfMukeys)
+                theQuery = compileSQLquery(soilproperty,aggMethod,listOfMukeys)
                 tbRequest = getSDATabularRequest(theQuery,outSSURGOlayer)
 
-        else:
-            arcpy.AddError('Fatal.\n' + listOfMukeys)
+                updateMetadataDescription(soilproperty,outSSURGOlayer)
 
+        else:
+            AddMsgAndPrint("Failed to get a list of MUKEYs from " + os.path.basename(outSSURGOlayer),2)
+            return False
+
+        # Adding the SSURGO polygons to the list so that it can be automatically added to ArcGISPro
+        # The physical layer name will not be altered.
+        soilPropertyList.append(os.path.basename(outSSURGOlayer) + " - Polygons")
         AddSSURGOLayersToArcGISPro(outSSURGOlayer,soilPropertyList)
 
         return outSSURGOlayer
@@ -964,10 +1358,11 @@ def start(aoi,soilPropertyList,outputWS):
         errorMsg()
 
 # ====================================== Main Body ==================================
-import sys, os, time, urllib, json, traceback, socket
-import arcgisscripting, arcpy
+import sys, os, time, urllib, json, traceback, socket, arcpy, datetime
+from arcpy import metadata as md
 
 from urllib.error import HTTPError, URLError
+from urllib.request import Request
 
 if __name__ == '__main__':
 
@@ -976,14 +1371,11 @@ if __name__ == '__main__':
         propertyList = arcpy.GetParameter(1)  # python List of SSURGO Properties
         outLoc = arcpy.GetParameterAsText(2)  # Must be a FGDB
 
-##        featSet = r'E:\python_scripts\GitHub\SSURGO_WCT\Wetland_Workspace.gdb\CLU_example2'
-##        aggMethod = 'Dominant Component (Category)'
-##        propParam = ['Drainage Class','Hydric Rating','Hydrologic Group']
-##        #aggMethod = 'Dominant Condition'
-##        #propParam = ['Hydric Condition']
+##        feature = r'E:\python_scripts\GitHub\SSURGO_WCT\Wetland_Workspace.gdb\CLU_example2'
+##        propertyList = ['Ecological Classification Name - Dominant Condition', 'Drainage Class - Dominant Condition', 'Hydric Condition - Dominant Condition', 'Hydric Rating - Dominant Condition', 'Hydrologic Group - Dominant Condition', 'Ponding Frequency Class - Dominant Component', 'Water Table Depth Annual - Mapunit Aggregate']
+##        outLoc = r'E:\python_scripts\GitHub\SSURGO_WCT\Wetland_Workspace.gdb'
 
         outputLayer = start(feature,propertyList,outLoc)
-        AddMsgAndPrint(outputLayer)
 
 
     except:

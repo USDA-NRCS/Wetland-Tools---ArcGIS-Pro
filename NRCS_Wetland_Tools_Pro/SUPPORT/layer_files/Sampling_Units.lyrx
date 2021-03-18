@@ -3,20 +3,20 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=data_templates/sampling_units.xml"
+    "CIMPATH=data_templates/master_sampling_units.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
       "name" : "Site_Sampling_Units",
-      "uRI" : "CIMPATH=data_templates/sampling_units.xml",
+      "uRI" : "CIMPATH=data_templates/master_sampling_units.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/6592a3a3c50d3ba379577db6ea5cf99d.xml",
+      "metadataURI" : "CIMPATH=Metadata/cbcccb6fd1fba909a535aa8ae3733033.xml",
       "useSourceMetadata" : true,
-      "description" : "Sampling Units",
+      "description" : "master_sampling_units",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
@@ -24,7 +24,7 @@
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -35,7 +35,6 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "admin_state_name",
         "editable" : true,
         "fieldDescriptions" : [
           {
@@ -70,9 +69,15 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Job ID",
+            "fieldName" : "job_id",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Admin State",
             "fieldName" : "admin_state",
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -88,7 +93,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Admin County",
             "fieldName" : "admin_county",
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -104,7 +108,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "State Code",
             "fieldName" : "state_code",
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -120,7 +123,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "County Code",
             "fieldName" : "county_code",
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -150,13 +152,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Locked?",
-            "fieldName" : "locked",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "Evaluation Status",
             "fieldName" : "eval_status",
             "visible" : true,
@@ -179,6 +174,13 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Sampling Unit Letter",
+            "fieldName" : "su_letter",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Acres",
             "fieldName" : "acres",
             "numberFormat" : {
@@ -186,9 +188,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true,
-              "zeroPad" : true
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -205,6 +205,13 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 0
             },
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Associated Reference Points",
+            "fieldName" : "associated_ref",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -263,7 +270,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Comments",
-            "fieldName" : "comments",
+            "fieldName" : "su_comments",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -278,6 +285,7 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 6
             },
+            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -292,10 +300,17 @@
               "roundingOption" : "esriRoundNumberOfDecimals",
               "roundingValue" : 6
             },
+            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           }
         ],
+        "displayExpressionInfo" : {
+          "type" : "CIMExpressionInfo",
+          "title" : "Custom",
+          "expression" : "Text($feature.su_number) + $feature.su_letter",
+          "returnType" : "Default"
+        },
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
           "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
@@ -309,7 +324,7 @@
       "featureTemplates" : [
         {
           "type" : "CIMFeatureTemplate",
-          "name" : "Site Sampling Units",
+          "name" : "Site_Sampling_Units",
           "tags" : "Polygon",
           "toolProgID" : "00000000-0000-0000-0000-000000000000"
         }
@@ -321,7 +336,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.su_number + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\" + TextFormatting.NewLine + $feature.three_factors",
+          "expression" : "Text($feature.su_number) + $feature.su_letter + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\" + TextFormatting.NewLine + $feature.three_factors",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -493,12 +508,12 @@
                       "joinStyle" : "Round",
                       "lineStyle3D" : "Strip",
                       "miterLimit" : 10,
-                      "width" : 1,
+                      "width" : 0.69999999999999996,
                       "color" : {
                         "type" : "CIMRGBColor",
                         "values" : [
-                          0,
-                          0,
+                          255,
+                          170,
                           0,
                           100
                         ]
@@ -515,7 +530,7 @@
               "fontFamilyName" : "Tahoma",
               "fontStyleName" : "Bold",
               "fontType" : "Unspecified",
-              "haloSize" : 1.5,
+              "haloSize" : 1,
               "haloSymbol" : {
                 "type" : "CIMPolygonSymbol",
                 "symbolLayers" : [
@@ -631,8 +646,8 @@
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/6592a3a3c50d3ba379577db6ea5cf99d.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201022</CreaDate><CreaTime>13312100</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/cbcccb6fd1fba909a535aa8ae3733033.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210317</CreaDate><CreaTime>17031300</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     }
   ],
   "elevationSurfaces" : [

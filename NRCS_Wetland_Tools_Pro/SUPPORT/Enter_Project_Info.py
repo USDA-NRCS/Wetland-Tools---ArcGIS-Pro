@@ -16,14 +16,18 @@
 ## ===============================================================================================================
 ##
 ## rev. 9/18/2020
-## Start revisions of Enter Basic Info ArcMap tool to National Wetlands Tool in ArcGIS Pro.
-## Removed lookup table steps for state and county names. That is now handled in the Create Project Folder tool.
-## Greatly streamlined the tool and processing from the old ArcMap tool.
-## Updated attributes for new data model of national tool.
-## Added optional entries for client address information for use in creating forms and letters.
+## -Start revisions of Enter Basic Info ArcMap tool to National Wetlands Tool in ArcGIS Pro.
+## -Removed lookup table steps for state and county names. That is now handled in the Create Project Folder tool.
+## -Greatly streamlined the tool and processing from the old ArcMap tool.
+## -Updated attributes for new data model of national tool.
+## -Added optional entries for client address information for use in creating forms and letters.
 ##
 ## rev. 11/24/2020
-## Add section to update template map layouts with the administrative information
+## -Add section to update template map layouts with the administrative information
+##
+## rev. 03/03/2021
+## -Added steps to store Job ID attribute in the projectTable
+## -Adjusted ordering of fields in cursors to match the schema of the admin info table in the SUPPORT.GDB
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================  
@@ -132,7 +136,7 @@ try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
     m = aprx.listMaps("Determinations")[0]
 except:
-    arcpy.AddError("\nThis tool must be from an active ArcGIS Pro project. Exiting...\n")
+    arcpy.AddError("\nThis tool must be run from a active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
 
@@ -146,9 +150,10 @@ try:
     requestType = arcpy.GetParameterAsText(4)       # Request Type (AD-1026, FSA-569, or NRCS-CPA-38)
     requestDate = arcpy.GetParameterAsText(5)       # Determination request date per request form signature date
     clientStreet = arcpy.GetParameterAsText(6)
-    clientCity = arcpy.GetParameterAsText(7)
-    clientState = arcpy.GetParameterAsText(8)
-    clientZip = arcpy.GetParameterAsText(9)
+    clientStreet2 = arcpy.GetParameterAsText(7)
+    clientCity = arcpy.GetParameterAsText(8)
+    clientState = arcpy.GetParameterAsText(9)
+    clientZip = arcpy.GetParameterAsText(10)
 
     #### Set base path
     # Get the basedataGDB_path from the input CLU layer. If else retained in case of other project path oddities.
@@ -175,6 +180,9 @@ try:
     basedataGDB_name = os.path.basename(basedataGDB_path)
     userWorkspace = os.path.dirname(basedataGDB_path)
     projectName = os.path.basename(userWorkspace).replace(" ", "_")
+    cluName = "Site_CLU"
+    projectCLU = basedataGDB_path + os.sep + "Layers" + os.sep + cluName
+    daoiName = "Site_Define_AOI"
     wetDir = userWorkspace + os.sep + "Wetlands"
 ##    helDir = userWorkspace + os.sep + "HEL"
     
@@ -198,6 +206,15 @@ try:
     logBasicSettings()
 
 
+    #### Get Job ID from input CLU
+    fields = ['job_id']
+    with arcpy.da.SearchCursor(projectCLU, fields) as cursor:
+        for row in cursor:
+            jobid = row[0]
+            break
+    del fields
+    
+        
     #### Table management
     # Determine if the job's admin table does not exist, else create the table.
     if not arcpy.Exists(projectTable):
@@ -247,8 +264,8 @@ try:
     AddMsgAndPrint("\nUpdating the administrative table...",0)
     field_names = ['admin_state','admin_state_name','admin_county','admin_county_name',
                    'state_code','state_name','county_code','county_name','farm_number','tract_number',
-                   'client','deter_staff','dig_staff','request_date','request_type','street','city',
-                   'state','zip']
+                   'client','deter_staff','dig_staff','request_date','request_type','street','street_2','city',
+                   'state','zip','job_id']
     with arcpy.da.UpdateCursor(projectTable, field_names) as cursor:
         for row in cursor:
             row[0] = adminState
@@ -268,12 +285,15 @@ try:
             row[14] = requestType
             if clientStreet != '':
                 row[15] = clientStreet
+            if clientStreet2 != '':
+                row[16] = clientStreet2
             if clientCity != '':
-                row[16] = clientCity
+                row[17] = clientCity
             if clientState != '':
-                row[17] = clientState
+                row[18] = clientState
             if clientZip != '':
-                row[18] = clientZip
+                row[19] = clientZip
+            row[20] = jobid
             cursor.updateRow(row)
     del field_names
 
@@ -282,6 +302,8 @@ try:
     # Set a file name and export to the user workspace folder for the project
     AddMsgAndPrint("\nExporting administrative text file...",0)
     textTable = "Admin_Info_" + projectName + ".txt"
+    if arcpy.Exists(textTable):
+        arcpy.Delete_management(textTable)
     arcpy.TableToTable_conversion(projectTable, userWorkspace, textTable)
 
 
@@ -301,6 +323,23 @@ try:
     if DM_layout:
         updateLayoutText(DM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
     
+
+    #### Adjust layer visibility in maps
+    # Turn off CLU layer
+    off_names = [cluName]
+    for maps in aprx.listMaps():
+        for lyr in maps.listLayers():
+            for name in off_names:
+                if name in lyr.name:
+                    lyr.visible = False
+
+    # Turn on DAOI layer
+    on_names = [daoiName]
+    for maps in aprx.listMaps():
+        for lyr in maps.listLayers():
+            for name in on_names:
+                if (lyr.name).startswith(name):
+                    lyr.visible = True
 
     #### Compact FGDB
     try:

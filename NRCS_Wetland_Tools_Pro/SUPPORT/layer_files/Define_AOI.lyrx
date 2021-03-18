@@ -3,21 +3,22 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=Determinations/98e561284c8745ac89eaabf5527eef17.xml"
+    "CIMPATH=data_templates/master_daoi.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Define_AOI_in091_t0012564_2020_09",
-      "uRI" : "CIMPATH=Determinations/98e561284c8745ac89eaabf5527eef17.xml",
+      "name" : "Site_Define_AOI",
+      "uRI" : "CIMPATH=data_templates/master_daoi.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant"
+        "type" : "TimeInstant",
+        "start" : 978307200000
       },
       "useSourceMetadata" : true,
-      "description" : "Extent_in091_t0012564_2020_09",
+      "description" : "master_daoi",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
+        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -48,54 +49,110 @@
               "roundingValue" : 0
             },
             "readOnly" : true,
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
             "alias" : "Shape",
             "fieldName" : "Shape",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Global Id",
+            "fieldName" : "GlobalId",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Job ID",
+            "fieldName" : "job_id",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Admin State",
+            "fieldName" : "admin_state",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Admin State Name",
+            "fieldName" : "admin_state_name",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "clu_identifier",
-            "fieldName" : "clu_identifier",
+            "alias" : "Admin County",
+            "fieldName" : "admin_county",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Admin County Name",
+            "fieldName" : "admin_county_name",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "clu_number",
-            "fieldName" : "clu_number",
+            "alias" : "State Code",
+            "fieldName" : "state_code",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State Name",
+            "fieldName" : "state_name",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "tract_number",
-            "fieldName" : "tract_number",
+            "alias" : "County Code",
+            "fieldName" : "county_code",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "County Name",
+            "fieldName" : "county_name",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "farm_number",
+            "alias" : "Farm Number",
             "fieldName" : "farm_number",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "clu_classification_code",
-            "fieldName" : "clu_classification_code",
+            "alias" : "Tract Number",
+            "fieldName" : "tract_number",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "clu_calculated_acreage",
+            "alias" : "CLU Number",
+            "fieldName" : "clu_number",
+            "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "CLU Calculated Acreage",
             "fieldName" : "clu_calculated_acreage",
             "numberFormat" : {
               "type" : "CIMNumericFormat",
@@ -109,190 +166,22 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "highly_erodible_land_type_code",
+            "alias" : "Highly Erodible Land Type Code",
             "fieldName" : "highly_erodible_land_type_code",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "comments",
-            "fieldName" : "comments",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "state_code",
-            "fieldName" : "state_code",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "county_code",
-            "fieldName" : "county_code",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "data_source_site_identifier",
-            "fieldName" : "data_source_site_identifier",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "creation_date",
+            "alias" : "Creation Date",
             "fieldName" : "creation_date",
             "visible" : true,
             "searchMode" : "Exact"
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "last_change_date",
+            "alias" : "Last Change Date",
             "fieldName" : "last_change_date",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "data_source",
-            "fieldName" : "data_source",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "admin_state",
-            "fieldName" : "admin_state",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "admin_county",
-            "fieldName" : "admin_county",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "cropland_indicator_3CM",
-            "fieldName" : "cropland_indicator_3CM",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "sap_crp",
-            "fieldName" : "sap_crp",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "clu_status",
-            "fieldName" : "clu_status",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "cdist_fips",
-            "fieldName" : "cdist_fips",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "edit_reason",
-            "fieldName" : "edit_reason",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "GlobalId",
-            "fieldName" : "GlobalId",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "clu_alt_id",
-            "fieldName" : "clu_alt_id",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "last_chg_user_nm",
-            "fieldName" : "last_chg_user_nm",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "state_ansi_code",
-            "fieldName" : "state_ansi_code",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "county_ansi_code",
-            "fieldName" : "county_ansi_code",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "admin_state_name",
-            "fieldName" : "admin_state_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "admin_county_name",
-            "fieldName" : "admin_county_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "state_name",
-            "fieldName" : "state_name",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "county_name",
-            "fieldName" : "county_name",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -308,7 +197,7 @@
               "roundingValue" : 6
             },
             "readOnly" : true,
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -323,29 +212,20 @@
               "roundingValue" : 6
             },
             "readOnly" : true,
-            "visible" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
-          "type" : "CIMFeatureDatasetDataConnection",
-          "featureDataset" : "Layers",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in091_t0012564_2020_09\\in091_t0012564_2020_09_BaseData.gdb",
+          "type" : "CIMStandardDataConnection",
+          "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "Define_AOI_in091_t0012564_2020_09",
+          "dataset" : "master_daoi",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
-      "featureTemplates" : [
-        {
-          "type" : "CIMFeatureTemplate",
-          "name" : "Extent_in091_t0012564_2020_09",
-          "tags" : "Polygon",
-          "toolProgID" : "00000000-0000-0000-0000-000000000000"
-        }
-      ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
@@ -619,8 +499,8 @@
                   "type" : "CIMRGBColor",
                   "values" : [
                     252.44999999999999,
-                    201.96000000000001,
-                    247.40000000000001,
+                    204.86000000000001,
+                    179.24000000000001,
                     0
                   ]
                 }
@@ -639,7 +519,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+      "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

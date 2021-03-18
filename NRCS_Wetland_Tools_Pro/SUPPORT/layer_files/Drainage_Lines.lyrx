@@ -3,20 +3,20 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=data_templates/drainage_lines.xml"
+    "CIMPATH=data_templates/master_drainage_lines.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
       "name" : "Site_Drainage_Lines",
-      "uRI" : "CIMPATH=data_templates/drainage_lines.xml",
+      "uRI" : "CIMPATH=data_templates/master_drainage_lines.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/08fc96d3549f008edf86a928a6f018ab.xml",
+      "metadataURI" : "CIMPATH=Metadata/4ce845972d661707fafc7eb1d7d897af.xml",
       "useSourceMetadata" : true,
-      "description" : "Drainage Lines",
+      "description" : "master_drainage_lines",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
@@ -24,7 +24,7 @@
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -35,7 +35,6 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "Shape_Length",
         "editable" : true,
         "fieldDescriptions" : [
           {
@@ -62,21 +61,6 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Shape_Length",
-            "fieldName" : "Shape_Length",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "readOnly" : true,
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "GlobalID",
             "fieldName" : "GlobalID",
             "readOnly" : true,
@@ -85,9 +69,85 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Job ID",
+            "fieldName" : "job_id",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Admin State",
+            "fieldName" : "admin_state",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Admin State Name",
+            "fieldName" : "admin_state_name",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Admin County",
+            "fieldName" : "admin_county",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Admin County Name",
+            "fieldName" : "admin_county_name",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State Code",
+            "fieldName" : "state_code",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "State Name",
+            "fieldName" : "state_name",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "County Code",
+            "fieldName" : "county_code",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "County Name",
+            "fieldName" : "county_name",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Farm Number",
+            "fieldName" : "farm_number",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Tract Number",
+            "fieldName" : "tract_number",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Line Type",
             "fieldName" : "line_type",
-            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -95,7 +155,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Era",
             "fieldName" : "manip_era",
-            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -115,9 +174,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true,
-              "zeroPad" : true
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -131,9 +188,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true,
-              "zeroPad" : true
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -147,9 +202,7 @@
               "alignmentOption" : "esriAlignRight",
               "alignmentWidth" : 0,
               "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 2,
-              "useSeparator" : true,
-              "zeroPad" : true
+              "roundingValue" : 6
             },
             "visible" : true,
             "searchMode" : "Exact"
@@ -157,11 +210,32 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Comments",
-            "fieldName" : "comments",
+            "fieldName" : "drain_comments",
             "visible" : true,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
+            "alias" : "Shape_Length",
+            "fieldName" : "Shape_Length",
+            "numberFormat" : {
+              "type" : "CIMNumericFormat",
+              "alignmentOption" : "esriAlignRight",
+              "alignmentWidth" : 0,
+              "roundingOption" : "esriRoundNumberOfDecimals",
+              "roundingValue" : 6
+            },
+            "readOnly" : true,
+            "visible" : false,
             "searchMode" : "Exact"
           }
         ],
+        "displayExpressionInfo" : {
+          "type" : "CIMExpressionInfo",
+          "title" : "Custom",
+          "expression" : "$feature.line_type + \", \" + $feature.manip_era",
+          "returnType" : "Default"
+        },
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
           "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
@@ -301,7 +375,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "DomainName($feature, 'line_type')",
+          "expression" : "$feature.manip_year",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -466,9 +540,27 @@
               "fontEffects" : "Normal",
               "fontEncoding" : "Unicode",
               "fontFamilyName" : "Tahoma",
-              "fontStyleName" : "Regular",
+              "fontStyleName" : "Bold",
               "fontType" : "Unspecified",
               "haloSize" : 1,
+              "haloSymbol" : {
+                "type" : "CIMPolygonSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidFill",
+                    "enable" : true,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        78,
+                        78,
+                        78,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              },
               "height" : 10,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
@@ -485,14 +577,21 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        0,
-                        0,
-                        0,
+                        255,
+                        255,
+                        255,
                         100
                       ]
                     }
                   }
                 ]
+              },
+              "symbol3DProperties" : {
+                "type" : "CIM3DSymbolProperties",
+                "dominantSizeAxis3D" : "Z",
+                "rotationOrder3D" : "YXZ",
+                "scaleZ" : 1,
+                "scaleY" : 1
               },
               "textCase" : "Normal",
               "textDirection" : "LTR",
@@ -1518,8 +1617,8 @@
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/08fc96d3549f008edf86a928a6f018ab.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201022</CreaDate><CreaTime>13304600</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/4ce845972d661707fafc7eb1d7d897af.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210317</CreaDate><CreaTime>17021900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     }
   ],
   "elevationSurfaces" : [

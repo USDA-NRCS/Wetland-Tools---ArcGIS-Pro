@@ -1,24 +1,25 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.5.0",
-  "build" : 22081,
+  "version" : "2.6.0",
+  "build" : 24783,
   "layers" : [
-    "CIMPATH=map/cwd.xml"
+    "CIMPATH=data_templates/master_cwd.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "CWD",
-      "uRI" : "CIMPATH=map/cwd.xml",
+      "name" : "Site_CWD",
+      "uRI" : "CIMPATH=data_templates/master_cwd.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
       },
+      "metadataURI" : "CIMPATH=Metadata/b97e31168cf9a992c9fbc8c92989746a.xml",
       "useSourceMetadata" : true,
-      "description" : "CWD",
+      "description" : "master_cwd",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
+        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -34,7 +35,6 @@
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
-        "displayField" : "admin_state_name",
         "editable" : true,
         "fieldDescriptions" : [
           {
@@ -69,9 +69,15 @@
           },
           {
             "type" : "CIMFieldDescription",
+            "alias" : "Job ID",
+            "fieldName" : "job_id",
+            "visible" : false,
+            "searchMode" : "Exact"
+          },
+          {
+            "type" : "CIMFieldDescription",
             "alias" : "Admin State",
             "fieldName" : "admin_state",
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -87,7 +93,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Admin County",
             "fieldName" : "admin_county",
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -103,7 +108,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "State Code",
             "fieldName" : "state_code",
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -119,7 +123,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "County Code",
             "fieldName" : "county_code",
-            "readOnly" : true,
             "visible" : false,
             "searchMode" : "Exact"
           },
@@ -145,34 +148,6 @@
             "fieldName" : "tract_number",
             "readOnly" : true,
             "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "CLU Number",
-            "fieldName" : "clu_number",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "CLU Subfield",
-            "fieldName" : "clu_subfield",
-            "visible" : false,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Field",
-            "fieldName" : "field",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Locked?",
-            "fieldName" : "locked",
-            "visible" : false,
             "searchMode" : "Exact"
           },
           {
@@ -214,31 +189,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "CWD Status",
-            "fieldName" : "cwd_status",
-            "highlight" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Associated ROP",
-            "fieldName" : "associated_rop",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "3-Factors",
             "fieldName" : "three_factors",
-            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -258,16 +210,8 @@
           },
           {
             "type" : "CIMFieldDescription",
-            "alias" : "Designated Conservationist",
-            "fieldName" : "des_con",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
             "alias" : "Determination Method",
             "fieldName" : "deter_method",
-            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -275,7 +219,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Determination Staff",
             "fieldName" : "deter_staff",
-            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -296,7 +239,7 @@
           {
             "type" : "CIMFieldDescription",
             "alias" : "Comments",
-            "fieldName" : "comments",
+            "fieldName" : "cwd_comments",
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -331,6 +274,12 @@
             "searchMode" : "Exact"
           }
         ],
+        "displayExpressionInfo" : {
+          "type" : "CIMExpressionInfo",
+          "title" : "Custom",
+          "expression" : "$feature.wetland_label + $feature.occur_year",
+          "returnType" : "Default"
+        },
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
           "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
@@ -341,13 +290,22 @@
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
+      "featureTemplates" : [
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "Site_CWD_Template",
+          "tags" : "Polygon",
+          "toolProgID" : "00000000-0000-0000-0000-000000000000"
+        }
+      ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
+      "displayFiltersType" : "ByScale",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.admin_state_name",
+          "expression" : "if(!IsEmpty($feature.occur_year)) {\n    return $feature.wetland_label + TextFormatting.NewLine + Round($feature.acres, 2) + \" ac\"\n}\nelse {\n    return $feature.wetland_label + $feature.occur_year + TextFormatting.NewLine + Round($feature.acres, 2) + \" ac\"\n}",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -512,17 +470,10 @@
               "fontEffects" : "Normal",
               "fontEncoding" : "Unicode",
               "fontFamilyName" : "Tahoma",
-              "fontStyleName" : "Regular",
+              "fontStyleName" : "Bold",
               "fontType" : "Unspecified",
               "haloSize" : 1,
-              "height" : 10,
-              "hinting" : "Default",
-              "horizontalAlignment" : "Left",
-              "kerning" : true,
-              "letterWidth" : 100,
-              "ligatures" : true,
-              "lineGapType" : "ExtraLeading",
-              "symbol" : {
+              "haloSymbol" : {
                 "type" : "CIMPolygonSymbol",
                 "symbolLayers" : [
                   {
@@ -540,6 +491,38 @@
                   }
                 ]
               },
+              "height" : 10,
+              "hinting" : "Default",
+              "horizontalAlignment" : "Left",
+              "kerning" : true,
+              "letterWidth" : 100,
+              "ligatures" : true,
+              "lineGapType" : "ExtraLeading",
+              "symbol" : {
+                "type" : "CIMPolygonSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidFill",
+                    "enable" : true,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        76,
+                        230,
+                        0,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              },
+              "symbol3DProperties" : {
+                "type" : "CIM3DSymbolProperties",
+                "dominantSizeAxis3D" : "Z",
+                "rotationOrder3D" : "YXZ",
+                "scaleZ" : 1,
+                "scaleY" : 1
+              },
               "textCase" : "Normal",
               "textDirection" : "LTR",
               "verticalAlignment" : "Bottom",
@@ -553,6 +536,7 @@
           "iD" : -1
         }
       ],
+      "labelVisibility" : true,
       "renderer" : {
         "type" : "CIMSimpleRenderer",
         "patch" : "Default",
@@ -568,12 +552,12 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 1.5,
+                "width" : 1.4999999999999998,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    255,
-                    170,
+                    76,
+                    230,
                     0,
                     100
                   ]
@@ -585,9 +569,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    130,
-                    130,
-                    130,
+                    228.88999999999999,
+                    252.44999999999999,
+                    212.06,
                     0
                   ]
                 }
@@ -600,13 +584,20 @@
       "snappable" : true
     }
   ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/b97e31168cf9a992c9fbc8c92989746a.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210317</CreaDate><CreaTime>17084700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+    }
+  ],
   "elevationSurfaces" : [
     {
       "type" : "CIMMapElevationSurface",
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+      "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

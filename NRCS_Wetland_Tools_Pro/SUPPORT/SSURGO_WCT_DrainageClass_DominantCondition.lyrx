@@ -1,22 +1,20 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.4.0",
-  "build" : 19948,
+  "version" : "2.6.0",
+  "build" : 24783,
   "layers" : [
-    "CIMPATH=map/drainage_class.xml"
+    "CIMPATH=ssurgo_wct/ssurgo_wct5.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Drainage Class",
-      "uRI" : "CIMPATH=map/drainage_class.xml",
+      "name" : "Drainage Class Dom. Cond.",
+      "uRI" : "CIMPATH=ssurgo_wct/ssurgo_wct5.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant",
-        "start" : 978307200000
+        "type" : "TimeInstant"
       },
-      "metadataURI" : "CIMPATH=Metadata/b268a2c2eeef0cd8f27eb813f40f35c4.xml",
-      "useSourceMetadata" : false,
-      "description" : "\"Drainage class (natural)\" refers to the frequency and duration of wet periods under conditions similar to those under which the soil formed. Alterations of the water regime by human activities, either through drainage or irrigation, are not a consideration unless they have significantly changed the morphology of the soil. Seven classes of natural soil drainage are recognized-excessively drained, somewhat excessively drained, well drained, moderately well drained, somewhat poorly drained, poorly drained, and very poorly drained. These classes are defined in the \"Soil Survey Manual.\"\n\nAggregation Method: Dominant Condition\nTie-break Rule: Higher",
+      "useSourceMetadata" : true,
+      "description" : "SSURGO_WCT",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}"
@@ -37,116 +35,6 @@
         "type" : "CIMFeatureTable",
         "displayField" : "MUNAME",
         "editable" : true,
-        "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "OBJECTID",
-            "fieldName" : "OBJECTID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 12,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape",
-            "fieldName" : "Shape",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape_Length",
-            "fieldName" : "Shape_Length",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 12,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape_Area",
-            "fieldName" : "Shape_Area",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 12,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Area Symbol",
-            "fieldName" : "AREASYMBOL",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Mapunit Symbol",
-            "fieldName" : "MUSYM",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Mapunit Name",
-            "fieldName" : "MUNAME",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Mapunit Key",
-            "fieldName" : "MUKEY",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Drainage Class",
-            "fieldName" : "drainagecl",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Hydric Rating",
-            "fieldName" : "hydricrating",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Hydric Condition",
-            "fieldName" : "hydricon",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Hydrologic Group",
-            "fieldName" : "hydgrp",
-            "visible" : true,
-            "searchMode" : "Exact"
-          }
-        ],
         "timeFields" : {
           "type" : "CIMTimeTableDefinition"
         },
@@ -178,33 +66,8 @@
       },
       "isFlattened" : true,
       "selectable" : true,
-      "selectionSymbol" : {
-        "type" : "CIMSymbolReference",
-        "symbol" : {
-          "type" : "CIMPolygonSymbol",
-          "symbolLayers" : [
-            {
-              "type" : "CIMSolidStroke",
-              "enable" : true,
-              "capStyle" : "Round",
-              "joinStyle" : "Round",
-              "lineStyle3D" : "Strip",
-              "miterLimit" : 10,
-              "width" : 2,
-              "color" : {
-                "type" : "CIMRGBColor",
-                "values" : [
-                  0,
-                  255,
-                  255,
-                  100
-                ]
-              }
-            }
-          ]
-        }
-      },
-      "featureCacheType" : "None",
+      "featureCacheType" : "Session",
+      "displayFiltersType" : "ByScale",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
@@ -545,6 +408,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
+                "editable" : true,
                 "label" : "Somewhat excessively drained",
                 "patch" : "Default",
                 "symbol" : {
@@ -559,7 +423,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -576,9 +440,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            255,
-                            197,
-                            117,
+                            250,
+                            201,
+                            129,
                             100
                           ]
                         }
@@ -863,6 +727,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
+                "editable" : true,
                 "label" : "Subaqueous",
                 "patch" : "Default",
                 "symbol" : {
@@ -877,7 +742,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -894,8 +759,8 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            0,
-                            112,
+                            124,
+                            125,
                             255,
                             100
                           ]
@@ -916,6 +781,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
+                "editable" : true,
                 "label" : "Not rated or not available",
                 "patch" : "Default",
                 "symbol" : {
@@ -930,7 +796,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -947,9 +813,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            236,
-                            236,
-                            238,
+                            237,
+                            237,
+                            235,
                             100
                           ]
                         }
@@ -961,27 +827,23 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "Not rated or not available"
+                      "<Null>"
                     ]
                   }
                 ],
                 "visible" : true
               }
             ],
-            "heading" : "Drainage Class - Dom. Cond"
+            "heading" : "Drainage Class"
           }
         ],
         "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
-      "snappable" : true
-    }
-  ],
-  "binaryReferences" : [
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/b268a2c2eeef0cd8f27eb813f40f35c4.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201124</CreaDate><CreaTime>13580900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Drainage Class</resTitle></idCitation><idAbs>\"Drainage class (natural)\" refers to the frequency and duration of wet periods under conditions similar to those under which the soil formed. Alterations of the water regime by human activities, either through drainage or irrigation, are not a consideration unless they have significantly changed the morphology of the soil. Seven classes of natural soil drainage are recognized-excessively drained, somewhat excessively drained, well drained, moderately well drained, somewhat poorly drained, poorly drained, and very poorly drained. These classes are defined in the \"Soil Survey Manual.\"\r\n\r\nAggregation Method: Dominant Condition\r\nTie-break Rule: Higher</idAbs><idCredit>USDA - NRCS</idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst><searchKeys><keyword>SSURGO</keyword></searchKeys></dataIdInfo></metadata>\r\n"
+      "snappable" : true,
+      "symbolLayerDrawing" : {
+        "type" : "CIMSymbolLayerDrawing"
+      }
     }
   ],
   "elevationSurfaces" : [
@@ -1004,5 +866,7 @@
       "visibility" : true,
       "expanded" : true
     }
-  ]
+  ],
+  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+  "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
 }
