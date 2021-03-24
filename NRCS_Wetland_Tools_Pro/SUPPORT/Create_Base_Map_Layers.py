@@ -257,14 +257,7 @@ def createSU():
 
 
     #### Update SU layer attributes
-##    # Assign eval_status attribute as "New Request"
-##    fields = ['eval_status','locked']
-##    cursor = arcpy.da.UpdateCursor(projectSU, fields)
-##    for row in cursor:
-##        row[0] = "New Request"
-##        row[1] = "No"
-##        cursor.updateRow(row)
-##    del cursor
+##    # job_id and eval_status are now inherited from the Extent layer
 
     # Update calculated acres
     expression = "!Shape.Area@acres!"
@@ -412,7 +405,7 @@ def createREF():
 
 
     #### Import attribute rules to various layers in the project.
-    
+    arcpy.ImportAttributeRules_management(projectREF, rules_ref)
     
 ##    #### Add the layer to the map
 ##    # Use starting reference layer files for the tool installation to add layer with automatic placement
@@ -548,7 +541,7 @@ try:
     if sourceExtent_path.find('.gdb') > 0 and sourceExtent_path.find('Determinations') > 0 and sourceExtent_path.find('Request_Extent') > 0:
         basedataGDB_path = sourceExtent_path[:sourceExtent_path.find('.gdb')+4]
     else:
-        arcpy.AddError("\nSelected Define AOI layer is not from a Determinations project folder. Exiting...")
+        arcpy.AddError("\nSelected Request Extent layer is not from a Determinations project folder. Exiting...")
         exit()
 
 
@@ -627,21 +620,22 @@ try:
 ##    extentTemp3 = scratchGDB + os.sep + "Extent_temp3_" + projectName
 ##    tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
 
-    suTopoName = "Sampling_Units_Topology_" + projectName
+    suTopoName = "Sampling_Units_Topology"
     suTopo = wcFD + os.sep + suTopoName
 
-    prevCertMulti = scratchGDB + os.sep + "pCertMulti_" + projectName
-    prevCertTemp1 = scratchGDB + os.sep + "pCertTemp_" + projectName
-    prevCert = wcFD + os.sep + "PCWD_" + projectName
-    prevCertSite = wcFD + os.sep + "Site_PCWD_" + projectName
-    prevAdmin = wcFD + os.sep + "PCWD_Admin_" + projectName
-    prevAdminSite = wcFD + os.sep + "Site_PCWD_Admin_" + projectName
-    updatedCert = wcFD + os.sep + "MCWD_" + projectName
-    updatedAdmin = wcFD + os.sep + "MCWD_Admin" + projectName
+    prevCert = wcFD + os.sep + "Tract_Previous_CWD"
+    prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
+    prevCertMulti = scratchGDB + os.sep + "pCertMulti"
+    prevCertTemp1 = scratchGDB + os.sep + "pCertTemp"
+    prevAdmin = wcFD + os.sep + "Tract_Previous_Admin"
+    prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
+    updatedCert = wcFD + os.sep + "MCWD"
+    updatedAdmin = wcFD + os.sep + "MCWD_Admin"
     
     # Attribute rule files
     rules_su = os.path.join(os.path.dirname(sys.argv[0]), "Rules_SU.csv")
     rules_rops = os.path.join(os.path.dirname(sys.argv[0]), "Rules_ROPs.csv")
+    rules_refs = os.path.join(os.path.dirname(sys.argv[0]), "Rules_REF.csv")
     rules_lines = os.path.join(os.path.dirname(sys.argv[0]), "Rules_Drains.csv")
 
     # Temp layers list for cleanup at the start and at the end
@@ -679,14 +673,6 @@ try:
     descGDB = arcpy.Describe(wcGDB_path)
     domains = descGDB.domains
 
-##    if not "CWD Status" in domains:
-##        cwdTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_cwd_status")
-##        arcpy.TableToDomain_management(cwdTable, "Code", "Description", wcGDB_path, "CWD Status", "Choices for wetland determination status", "REPLACE")
-##        arcpy.AlterDomain_management(wcGDB_path, "CWD Status", "", "", "DUPLICATE")
-##    if not "Data Form" in domains:
-##        dataTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_data_form")
-##        arcpy.TableToDomain_management(dataTable, "Code", "Description", wcGDB_path, "Data Form", "Choices for data form completion", "REPLACE")
-##        arcpy.AlterDomain_management(wcGDB_path, "Data Form", "", "", "DUPLICATE")
     if not "Evaluation Status" in domains:
         evalTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_evaluation_status")
         arcpy.TableToDomain_management(evalTable, "Code", "Description", wcGDB_path, "Evaluation Status", "Choices for evaluation workflow status", "REPLACE")
@@ -707,10 +693,6 @@ try:
         requestTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_request_type")
         arcpy.TableToDomain_management(requestTable, "Code", "Description", wcGDB_path, "Request Type", "Choices for request type form", "REPLACE")
         arcpy.AlterDomain_management(wcGDB_path, "Request Type", "", "", "DUPLICATE")
-##    if not "ROP Status" in domains:
-##        ropTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_rop_status")
-##        arcpy.TableToDomain_management(ropTable, "Code", "Description", wcGDB_path, "ROP Status", "Choices for ROP status", "REPLACE")
-##        arcpy.AlterDomain_management(wcGDB_path, "ROP Status", "", "", "DUPLICATE")
     if not "Wetland Labels" in domains:
         wetTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_wetland_labels")
         arcpy.TableToDomain_management(wetTable, "Code", "Description", wcGDB_path, "Wetland Labels", "Choices for wetland determination labels", "REPLACE")

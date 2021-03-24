@@ -29,6 +29,10 @@
 ## -Added steps to store Job ID attribute in the projectTable
 ## -Adjusted ordering of fields in cursors to match the schema of the admin info table in the SUPPORT.GDB
 ##
+## rev. 03/22/2021
+## -Added section to copy the project table to the wetlands database for the project so that the table updates if
+##  this tool gets re-run out of sequence.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================  
 def AddMsgAndPrint(msg, severity=0):
@@ -199,6 +203,8 @@ try:
 
     # Permanent Datasets
     projectTable = basedataGDB_path + os.sep + tableName
+    wetDetTableName = "Admin_Table"
+    wetDetTable = wcGDB_path + os.sep + wetDetTableName
 
 
     #### Set up log file path and start logging
@@ -322,7 +328,27 @@ try:
         updateLayoutText(BM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
     if DM_layout:
         updateLayoutText(DM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
+
+
+    #### If project wetlands geodatabase and feature dataset do not exist, create them.
+    # Get the spatial reference from the Define AOI feature class and use it, if needed
+    AddMsgAndPrint("\nChecking project integrity...",0)
+    desc = arcpy.Describe(sourceCLU)
+    sr = desc.SpatialReference
     
+    if not arcpy.Exists(wcGDB_path):
+        AddMsgAndPrint("\tCreating Wetlands geodatabase...",0)
+        arcpy.CreateFileGDB_management(wetDir, wcGDB_name, "10.0")
+
+    if not arcpy.Exists(wcFD):
+        AddMsgAndPrint("\tCreating Wetlands feature dataset...",0)
+        arcpy.CreateFeatureDataset_management(wcGDB_path, "WC_Data", sr)
+
+    # Copy the administrative table into the wetlands database for use with the attribute rules during digitizing
+    if arcpy.Exists(wetDetTable):
+        arcpy.Delete_management(wetDetTable)
+    arcpy.TableToTable(projectTable, wcGDB_path, wetDetTableName)
+
 
     #### Adjust layer visibility in maps
     # Turn off CLU layer

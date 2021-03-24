@@ -44,3 +44,12 @@ Add SU Tract Number,Adds Tract Number to a new Sampling Unit,CALCULATION,,tract_
 var records = First(det_table)
 
 return records.tract_number",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
+Add Request Date,Adds Request Date to a new Sampling Unit,CALCULATION,,request_date,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['request_date'])
+var records = First(det_table)
+
+return records.request_date",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
+Add Request Type,Adds Request Type to a new Sampling Unit,CALCULATION,,request_type,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['request_type'])
+var records = First(det_table)
+
+return records.request_type",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
+Add Eval Status,Adds Evaluation Status to a new Sampling Unit defaulted to New Request,CALCULATION,,eval_status,True,True,False,False,return ""New Request"",,,False,True,False,,,2147483647,"{""type"":""PropertySet"",""propertySetItems"":[]}"

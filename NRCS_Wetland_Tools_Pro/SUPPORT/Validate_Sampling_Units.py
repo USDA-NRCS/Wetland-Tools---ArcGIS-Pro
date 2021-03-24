@@ -155,6 +155,7 @@ try:
     basedataFD = basedataGDB_path + os.sep + basedataFD_name
 
     projectTract = basedataFD + os.sep + "Site_Tract"
+    projectTable = basedataGDB_path + os.sep + "Table_" + projectName
     
     suName = "Site_Sampling_Units"
     projectSU = wcFD + os.sep + suName
@@ -173,7 +174,6 @@ try:
     eval_domain = domain_base + os.sep + "domain_evaluation_status"
     yn_domain = domain_base + os.sep + "domain_yn"
     yesno_domain = domain_base + os.sep + "domain_yesno"
-    #rop_status_domain = domain_base + os.sep + "domain_rop_status"
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
@@ -197,7 +197,7 @@ try:
         exit()
 
         
-    #### Remove the processing layers related to these validations from the Pro maps
+    #### Remove the topology from the Pro maps, if present
     AddMsgAndPrint("\nRemoving topology from project maps, if present...",0)
     
     # Set starting layers to be removed
@@ -258,7 +258,8 @@ try:
         AddMsgAndPrint("\tPlease review and correct overlaps and then re-run this tool. Exiting...",2)
         exit()
     else:
-        AddMsgAndPrint("\tNo overlaps found! Continuing...",2)
+        AddMsgAndPrint("\tNo overlaps found! Continuing...",0)
+        arcpy.Delete_management(polysTopoFC)
 
 
     #### Refresh administrative info for the request on the SU and ROP layer
@@ -322,7 +323,7 @@ try:
 
     # Update ROPs layer
     AddMsgAndPrint("\tUpdating ROPs...",0)
-    fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','request_date','request_type','dig_staff','dig_date']
+    fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number']
     cursor = arcpy.da.UpdateCursor(projectROP, fields)
     for row in cursor:
         row[0] = job_id
@@ -336,10 +337,6 @@ try:
         row[8] = countyName
         row[9] = farmNum
         row[10] = tractNum
-        row[11] = rDate
-        row[12] = rType
-        row[13] = digStaff
-        row[14] = digDate
         cursor.updateRow(row)
     del cursor, fields
 
@@ -398,7 +395,7 @@ try:
     fields = ['su_number','su_letter']
     cursor = arcpy.da.SearchCursor(projectSU, fields)
     for row in cursor:
-        su_id = str(row[0]) + row[1]
+        su_id = str(row[0]) + str(row[1])
         if su_id not in su_list:
             su_list.append(su_id)
     su_len = len(su_list)
@@ -428,7 +425,7 @@ try:
         whereClause = "\"associated_rop\" IS NULL"
         with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
             for row in cursor:
-                AddMsgAndPrint("\t" + str(row[0]) + row[1],2)
+                AddMsgAndPrint("\t" + str(row[0]) + str(row[1]),2)
         AddMsgAndPrint("\tPlease correct and re-run. Exiting...\n",2)
         exit()
 
@@ -463,6 +460,19 @@ try:
             AddMsgAndPrint("\n" + item + " is not a valid choice for 3-Factors in the Sampling Units layer. Please correct and re-run. Exiting...\n",2)
             exit()
     del ynd_list, yn_list
+
+    # No values of U from the YN domain
+    u_list = []
+    fields = ['three_factors']
+    whereClause = "\"three_factors\" = 'U'"
+    with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
+        for row in cursor:
+            u_list.append(row[0])
+    if len(u_list) > 0:
+        AddMsgAndPrint("\tAt least one sampling unit has a choice for 3-Factors listed as U. Please correct to Y or N and re-run. Exiting...\n",2)
+        exit()
+    del u_list
+    
         
     ## Determination Method
     # No Null values
@@ -569,7 +579,7 @@ try:
         su_cursor = arcpy.da.SearchCursor(projectSU, su_fields)
         for su_row in su_cursor:
             if su_row[0] == rop_num:
-                cur_su = str(su_row[1]) + su_row[2]
+                cur_su = str(su_row[1]) + str(su_row[2])
                 if len(su_ids) == 0:
                     su_ids = su_ids + cur_su
                 else:
