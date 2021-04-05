@@ -350,7 +350,7 @@ def createROP():
 
 
     #### Import attribute rules to various layers in the project.
-    arcpy.ImportAttributeRules_management(projectROP, rules_rop)
+    arcpy.ImportAttributeRules_management(projectROP, rules_rops)
 
     
 ##    #### Add the layer to the map
@@ -405,7 +405,7 @@ def createREF():
 
 
     #### Import attribute rules to various layers in the project.
-    arcpy.ImportAttributeRules_management(projectREF, rules_ref)
+    arcpy.ImportAttributeRules_management(projectREF, rules_refs)
     
 ##    #### Add the layer to the map
 ##    # Use starting reference layer files for the tool installation to add layer with automatic placement
@@ -666,7 +666,7 @@ try:
     # Copy the administrative table into the wetlands database for use with the attribute rules during digitizing
     if arcpy.Exists(wetDetTable):
         arcpy.Delete_management(wetDetTable)
-    arcpy.TableToTable(projectTable, wcGDB_path, wetDetTableName)
+    arcpy.TableToTable_conversion(projectTable, wcGDB_path, wetDetTableName)
 
     # Add or validate the attribute domains for the wetlands geodatabase
     AddMsgAndPrint("\tChecking attribute domains...",0)

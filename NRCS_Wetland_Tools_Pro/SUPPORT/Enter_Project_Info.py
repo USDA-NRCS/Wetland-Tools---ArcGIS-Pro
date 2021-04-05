@@ -347,7 +347,7 @@ try:
     # Copy the administrative table into the wetlands database for use with the attribute rules during digitizing
     if arcpy.Exists(wetDetTable):
         arcpy.Delete_management(wetDetTable)
-    arcpy.TableToTable(projectTable, wcGDB_path, wetDetTableName)
+    arcpy.TableToTable_conversion(projectTable, wcGDB_path, wetDetTableName)
 
 
     #### Adjust layer visibility in maps

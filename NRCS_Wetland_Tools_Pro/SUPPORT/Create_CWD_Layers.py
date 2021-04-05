@@ -164,10 +164,9 @@ def createCWD():
     removeFCs(datasetsToRemove, wildcard, wkspace, toposToRemove)
     del datasetsToRemove, wildcard, wkspace, toposToRemove
 
-            
+    
     #### Create the CWD Layer
     AddMsgAndPrint("\nConverting Sampling Units to the CWD layer...",0)
-    
     # Create an empty CWD feature class that will eventually be loaded with the finished data
     arcpy.CreateFeatureclass_management(wcFD, cwdName, "POLYGON", templateCWD)
 
@@ -184,7 +183,7 @@ def createCWD():
     # Check if prevAdmin exists and process accordingly
     if arcpy.Exists(prevAdmin):
         AddMsgAndPrint("\tPrevious Certifications on the tract exist. Resolving potential conflicts with Sampling Units...",0)
-        arcpy.Clip_analysis(SU_Clip_Temp, PrevAdmin, Prev_SU_Temp)
+        arcpy.Clip_analysis(SU_Clip_Temp, prevAdmin, Prev_SU_Temp)
 
         # Check for Revisions in the Prev_SU_Temp layer
         arcpy.MakeFeatureLayer_management(Prev_SU_Temp, "Previous_SU")
@@ -213,17 +212,23 @@ def createCWD():
                 arcpy.Erase_analysis(projectExtent, prevAdmin, extentTemp2)
                 
                 # Append the updatedAdmin area to the Temp Request Extent Layer to make a partial version of the new Request Extent Layer to come
-                arcpy.Append_management(udpatedAdmin, extentTemp2, "NO_TEST")
+                arcpy.Append_management(updatedAdmin, extentTemp2, "NO_TEST")
                 
                 # Dissolve the suRev layer to make the suRevDissolve layer as a consolidated area of revisions. Update the 'job_id' to the current job afterwards.
                 dissolve_fields = ['job_id','admin_state', 'admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
                 arcpy.Dissolve_management(suRev, suRevDissolve)
+
+                workspace = scratchGDB
+                edit = arcpy.da.Editor(workspace)
+                edit.startEditing(False,False)
                 fields = ['job_id']
                 cursor = arcpy.da.UpdateCursor(suRevDissolve, fields)
                 for row in cursor:
                     row[0] = cur_id
                     cursor.updateRow(row)
                 del cursor, fields
+                edit.stopEditing(True)
+                del workspace, edit
                 
                 # Append the suRevDissolve to the Temp Request Extent Layer to complete the draft version of the new Request Extent layer.
                 arcpy.Append_management(suRevDissolve, extentTemp2, "NO_TEST")
@@ -233,7 +238,7 @@ def createCWD():
                 
                 # Append the features of the draft CWD layer to the CWD feature class
                 arcpy.Append_management(SU_Clip_New, projectCWD, "NO_TEST")
-                    
+                
                 # The updatedCert layer can be made into the prevCertSite layer and can be added to the map at the end of the tool (verify).
                 arcpy.CopyFeatures_management(updatedCert, prevCertSite)
 
@@ -245,6 +250,9 @@ def createCWD():
                 arcpy.Append_management(suRev, SU_Clip_New, "NO_TEST")
 
                 # Convert the "Certified-Digital" areas of the Request Extent Layer to "Revision"
+                workspace = scratchGDB
+                edit = arcpy.da.Editor(workspace)
+                edit.startEditing(False,False)
                 fields = ['job_id','eval_status']
                 cursor = arcpy.da.UpdateCursor(projectExtent, fields)
                 for row in cursor:
@@ -253,6 +261,8 @@ def createCWD():
                         row[1] = "Revision"
                     cursor.updateRow(row)
                 del cursor, fields
+                edit.stopEditing(True)
+                del workspace, edit
 
                 # Append the features of the draft CWD layer to the CWD feature class
                 arcpy.Append_management(SU_Clip_New, projectCWD, "NO_TEST")
@@ -264,13 +274,18 @@ def createCWD():
             AddMsgAndPrint("\tRevisions do not cover the previously certified areas. Resolving Revisions as New Request areas...",0)
 
             # Convert any "Revision" areas within the SU_Clip_New back to "New_Request"
+            workspace = scratchGDB
+            edit = arcpy.da.Editor(workspace)
+            edit.startEditing(False,False)
             fields = ['eval_status']
             cursor = arcpy.da.UpdateCursor(SU_Clip_New, fields)
-                for row in cursor:
-                    if row[0] == "Revision":
-                        row[0] = "New Request"
-                    cursor.updateRow(row)
+            for row in cursor:
+                if row[0] == "Revision":
+                    row[0] = "New Request"
+                cursor.updateRow(row)
             del cursor, fields
+            edit.stopEditing(True)
+            del workspace, edit
 
             # Append the results into the empty CWD feature class
             arcpy.Append_management(SU_Clip_New, projectCWD, "NO_TEST")
@@ -283,19 +298,25 @@ def createCWD():
         AddMsgAndPrint("\tNo previously certified areas on the tract. Processing Sampling Units...",0)
         
         # Convert any "Revision" areas within the SU_Clip_New back to "New_Request"
+        workspace = scratchGDB
+        edit = arcpy.da.Editor(workspace)
+        edit.startEditing(False,False)
         fields = ['eval_status']
         cursor = arcpy.da.UpdateCursor(SU_Clip_New, fields)
-            for row in cursor:
-                if row[0] == "Revision":
-                    row[0] = "New Request"
-                cursor.updateRow(row)
+        for row in cursor:
+            if row[0] == "Revision":
+                row[0] = "New Request"
+            cursor.updateRow(row)
         del cursor, fields
+        edit.stopEditing(True)
+        del workspace, edit
         
         # Append the results into the empty CWD feature class
         arcpy.Append_management(SU_Clip_New, projectCWD, "NO_TEST")
 
 
     #### Assign domains to the CWD layer
+    AddMsgAndPrint("\nUpdating attribute domains for CWD layer...",0)
     arcpy.AssignDomainToField_management(projectCWD, "eval_status", "Evaluation Status")
     arcpy.AssignDomainToField_management(projectCWD, "wetland_label", "Wetland Labels")
     arcpy.AssignDomainToField_management(projectCWD, "three_factors", "YN")
@@ -305,12 +326,16 @@ def createCWD():
     
     #### Update the attributes of the CWD layer
     # Update the job_id of the CWD layer
+    workspace = wcGDB_path
+    edit = arcpy.da.Editor(workspace)
+    edit.startEditing(False,False)
     fields = ['job_id']
     cursor = arcpy.da.UpdateCursor(projectCWD, fields)
     for row in cursor:
         row[0] = cur_id
         cursor.updateRow(row)
     del cursor, fields
+
     
     # Update the acres of the CWD layer
     expression = "!Shape.Area@acres!"
@@ -342,7 +367,8 @@ def createCWD():
                 row[5] = digDate
             cursor.updateRow(row)
         del cursor, fields
-
+    edit.stopEditing(True)
+    del workspace, edit
 
     #### Import attribute rules
     arcpy.ImportAttributeRules_management(projectCWD, rules_cwd)
@@ -368,12 +394,13 @@ def createPJW():
     removeFCs(datasetsToRemove, wildcard, wkspace)
     del datasetsToRemove, wildcard, wkspace
 
-            
+    if not arcpy.Exists(projectPJW):
+        AddMsgAndPrint("\tThe projectPJW layer was deleted or did not exist",0)
+        
     #### Create the PJW Layer
     AddMsgAndPrint("\nCreating the PJW layer...\n",0)
     arcpy.CreateFeatureclass_management(wcFD, pjwName, "POINT", templatePJW)
-
-
+    
     #### Import attribute rules to various layers in the project.
     arcpy.ImportAttributeRules_management(projectPJW, rules_pjw)
 
@@ -420,9 +447,10 @@ try:
     sourceSU = arcpy.GetParameterAsText(0)
     resetCWD = arcpy.GetParameterAsText(1)
     resetPJW = arcpy.GetParameterAsText(2)
-    existingCWD = arcpy.GetParameterAsText(3)
+    existingCWD = arcpy.GetParameterAsText(3)                   #### MISSING FROM SCRIPT
     cwdLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(4))
     pjwLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(5))
+    extLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(6))
 
 
     #### Initial Validations
@@ -433,7 +461,7 @@ try:
     
                 
     #### Set base path
-    sourceSU_path = arcpy.Describe(sourceExtent).CatalogPath
+    sourceSU_path = arcpy.Describe(sourceSU).CatalogPath
     if sourceSU_path.find('.gdb') > 0 and sourceSU_path.find('Determinations') > 0 and sourceSU_path.find('Site_Sampling_Units') > 0:
         wcGDB_path = sourceSU_path[:sourceSU_path.find('.gdb')+4]
     else:
@@ -441,86 +469,55 @@ try:
         exit()
 
 
-##    #### Do not run if an unsaved edits exist in the target workspace
-##    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
-##    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
-##    workspace = basedataGDB_path
-##    edit = arcpy.da.Editor(workspace)
-##    if edit.isEditing:
-##        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
-##        exit()
-##    del workspace, edit
-
-
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
     templateCWD = supportGDB + os.sep + "master_cwd"
-    templateCLUCWD = supportGDB + os.sep + "master_clu_cwd"
     templatePJW = supportGDB + os.sep + "master_pjw"
 
-    wetDir = os.path.dirname(basedataGDB_path)
+    wetDir = os.path.dirname(wcGDB_path)
     userWorkspace = os.path.dirname(wetDir)
     projectName = os.path.basename(userWorkspace).replace(" ", "_")
+
+    arcpy.AddMessage("Debugging...")
     
     wcGDB_name = os.path.basename(userWorkspace).replace(" ", "_") + "_WC.gdb"
     wcGDB_path = wetDir + os.sep + wcGDB_name
     wcFD_name = "WC_Data"
     wcFD = wcGDB_path + os.sep + wcFD_name
-
+    
     basedataGDB_path = userWorkspace + os.sep + projectName + "_BaseData.gdb"
     basedataGDB_name = os.path.basename(basedataGDB_path)
     basedataFD_name = "Layers"
     basedataFD = basedataGDB_path + os.sep + basedataFD_name
 
     cluName = "Site_CLU"
-    projectCLU = basedataFD + os.sep + cluName
-    projectTract = basedataFD + os.sep + "Site_Tract"
-    #projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
+    defineName = "Site_Define_AOI"
+    ropName = "Site_ROPs"
+    refName = "Site_Reference_Points"
+    drainName = "Site_Drainage_Lines"
+    cluCwdName = "Site_CLU_CWD"
+
     projectTable = basedataGDB_path + os.sep + "Table_" + projectName
     wetDetTableName = "Admin_Table"
     wetDetTable = wcGDB_path + os.sep + wetDetTableName
-    projectAOI = basedataFD + os.sep + "project_AOI"
-    projectAOI_B = basedataFD + os.sep + "project_AOI_B"
-    projectDAOI = basedataFD + os.sep + "Site_Define_AOI"
-
-    defineName = "Site_Define_AOI"
-    projectDAOI = basedataFD + os.sep + defineName
 
     extentName = "Request_Extent"
     projectExtent = basedataFD + os.sep + extentName
     extentTemp1 = scratchGDB + os.sep + "Extent_Temp_1"
     extentTemp2 = scratchGDB + os.sep + "Extent_Temp_2"
-##    extentTemp3 = scratchGDB + os.sep + "Extent_temp3_" + projectName
-##    tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
     
     suName = "Site_Sampling_Units"
-    projectSU = wcFD + os.sep + suName 
-
-    ropName = "Site_ROPs"
-    projectROP = wcFD + os.sep + ropName
-
-    refName = "Site_Reference_Points"
-    projectREF = wcFD + os.sep + refName
-
-    drainName = "Site_Drainage_Lines"
-    projectLines = wcFD + os.sep + drainName
+    projectSU = wcFD + os.sep + suName
+    SU_Clip_Temp = scratchGDB + os.sep + "suClipTemp"
+    SU_Clip_New = scratchGDB + os.sep + "suClipNew"
+    Prev_SU_Temp = scratchGDB + os.sep + "prevSuTemp"
+    suRev = scratchGDB + os.sep + "suRevised"
+    suRevDissolve = scratchGDB + os.sep + "suRevDis"
     
     cwdName = "Site_CWD"
     projectCWD = wcFD + os.sep + cwdName
-##    suMulti = scratchGDB + os.sep + "SU_Multi" + projectName
-##    suTemp1 = scratchGDB + os.sep + "SU_Temp1_" + projectName
-##    suTemp2 = scratchGDB + os.sep + "SU_Temp2_" + projectName
-##    suTemp3 = scratchGDB + os.sep + "SU_Temp3_" + projectName
-##    suTemp4 = scratchGDB + os.sep + "SU_Temp4_" + projectName
-##    suTemp5 = scratchGDB + os.sep + "SU_Temp5_" + projectName
-##    prevSUmulti = scratchGDB + os.sep + "prevSUmutli"
-##    prevSUclip = scratchGDB + os.sep + "prevSUclip"
-##    prevSU = wcFD + os.sep + "Previous_Sampling_Units"
-
-    cluCwdName = "Site_CLU_CWD"
-    projectCLUCWD = wcFD + os.sep + cluCwdName
 
     pjwName = "Site_PJW"
     projectPJW = wcFD + os.sep + pjwName
@@ -528,21 +525,19 @@ try:
     cwdTopoName = "CWD_Topology"
     cwdTopo = wcFD + os.sep + cwdTopoName
     
-    prevCert = wcFD + os.sep + "Tract_Previous_CWD"
+    prevCert = wcFD + os.sep + "Previous_CWD"
     prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
-    prevCertMulti = scratchGDB + os.sep + "pCertMulti"
-    prevCertTemp1 = scratchGDB + os.sep + "pCertTemp"
-    prevAdmin = wcFD + os.sep + "Tract_Previous_Admin"
+    prevAdmin = wcFD + os.sep + "Previous_Admin"
     prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
-    updatedCert = wcFD + os.sep + "MCWD"
-    updatedAdmin = wcFD + os.sep + "MCWD_Admin"
+    updatedCert = wcFD + os.sep + "Updated_Cert"
+    updatedAdmin = wcFD + os.sep + "Updated_Admin"
     
     # Attribute rule files
     rules_cwd = os.path.join(os.path.dirname(sys.argv[0]), "Rules_CWD.csv")
     rules_pjw = os.path.join(os.path.dirname(sys.argv[0]), "Rules_PJW.csv")
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [prevCertMulti, prevCertTemp1]
+    tempLayers = [extentTemp1, extentTemp2, SU_Clip_Temp, SU_Clip_New, Prev_SU_Temp, suRev, suRevDissolve]
     deleteTempLayers(tempLayers)
 
 
@@ -554,10 +549,6 @@ try:
         
     #### Check Project Integrity
     AddMsgAndPrint("\nChecking project integrity...",0)
-
-    #Get spatial reference.
-    desc = arcpy.Describe(sourceSU)
-    sr = desc.SpatialReference
 
     # If project wetlands geodatabase and feature dataset do not exist, exit.
     if not arcpy.Exists(wcGDB_path):
@@ -572,7 +563,7 @@ try:
     # Repeated in case enter project info was re-run in between steps.
     if arcpy.Exists(wetDetTable):
         arcpy.Delete_management(wetDetTable)
-    arcpy.TableToTable(projectTable, wcGDB_path, wetDetTableName)
+    arcpy.TableToTable_conversion(projectTable, wcGDB_path, wetDetTableName)
 
     # Add or validate the attribute domains for the wetlands geodatabase
     AddMsgAndPrint("\tChecking attribute domains...",0)
@@ -668,20 +659,23 @@ try:
         m.addLayer(cwdLyr)
     if pjwName not in lyr_list:
         m.addLayer(pjwLyr)
+    if extentName not in lyr_list:
+        m.addLayer(extLyr)
 
     # Replace data sources of layer files from installed layers to the project layers. Can always do, even if layer is not new or reset.
     # First get the current layers in the map
     cwdNew = m.listLayers(cwdName)[0]
     pjwNew = m.listLayers(pjwName)[0]
+    extNew = m.listLayers(extentName)[0]
 
     # Call the function to change the data source on add layers
     changeSource(cwdNew, wcGDB_path, cwdName)
     changeSource(pjwNew, wcGDB_path, pjwName)
-    
+    changeSource(extNew, wcGDB_path, extentName)
     
     #### Adjust visibility of layers to aid in moving to the next step in the process
     # Turn off all layers from previous steps
-    off_names = [cluName, defineName, extentName, suName, ropName, refName, drainName]
+    off_names = [cluName, defineName, extentName, suName, ropName, refName, drainName, cluCwdName]
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in off_names:

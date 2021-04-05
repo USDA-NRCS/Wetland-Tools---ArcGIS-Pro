@@ -293,7 +293,7 @@
       "featureTemplates" : [
         {
           "type" : "CIMFeatureTemplate",
-          "name" : "Site_CWD_Template",
+          "name" : "Site_CWD",
           "tags" : "Polygon",
           "toolProgID" : "00000000-0000-0000-0000-000000000000"
         }
@@ -305,7 +305,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "if(!IsEmpty($feature.occur_year)) {\n    return $feature.wetland_label + TextFormatting.NewLine + Round($feature.acres, 2) + \" ac\"\n}\nelse {\n    return $feature.wetland_label + $feature.occur_year + TextFormatting.NewLine + Round($feature.acres, 2) + \" ac\"\n}",
+          "expression" : "if(!IsEmpty($feature.occur_year)) {\r\n    return Text($feature.wetland_label) + TextFormatting.NewLine + Round($feature.acres, 2) + \" ac\"\r\n}\r\nelse {\r\n    return Text($feature.wetland_label) + Text($feature.occur_year) + TextFormatting.NewLine + Round($feature.acres, 2) + \" ac\"\r\n}",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {

@@ -1,45 +1,45 @@
 ﻿NAME,DESCRIPTION,TYPE,SUBTYPE,FIELD,ISEDITABLE,TRIGGERINSERT,TRIGGERDELETE,TRIGGERUPDATE,SCRIPTEXPRESSION,ERRORNUMBER,ERRORMESSAGE,EXCLUDECLIENTEVALUATION,ISENABLED,BATCH,SEVERITY,TAGS,CATEGORY,CHECKPARAMETERS
-Add ROP Admin State Code,Adds Admin State FIPS Code to a new ROP,CALCULATION,,admin_state,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['admin_state'])
+Add ROP Admin State Code,Adds Admin State FIPS Code to a new ROP,CALCULATION,,admin_state,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.admin_state",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP Admin State Name,Adds Admin State Name to a new ROP,CALCULATION,,admin_state_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['admin_state_name'])
+Add ROP Admin State Name,Adds Admin State Name to a new ROP,CALCULATION,,admin_state_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.admin_state_name",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP Admin County Code,Adds Admin County FIPS Code to a new ROP,CALCULATION,,admin_county,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['admin_county'])
+Add ROP Admin County Code,Adds Admin County FIPS Code to a new ROP,CALCULATION,,admin_county,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.admin_county",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP Admin County Name,Adds Admin County Name to a new ROP,CALCULATION,,admin_county_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['admin_county_name'])
+Add ROP Admin County Name,Adds Admin County Name to a new ROP,CALCULATION,,admin_county_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.admin_county_name",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP Job ID,Adds Job ID to a new ROP,CALCULATION,,job_id,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['job_id'])
+Add ROP Job ID,Adds Job ID to a new ROP,CALCULATION,,job_id,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.job_id",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP State Code,Adds State FIPS Code to a new ROP,CALCULATION,,state_code,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['state_code'])
+Add ROP State Code,Adds State FIPS Code to a new ROP,CALCULATION,,state_code,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.state_code",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP State Name,Adds State Name to a new ROP,CALCULATION,,state_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['state_name'])
+Add ROP State Name,Adds State Name to a new ROP,CALCULATION,,state_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.state_name",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP County Code,Adds County FIPS Code to a new ROP,CALCULATION,,county_code,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['county_code'])
+Add ROP County Code,Adds County FIPS Code to a new ROP,CALCULATION,,county_code,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.county_code",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP County Name,Adds County Name to a new ROP,CALCULATION,,county_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['county_name'])
+Add ROP County Name,Adds County Name to a new ROP,CALCULATION,,county_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.county_name",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP Farm Number,Adds Farm Number to a new ROP,CALCULATION,,farm_number,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['farm_number'])
+Add ROP Farm Number,Adds Farm Number to a new ROP,CALCULATION,,farm_number,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.farm_number",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add ROP Tract Number,Adds Tract Number to a new ROP,CALCULATION,,tract_number,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['tract_number'])
+Add ROP Tract Number,Adds Tract Number to a new ROP,CALCULATION,,tract_number,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.tract_number",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"

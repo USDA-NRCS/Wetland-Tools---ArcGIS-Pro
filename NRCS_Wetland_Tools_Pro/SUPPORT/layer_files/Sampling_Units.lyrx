@@ -85,7 +85,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Admin State Name",
             "fieldName" : "admin_state_name",
-            "readOnly" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -100,7 +99,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Admin County Name",
             "fieldName" : "admin_county_name",
-            "readOnly" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -115,7 +113,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "State Name",
             "fieldName" : "state_name",
-            "readOnly" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -130,7 +127,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "County Name",
             "fieldName" : "county_name",
-            "readOnly" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -138,7 +134,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Farm Number",
             "fieldName" : "farm_number",
-            "readOnly" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -146,7 +141,6 @@
             "type" : "CIMFieldDescription",
             "alias" : "Tract Number",
             "fieldName" : "tract_number",
-            "readOnly" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },
@@ -154,6 +148,7 @@
             "type" : "CIMFieldDescription",
             "alias" : "Evaluation Status",
             "fieldName" : "eval_status",
+            "highlight" : true,
             "visible" : true,
             "searchMode" : "Exact"
           },

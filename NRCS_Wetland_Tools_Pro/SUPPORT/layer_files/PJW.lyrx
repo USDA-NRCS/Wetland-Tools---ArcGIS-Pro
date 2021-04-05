@@ -81,7 +81,7 @@
       "featureTemplates" : [
         {
           "type" : "CIMFeatureTemplate",
-          "name" : "Site_PJW",
+          "name" : "Site_PJW_Template",
           "tags" : "Point",
           "toolProgID" : "00000000-0000-0000-0000-000000000000"
         }

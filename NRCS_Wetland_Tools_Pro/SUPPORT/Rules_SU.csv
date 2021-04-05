@@ -1,54 +1,54 @@
 ﻿NAME,DESCRIPTION,TYPE,SUBTYPE,FIELD,ISEDITABLE,TRIGGERINSERT,TRIGGERDELETE,TRIGGERUPDATE,SCRIPTEXPRESSION,ERRORNUMBER,ERRORMESSAGE,EXCLUDECLIENTEVALUATION,ISENABLED,BATCH,SEVERITY,TAGS,CATEGORY,CHECKPARAMETERS
 Update Acres,Update acres for all edits,CALCULATION,,acres,True,True,False,True,"Area($feature, 'acres')",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU Job ID,Adds Job ID to a new Sampling Unit,CALCULATION,,job_id,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['job_id'])
+Add SU Job ID,Adds Job ID to a new Sampling Unit,CALCULATION,,job_id,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.job_id",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU Admin State,Adds Admin State FIPS code to a new Sampling Unit,CALCULATION,,admin_state,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['admin_state'])
+Add SU Admin State,Adds Admin State FIPS code to a new Sampling Unit,CALCULATION,,admin_state,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.admin_state",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU Admin State Name,Adds Admin State Name to a new Sampling Unit,CALCULATION,,admin_state_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['admin_state_name'])
+Add SU Admin State Name,Adds Admin State Name to a new Sampling Unit,CALCULATION,,admin_state_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.admin_state_name",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU Admin County,Adds Admin County FIPS Code to a new Sampling Unit,CALCULATION,,admin_county,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['admin_county'])
+Add SU Admin County,Adds Admin County FIPS Code to a new Sampling Unit,CALCULATION,,admin_county,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.admin_county",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU Admin County Name,Adds Admin County Name to a new Sampling Unit,CALCULATION,,admin_county_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['admin_county_name'])
+Add SU Admin County Name,Adds Admin County Name to a new Sampling Unit,CALCULATION,,admin_county_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.admin_county_name",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU State Code,Adds State FIPS code to a new Sampling Unit,CALCULATION,,state_code,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['state_code'])
+Add SU State Code,Adds State FIPS code to a new Sampling Unit,CALCULATION,,state_code,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.state_code",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU State Name,Adds State Name to a new Sampling Unit,CALCULATION,,state_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['state_name'])
+Add SU State Name,Adds State Name to a new Sampling Unit,CALCULATION,,state_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.state_name",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU County Code,Adds County FIPS Code to a new Sampling Unit,CALCULATION,,county_code,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['county_code'])
+Add SU County Code,Adds County FIPS Code to a new Sampling Unit,CALCULATION,,county_code,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.county_code",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU County Name,Adds County Name to a new Sampling Unit,CALCULATION,,county_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['county_name'])
+Add SU County Name,Adds County Name to a new Sampling Unit,CALCULATION,,county_name,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.county_name",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU Farm Number,Adds Farm Number to a new Sampling Unit,CALCULATION,,farm_number,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['farm_number'])
+Add SU Farm Number,Adds Farm Number to a new Sampling Unit,CALCULATION,,farm_number,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.farm_number",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add SU Tract Number,Adds Tract Number to a new Sampling Unit,CALCULATION,,tract_number,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['tract_number'])
+Add SU Tract Number,Adds Tract Number to a new Sampling Unit,CALCULATION,,tract_number,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.tract_number",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add Request Date,Adds Request Date to a new Sampling Unit,CALCULATION,,request_date,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['request_date'])
+Add Request Date,Adds Request Date to a new Sampling Unit,CALCULATION,,request_date,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.request_date",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
-Add Request Type,Adds Request Type to a new Sampling Unit,CALCULATION,,request_type,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"", ['request_type'])
+Add Request Type,Adds Request Type to a new Sampling Unit,CALCULATION,,request_type,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 
 return records.request_type",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"

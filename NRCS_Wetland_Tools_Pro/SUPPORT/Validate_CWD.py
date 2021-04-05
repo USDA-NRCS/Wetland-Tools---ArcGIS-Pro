@@ -1,6 +1,6 @@
 ## ===============================================================================================================
-## Name:    Validate Sampling Units
-## Purpose: Check for topology overlaps and other attribute errors in the Sampling Units layer.
+## Name:    Validate CWD
+## Purpose: Check for topology overlaps and other attribute errors in the CWD layer.
 ##
 ## Authors: Chris Morse
 ##          GIS Specialist
@@ -9,7 +9,7 @@
 ##          chris.morse@usda.gov
 ##          317.295.5849
 ##
-## Created: 11/04/2020
+## Created: 04/02/2021
 ##
 ## ===============================================================================================================
 ## Changes
@@ -18,18 +18,9 @@
 ## rev. 11/04/2020
 ## -Start revisions of Validate Topology ArcMap tool to National Wetlands Tool in ArcGIS Pro.
 ##
-## rev. 11/18/2020
-## -Check for internal gaps will have to be handled differently because SUs can go beyond extent/tract edges
-##      -Use the outer edge of the extent layer itself in place of the tract layer.
-##
-## rev. 03/05/2021
-## -Removed request extent updates and certified area enforcement because if Sampling Units are combined
-##  internally, or extented outside of the request extent and/or tract then cutting in Certified-Digital or
-##  Revision extents could artificially split a contiguous sampling unit.
-## -Request Extent and Certified/Revision areas will be moved to and enforced in the Create CWD Data tool.
-## -Removed topology check for gaps steps due to SU's being allowed to extend outside of Request Extent/Tract.
-## -Removed the steps to check that ROPs are inside the Sampling Units (now enforced with an attribute rule).
-## -Added Sampling Unit attribute validations to this tool, and renamed this tool to Validate Sampling Units.
+## rev. 04/02/2021
+## -Request Extent and Certified/Revision area enforcement added.
+## -Combined the Topology validation and the Attribute validation tools.
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -109,24 +100,20 @@ except:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
-    sourceSU = arcpy.GetParameterAsText(0)
-    #suLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(1))
-    #suLyr = os.path.join(os.path.dirname(sys.argv[0]), "layer_files" + os.sep + "Sampling_Units.lyrx")
-    #extentLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(3))
-
+    sourceCWD = arcpy.GetParameterAsText(0)
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
-    # If Sampling Units layer has features selected, clear the selections so that all features from it are processed.
-    clear_lyr = m.listLayers(sourceSU)[0]
+    # If CWD layer has features selected, clear the selections so that all features from it are processed.
+    clear_lyr = m.listLayers(sourceCWD)[0]
     arcpy.SelectLayerByAttribute_management(clear_lyr, "CLEAR_SELECTION")
 
     #### Set base path
-    sourceSU_path = arcpy.Describe(sourceSU).CatalogPath
-    if sourceSU_path.find('.gdb') > 0 and sourceSU_path.find('Determinations') > 0 and sourceSU_path.find('Site_Sampling_Units') > 0:
-        wcGDB_path = sourceSU_path[:sourceSU_path.find('.gdb')+4]
+    sourceCWD_path = arcpy.Describe(sourceCWD).CatalogPath
+    if sourceCWD_path.find('.gdb') > 0 and sourceCWD_path.find('Determinations') > 0 and sourceCWD_path.find('Site_CWD') > 0:
+        wcGDB_path = sourceCWD_path[:sourceCWD_path.find('.gdb')+4]
     else:
-        arcpy.AddError("\nSelected Samplint Units layer is not from a Determinations project folder. Exiting...")
+        arcpy.AddError("\nSelected CWD layer is not from a Determinations project folder. Exiting...")
         exit()
 
     #### Do not run if an unsaved edits exist in the target workspace
@@ -156,23 +143,22 @@ try:
     projectTract = basedataFD + os.sep + "Site_Tract"
     projectTable = basedataGDB_path + os.sep + "Table_" + projectName
     
-    suName = "Site_Sampling_Units"
-    projectSU = wcFD + os.sep + suName
-    suBackup = wcFD + os.sep + "SU_Backup"
-    suTopoName = "Sampling_Units_Topology"
-    suTopo = wcFD + os.sep + suTopoName
-    linesTopoFC = wcFD + os.sep + "SU_Errors_line"
-    pointsTopoFC = wcFD + os.sep + "SU_Errors_point"
-    polysTopoFC = wcFD + os.sep + "SU_Errors_poly"
-    
-    ropName = "Site_ROPs"
-    projectROP = wcFD + os.sep + ropName
+    cwdName = "Site_CWD"
+    projectCWD = wcFD + os.sep + cwdName
+    cwdBackup = wcFD + os.sep + "CWD_Backup"
+    cwdTopoName = "CWD_Topology"
+    cwdTopo = wcFD + os.sep + cwdTopoName
+    linesTopoFC = wcFD + os.sep + "CWD_Errors_line"
+    pointsTopoFC = wcFD + os.sep + "CWD_Errors_point"
+    polysTopoFC = wcFD + os.sep + "CWD_Errors_poly"
 
     domain_base = supportGDB
-    method_domain = domain_base + os.sep + "domain_method"
     eval_domain = domain_base + os.sep + "domain_evaluation_status"
+    wetland_domain = domain_base + os.sep + "domain_wetland_labels"
     yn_domain = domain_base + os.sep + "domain_yn"
-    yesno_domain = domain_base + os.sep + "domain_yesno"
+    request_domain = domain_base + os.sep + "domain_request_type"
+    method_domain = domain_base + os.sep + "domain_method"
+    
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
@@ -186,21 +172,12 @@ try:
         AddMsgAndPrint("\tPlease re-run and select a valid Site Samping Units layer. Exiting...",2)
         exit()
 
-
-    #### At least one ROP record must exist
-    AddMsgAndPrint("\nVerifying project layer integrity...",0)
-    result = int(arcpy.GetCount_management(projectROP).getOutput(0))
-    if result < 1:
-        AddMsgAndPrint("\tAt least one ROP must exist in the Site ROPs layer!",2)
-        AddMsgAndPrint("\tPlease digitize ROPs and then try again. Exiting...",2)
-        exit()
-
         
     #### Remove the topology from the Pro maps, if present
     AddMsgAndPrint("\nRemoving topology from project maps, if present...",0)
     
     # Set starting layers to be removed
-    mapLayersToRemove = [suTopoName]
+    mapLayersToRemove = [cwdTopoName]
     
     # Remove the layers in the list
     try:
@@ -212,11 +189,11 @@ try:
         pass
 
 
-    #### Remove existing sampling unit topology related layers from the geodatabase
+    #### Remove existing CWD topology related layers from the geodatabase
     AddMsgAndPrint("\nRemoving topology from project database, if present...",0)
 
     # Remove topology first, if it exists
-    toposToRemove = [suTopo]
+    toposToRemove = [cwdTopo]
     for topo in toposToRemove:
         if arcpy.Exists(topo):
             try:
@@ -225,12 +202,12 @@ try:
                 pass
 
 
-    #### Backup the input Sampling Units layer
-    AddMsgAndPrint("\nCreating backup of the Sampling Units layer...",0)
+    #### Backup the input CWD layer
+    AddMsgAndPrint("\nCreating backup of the CWD layer...",0)
 
-    if arcpy.Exists(suBackup):
-        arcpy.Delete_management(suBackup)
-    arcpy.CopyFeatures_management(projectSU, suBackup)
+    if arcpy.Exists(cwdBackup):
+        arcpy.Delete_management(cwdBackup)
+    arcpy.CopyFeatures_management(projectCWD, cwdBackup)
 
 
     #### Topology review 1 (check for overlaps within the SU layer)

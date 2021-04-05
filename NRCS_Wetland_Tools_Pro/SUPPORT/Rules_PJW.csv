@@ -1,0 +1,5 @@
+﻿NAME,DESCRIPTION,TYPE,SUBTYPE,FIELD,ISEDITABLE,TRIGGERINSERT,TRIGGERDELETE,TRIGGERUPDATE,SCRIPTEXPRESSION,ERRORNUMBER,ERRORMESSAGE,EXCLUDECLIENTEVALUATION,ISENABLED,BATCH,SEVERITY,TAGS,CATEGORY,CHECKPARAMETERS
+Add PJW Job ID,Adds Job ID to a new PJW point,CALCULATION,,job_id,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
+var records = First(det_table)
+
+return records.job_id",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
