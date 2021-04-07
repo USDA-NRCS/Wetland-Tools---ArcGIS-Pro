@@ -216,14 +216,14 @@ try:
     extentTemp3 = scratchGDB + os.sep + "Extent_temp3_" + projectName
     tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
 
-    prevCert = wcFD + os.sep + "Tract_Previous_CWD"
+    prevCert = wcFD + os.sep + "Previous_CWD"
     prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
     prevCertMulti = scratchGDB + os.sep + "pCertMulti"
     prevCertTemp1 = scratchGDB + os.sep + "pCertTemp"
-    prevAdmin = wcFD + os.sep + "Tract_Previous_Admin"
+    prevAdmin = wcFD + os.sep + "Previous_Admin"
     prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
-    updatedCert = wcFD + os.sep + "MCWD"
-    updatedAdmin = wcFD + os.sep + "MCWD_Admin"
+    updatedCert = wcFD + os.sep + "Updated_Cert"
+    updatedAdmin = wcFD + os.sep + "Updated_Admin"
 
     # Temp layers list for cleanup at the start and at the end
     tempLayers = [extentTemp1, extentTemp2, extentTemp3, prevCertMulti, prevCertTemp1, tractTest]

@@ -117,9 +117,15 @@ try:
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
-    # If Sampling Units layer has features selected, clear the selections so that all features from it are processed.
-    clear_lyr = m.listLayers(sourceSU)[0]
-    arcpy.SelectLayerByAttribute_management(clear_lyr, "CLEAR_SELECTION")
+    # If Sampling Units or ROPs layers have features selected, clear the selections so that all features from it are processed.
+    try:
+        clear_lyr1 = m.listLayers(sourceSU)[0]
+        clear_lyr2 = m.listLayers("Site_ROPs")[0]
+        arcpy.SelectLayerByAttribute_management(clear_lyr1, "CLEAR_SELECTION")
+        arcpy.SelectLayerByAttribute_management(clear_lyr2, "CLEAR_SELECTION")
+    except:
+        pass
+    
 
     #### Set base path
     sourceSU_path = arcpy.Describe(sourceSU).CatalogPath

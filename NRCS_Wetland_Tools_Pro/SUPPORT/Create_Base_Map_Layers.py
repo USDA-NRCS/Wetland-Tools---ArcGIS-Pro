@@ -623,14 +623,14 @@ try:
     suTopoName = "Sampling_Units_Topology"
     suTopo = wcFD + os.sep + suTopoName
 
-    prevCert = wcFD + os.sep + "Tract_Previous_CWD"
+    prevCert = wcFD + os.sep + "Previous_CWD"
     prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
     prevCertMulti = scratchGDB + os.sep + "pCertMulti"
     prevCertTemp1 = scratchGDB + os.sep + "pCertTemp"
-    prevAdmin = wcFD + os.sep + "Tract_Previous_Admin"
+    prevAdmin = wcFD + os.sep + "Previous_Admin"
     prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
-    updatedCert = wcFD + os.sep + "MCWD"
-    updatedAdmin = wcFD + os.sep + "MCWD_Admin"
+    updatedCert = wcFD + os.sep + "Updated_Cert"
+    updatedAdmin = wcFD + os.sep + "Updated_Admin"
     
     # Attribute rule files
     rules_su = os.path.join(os.path.dirname(sys.argv[0]), "Rules_SU.csv")

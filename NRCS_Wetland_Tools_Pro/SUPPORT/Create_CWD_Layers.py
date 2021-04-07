@@ -142,7 +142,7 @@ def createCWD():
     # Set layers to remove from the map
     mapLayersToRemove = [extentName, cwdName, cluCwdName]
 
-    # Find Sampling Unit related annotation layers to add to the list of map layers to be removed
+    # Find CWD related annotation layers to add to the list of map layers to be removed
     cwdAnnoString = "Site_CWD" + "Anno*"
     clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
     anno_list = [cwdAnnoString, clucwdAnnoString]
@@ -171,19 +171,23 @@ def createCWD():
     arcpy.CreateFeatureclass_management(wcFD, cwdName, "POLYGON", templateCWD)
 
     # Clip the SU layer by the request extent layer
-    arcpy.Clip_analysis(projectSU, projectExtent, SU_Clip_Temp)
+    arcpy.Clip_analysis(projectSU, projectExtent, SU_Clip_Multi)
+    arcpy.MultipartToSinglepart_management(SU_Clip_Multi, SU_Clip_Temp)
+    arcpy.Delete_management(SU_Clip_Multi)
 
     # Clip the SU layer by the New Request areas of the Request Extent layer
     arcpy.MakeFeatureLayer_management(projectExtent, "extentTemp")
     arcpy.SelectLayerByAttribute_management("extentTemp", "NEW_SELECTION", "\"eval_status\" = 'New Request'")
     arcpy.CopyFeatures_management("extentTemp", extentTemp1)
-    arcpy.Clip_analysis(projectSU, extentTemp1, SU_Clip_New)
+    arcpy.Clip_analysis(projectSU, extentTemp1, SU_Clip_Multi)
+    arcpy.MultipartToSinglepart_management(SU_Clip_Multi, SU_Clip_New)
     arcpy.Delete_management("extentTemp")
     
     # Check if prevAdmin exists and process accordingly
     if arcpy.Exists(prevAdmin):
         AddMsgAndPrint("\tPrevious Certifications on the tract exist. Resolving potential conflicts with Sampling Units...",0)
-        arcpy.Clip_analysis(SU_Clip_Temp, prevAdmin, Prev_SU_Temp)
+        arcpy.Clip_analysis(SU_Clip_Temp, prevAdmin, Prev_SU_Multi)
+        arcpy.MultipartToSinglepart_management(Prev_SU_Multi, Prev_SU_Temp)
 
         # Check for Revisions in the Prev_SU_Temp layer
         arcpy.MakeFeatureLayer_management(Prev_SU_Temp, "Previous_SU")
@@ -510,8 +514,10 @@ try:
     
     suName = "Site_Sampling_Units"
     projectSU = wcFD + os.sep + suName
+    SU_Clip_Multi = scratchGDB + os.sep + "suClipMulti"
     SU_Clip_Temp = scratchGDB + os.sep + "suClipTemp"
     SU_Clip_New = scratchGDB + os.sep + "suClipNew"
+    Prev_SU_Multi = scratchGDB + os.sesp + "prevSuMulti"
     Prev_SU_Temp = scratchGDB + os.sep + "prevSuTemp"
     suRev = scratchGDB + os.sep + "suRevised"
     suRevDissolve = scratchGDB + os.sep + "suRevDis"
@@ -537,7 +543,7 @@ try:
     rules_pjw = os.path.join(os.path.dirname(sys.argv[0]), "Rules_PJW.csv")
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [extentTemp1, extentTemp2, SU_Clip_Temp, SU_Clip_New, Prev_SU_Temp, suRev, suRevDissolve]
+    tempLayers = [extentTemp1, extentTemp2, SU_Clip_Temp, SU_Clip_New, Prev_SU_Temp, suRev, suRevDissolve, SU_Clip_Multi, Prev_SU_Multi]
     deleteTempLayers(tempLayers)
 
 
