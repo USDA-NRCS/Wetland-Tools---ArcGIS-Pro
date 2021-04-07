@@ -1,30 +1,28 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.4.0",
-  "build" : 19948,
+  "version" : "2.6.0",
+  "build" : 24783,
   "layers" : [
-    "CIMPATH=map/hydrologic_soil_group.xml"
+    "CIMPATH=map/ssurgo_wct2.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Hydrologic Soil Group",
-      "uRI" : "CIMPATH=map/hydrologic_soil_group.xml",
+      "name" : "Hydric Rating",
+      "uRI" : "CIMPATH=map/ssurgo_wct2.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant",
-        "start" : 978307200000
+        "type" : "TimeInstant"
       },
-      "metadataURI" : "CIMPATH=Metadata/e367ba95cd7e93c5fb6abe14fcd2edd5.xml",
-      "useSourceMetadata" : false,
-      "description" : "Hydrologic soil groups are based on estimates of runoff potential. Soils are assigned to one of four groups according to the rate of water infiltration when the soils are not protected by vegetation, are thoroughly wet, and receive precipitation from long-duration storms.\n\nThe soils in the United States are assigned to four groups (A, B, C, and D) and three dual classes (A/D, B/D, and C/D). The groups are defined as follows:\n\nGroup A. Soils having a high infiltration rate (low runoff potential) when thoroughly wet. These consist mainly of deep, well drained to excessively drained sands or gravelly sands. These soils have a high rate of water transmission.\n\nGroup B. Soils having a moderate infiltration rate when thoroughly wet. These consist chiefly of moderately deep or deep, moderately well drained or well drained soils that have moderately fine texture to moderately coarse texture. These soils have a moderate rate of water transmission.\n\nGroup C. Soils having a slow infiltration rate when thoroughly wet. These consist chiefly of soils having a layer that impedes the downward movement of water or soils of moderately fine texture or fine texture. These soils have a slow rate of water transmission.\n\nGroup D. Soils having a very slow infiltration rate (high runoff potential) when thoroughly wet. These consist chiefly of clays that have a high shrink-swell potential, soils that have a high water table, soils that have a claypan or clay layer at or near the surface, and soils that are shallow over nearly impervious material. These soils have a very slow rate of water transmission.\n\nIf a soil is assigned to a dual hydrologic group (A/D, B/D, or C/D), the first letter is for drained areas and the second is for undrained areas. Only the soils that in their natural condition are in group D are assigned to dual classes.",
+      "metadataURI" : "CIMPATH=Metadata/151e2e9f681c2edf4c41d16e909612af.xml",
+      "useSourceMetadata" : true,
+      "description" : "SSURGO_WCT",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}"
+        "mapElevationID" : "{DDE920CE-2706-4407-B7E5-2DFC310A78F7}"
       },
-      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -37,204 +35,58 @@
         "type" : "CIMFeatureTable",
         "displayField" : "MUNAME",
         "editable" : true,
-        "fieldDescriptions" : [
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "OBJECTID",
-            "fieldName" : "OBJECTID",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 12,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape",
-            "fieldName" : "Shape",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape_Length",
-            "fieldName" : "Shape_Length",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 12,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Shape_Area",
-            "fieldName" : "Shape_Area",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 12,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 6
-            },
-            "readOnly" : true,
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Area Symbol",
-            "fieldName" : "AREASYMBOL",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Mapunit Symbol",
-            "fieldName" : "MUSYM",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Mapunit Name",
-            "fieldName" : "MUNAME",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Mapunit Key",
-            "fieldName" : "MUKEY",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Drainage Class",
-            "fieldName" : "drainagecl",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Hydric Condition",
-            "fieldName" : "hydricon",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Hydric Rating",
-            "fieldName" : "hydricrating",
-            "visible" : true,
-            "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Hydrologic Group",
-            "fieldName" : "hydgrp",
-            "visible" : true,
-            "searchMode" : "Exact"
-          }
-        ],
-        "timeFields" : {
-          "type" : "CIMTimeTableDefinition"
-        },
-        "timeDefinition" : {
-          "type" : "CIMTimeDataDefinition",
-          "hasLiveData" : true
-        },
-        "timeDisplayDefinition" : {
-          "type" : "CIMTimeDisplayDefinition",
-          "timeInterval" : 0,
-          "timeIntervalUnits" : "esriTimeUnitsHours",
-          "timeOffsetUnits" : "esriTimeUnitsYears"
-        },
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=.\\Wetland_Workspace.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\Temp\\SSURGO_WCT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "SSURGO_WCT",
+          "dataset" : "SSURGO_Mapunits",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
-      "htmlPopupEnabled" : true,
-      "htmlPopupFormat" : {
-        "type" : "CIMHtmlPopupFormat",
-        "htmlUseCodedDomainValues" : true,
-        "htmlPresentationStyle" : "TwoColumnTable"
-      },
-      "isFlattened" : true,
-      "selectable" : true,
-      "selectionSymbol" : {
-        "type" : "CIMSymbolReference",
-        "symbol" : {
-          "type" : "CIMPolygonSymbol",
-          "symbolLayers" : [
-            {
-              "type" : "CIMSolidStroke",
-              "enable" : true,
-              "capStyle" : "Round",
-              "joinStyle" : "Round",
-              "lineStyle3D" : "Strip",
-              "miterLimit" : 10,
-              "width" : 2,
-              "color" : {
-                "type" : "CIMRGBColor",
-                "values" : [
-                  0,
-                  255,
-                  255,
-                  100
-                ]
-              }
-            }
-          ]
+      "featureTemplates" : [
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "SSURGO Mapunits",
+          "tags" : "Polygon",
+          "toolProgID" : "00000000-0000-0000-0000-000000000000"
         }
-      },
-      "featureCacheType" : "None",
+      ],
+      "htmlPopupEnabled" : true,
+      "selectable" : true,
+      "featureCacheType" : "Session",
+      "displayFiltersType" : "ByScale",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "[MUNAME]",
-          "expressionEngine" : "VBScript",
+          "expression" : "$feature.MUSYM",
+          "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
             "type" : "CIMMaplexLabelPlacementProperties",
             "featureType" : "Polygon",
             "avoidPolygonHoles" : true,
             "canOverrunFeature" : true,
-            "canPlaceLabelOutsidePolygon" : false,
-            "canRemoveOverlappingLabel" : true,
+            "canPlaceLabelOutsidePolygon" : true,
+            "canRemoveOverlappingLabel" : false,
             "canStackLabel" : true,
-            "connectionType" : "Unambiguous",
+            "connectionType" : "MinimizeLabels",
             "constrainOffset" : "NoConstraint",
-            "contourAlignmentType" : "Page",
-            "contourLadderType" : "Straight",
-            "contourMaximumAngle" : 90,
-            "enableConnection" : true,
-            "featureWeight" : 0,
-            "fontHeightReductionLimit" : 4,
-            "fontHeightReductionStep" : 0.5,
-            "fontWidthReductionLimit" : 90,
-            "fontWidthReductionStep" : 5,
+            "contourAlignmentType" : "Uphill",
+            "contourLadderType" : "None",
+            "contourMaximumAngle" : 0,
+            "enableConnection" : false,
+            "featureWeight" : 100,
+            "fontHeightReductionLimit" : 0,
+            "fontHeightReductionStep" : 0,
+            "fontWidthReductionLimit" : 0,
+            "fontWidthReductionStep" : 0,
             "graticuleAlignmentType" : "Straight",
-            "keyNumberGroupName" : "Default",
+            "isMinimumSizeBasedOnArea" : true,
             "labelBuffer" : 15,
-            "labelLargestPolygon" : false,
-            "labelPriority" : -1,
+            "labelLargestPolygon" : true,
+            "labelPriority" : 0,
             "labelStackingProperties" : {
               "type" : "CIMMaplexLabelStackingProperties",
               "stackAlignment" : "ChooseBest",
@@ -256,11 +108,11 @@
               ]
             },
             "lineFeatureType" : "General",
-            "linePlacementMethod" : "OffsetCurvedFromLine",
-            "maximumLabelOverrun" : 100,
+            "linePlacementMethod" : "CenteredHorizontalOnLine",
+            "maximumLabelOverrun" : 36,
             "maximumLabelOverrunUnit" : "Point",
             "minimumFeatureSizeUnit" : "Map",
-            "multiPartOption" : "OneLabelPerPart",
+            "multiPartOption" : "OneLabelPerFeature",
             "offsetAlongLineProperties" : {
               "type" : "CIMMaplexOffsetAlongLineProperties",
               "placementMethod" : "BestPositionAlongLine",
@@ -281,7 +133,7 @@
             },
             "pointPlacementMethod" : "AroundPoint",
             "polygonAnchorPointType" : "GeometricCenter",
-            "polygonBoundaryWeight" : 0,
+            "polygonBoundaryWeight" : 200,
             "polygonExternalZones" : {
               "type" : "CIMMaplexExternalZonePriorities",
               "aboveLeft" : 4,
@@ -301,7 +153,7 @@
             "polygonPlacementMethod" : "HorizontalInPolygon",
             "primaryOffset" : 1,
             "primaryOffsetUnit" : "Point",
-            "removeExtraWhiteSpace" : true,
+            "removeExtraWhiteSpace" : false,
             "repetitionIntervalUnit" : "Map",
             "rotationProperties" : {
               "type" : "CIMMaplexRotationProperties",
@@ -317,13 +169,15 @@
               "fontReduction" : 4,
               "abbreviation" : 5
             },
-            "thinningDistanceUnit" : "Point",
+            "thinningDistanceUnit" : "Map",
             "truncationMarkerCharacter" : ".",
             "truncationMinimumLength" : 1,
-            "truncationPreferredCharacters" : "aeiou"
+            "truncationPreferredCharacters" : "aeiou",
+            "truncationExcludedCharacters" : "1234567890"
           },
-          "name" : "Default",
-          "priority" : 1,
+          "minimumScale" : 10000,
+          "name" : "Class 1",
+          "priority" : -1,
           "standardLabelPlacementProperties" : {
             "type" : "CIMStandardLabelPlacementProperties",
             "featureType" : "Line",
@@ -368,33 +222,21 @@
             "symbol" : {
               "type" : "CIMTextSymbol",
               "blockProgression" : "TTB",
-              "compatibilityMode" : true,
               "depth3D" : 1,
-              "drawSoftHyphen" : true,
               "extrapolateBaselines" : true,
-              "flipAngle" : 90,
               "fontEffects" : "Normal",
               "fontEncoding" : "Unicode",
               "fontFamilyName" : "Arial",
-              "fontStyleName" : "Regular",
-              "fontType" : "Unspecified",
+              "fontStyleName" : "Bold",
+              "fontType" : "TTOpenType",
               "haloSize" : 1,
-              "height" : 8,
+              "height" : 10,
               "hinting" : "Default",
-              "horizontalAlignment" : "Center",
+              "horizontalAlignment" : "Left",
               "kerning" : true,
               "letterWidth" : 100,
               "ligatures" : true,
               "lineGapType" : "ExtraLeading",
-              "shadowColor" : {
-                "type" : "CIMRGBColor",
-                "values" : [
-                  0,
-                  0,
-                  0,
-                  100
-                ]
-              },
               "symbol" : {
                 "type" : "CIMPolygonSymbol",
                 "symbolLayers" : [
@@ -455,7 +297,7 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 0.40000000000000002,
+                "width" : 0.69999999999999996,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
@@ -472,9 +314,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    204,
-                    247,
-                    198,
+                    130,
+                    130,
+                    130,
                     100
                   ]
                 }
@@ -484,7 +326,7 @@
         },
         "defaultSymbolPatch" : "Default",
         "fields" : [
-          "hydgrp"
+          "hydric_rating"
         ],
         "groups" : [
           {
@@ -492,7 +334,7 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "A",
+                "label" : "Hydric",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -506,7 +348,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -523,9 +365,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            244,
-                            173,
-                            244,
+                            245,
+                            110,
+                            114,
                             100
                           ]
                         }
@@ -537,7 +379,7 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "A"
+                      "Hydric"
                     ]
                   }
                 ],
@@ -545,7 +387,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "A/D",
+                "label" : "Predominantly Nonhydric",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -559,7 +401,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -576,9 +418,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            176,
-                            211,
-                            176,
+                            255,
+                            201,
+                            118,
                             100
                           ]
                         }
@@ -590,7 +432,7 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "A/D"
+                      "Predominantly Nonydric"
                     ]
                   }
                 ],
@@ -598,7 +440,8 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "B",
+                "editable" : true,
+                "label" : "Partially Hydric",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -612,7 +455,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -629,9 +472,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            174,
-                            175,
-                            233,
+                            255,
+                            255,
+                            152,
                             100
                           ]
                         }
@@ -643,7 +486,7 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "B"
+                      "Partially Hydric"
                     ]
                   }
                 ],
@@ -651,7 +494,8 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "B/D",
+                "editable" : true,
+                "label" : "Predominantly Hydric",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -665,7 +509,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -682,9 +526,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            183,
-                            168,
-                            168,
+                            205,
+                            255,
+                            206,
                             100
                           ]
                         }
@@ -696,7 +540,7 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "B/D"
+                      "Predominantly Hydric"
                     ]
                   }
                 ],
@@ -704,7 +548,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "C",
+                "label" : "Not Hydric",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -718,7 +562,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -735,9 +579,9 @@
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            173,
-                            222,
-                            222,
+                            129,
+                            255,
+                            125,
                             100
                           ]
                         }
@@ -749,133 +593,30 @@
                   {
                     "type" : "CIMUniqueValue",
                     "fieldValues" : [
-                      "C"
-                    ]
-                  }
-                ],
-                "visible" : true
-              },
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "C/D",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            110,
-                            110,
-                            110,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            254,
-                            169,
-                            168,
-                            100
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "C/D"
-                    ]
-                  }
-                ],
-                "visible" : true
-              },
-              {
-                "type" : "CIMUniqueValueClass",
-                "label" : "Not rated or not available",
-                "patch" : "Default",
-                "symbol" : {
-                  "type" : "CIMSymbolReference",
-                  "symbol" : {
-                    "type" : "CIMPolygonSymbol",
-                    "symbolLayers" : [
-                      {
-                        "type" : "CIMSolidStroke",
-                        "enable" : true,
-                        "capStyle" : "Round",
-                        "joinStyle" : "Round",
-                        "lineStyle3D" : "Strip",
-                        "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            110,
-                            110,
-                            110,
-                            100
-                          ]
-                        }
-                      },
-                      {
-                        "type" : "CIMSolidFill",
-                        "enable" : true,
-                        "color" : {
-                          "type" : "CIMRGBColor",
-                          "values" : [
-                            237,
-                            237,
-                            237,
-                            100
-                          ]
-                        }
-                      }
-                    ]
-                  }
-                },
-                "values" : [
-                  {
-                    "type" : "CIMUniqueValue",
-                    "fieldValues" : [
-                      "Not rated or not available"
+                      "Nonhydric"
                     ]
                   }
                 ],
                 "visible" : true
               }
             ],
-            "heading" : "Hydrologic Group - Dom.Cond"
+            "heading" : "Hydric Rating"
           }
         ],
         "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
-      "snappable" : true
+      "snappable" : true,
+      "symbolLayerDrawing" : {
+        "type" : "CIMSymbolLayerDrawing"
+      }
     }
   ],
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/e367ba95cd7e93c5fb6abe14fcd2edd5.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201124</CreaDate><CreaTime>14014900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Hydrologic Soil Group</resTitle></idCitation><idAbs>Hydrologic soil groups are based on estimates of runoff potential. Soils are assigned to one of four groups according to the rate of water infiltration when the soils are not protected by vegetation, are thoroughly wet, and receive precipitation from long-duration storms.\r\n\r\nThe soils in the United States are assigned to four groups (A, B, C, and D) and three dual classes (A/D, B/D, and C/D). The groups are defined as follows:\r\n\r\nGroup A. Soils having a high infiltration rate (low runoff potential) when thoroughly wet. These consist mainly of deep, well drained to excessively drained sands or gravelly sands. These soils have a high rate of water transmission.\r\n\r\nGroup B. Soils having a moderate infiltration rate when thoroughly wet. These consist chiefly of moderately deep or deep, moderately well drained or well drained soils that have moderately fine texture to moderately coarse texture. These soils have a moderate rate of water transmission.\r\n\r\nGroup C. Soils having a slow infiltration rate when thoroughly wet. These consist chiefly of soils having a layer that impedes the downward movement of water or soils of moderately fine texture or fine texture. These soils have a slow rate of water transmission.\r\n\r\nGroup D. Soils having a very slow infiltration rate (high runoff potential) when thoroughly wet. These consist chiefly of clays that have a high shrink-swell potential, soils that have a high water table, soils that have a claypan or clay layer at or near the surface, and soils that are shallow over nearly impervious material. These soils have a very slow rate of water transmission.\r\n\r\nIf a soil is assigned to a dual hydrologic group (A/D, B/D, or C/D), the first letter is for drained areas and the second is for undrained areas. Only the soils that in their natural condition are in group D are assigned to dual classes.</idAbs><idCredit>USDA - NRCS</idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst><searchKeys><keyword>SSURGO</keyword></searchKeys></dataIdInfo></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/151e2e9f681c2edf4c41d16e909612af.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210222</CreaDate><CreaTime>11412800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>SSURGO Mapunits</resTitle></idCitation><idAbs>SSURGO_WCT</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     }
   ],
   "elevationSurfaces" : [
@@ -884,7 +625,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}",
+      "mapElevationID" : "{DDE920CE-2706-4407-B7E5-2DFC310A78F7}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [
@@ -898,5 +639,7 @@
       "visibility" : true,
       "expanded" : true
     }
-  ]
+  ],
+  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+  "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
 }

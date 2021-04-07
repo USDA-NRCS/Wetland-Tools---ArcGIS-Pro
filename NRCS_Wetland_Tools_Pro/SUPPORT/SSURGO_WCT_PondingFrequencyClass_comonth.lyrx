@@ -13,13 +13,13 @@
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
+      "metadataURI" : "CIMPATH=Metadata/dbc586552418534d1ba09a02ef2a062e.xml",
       "useSourceMetadata" : true,
       "description" : "SSURGO_WCT",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}"
       },
-      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : true,
@@ -35,12 +35,11 @@
         "type" : "CIMFeatureTable",
         "displayField" : "MUNAME",
         "editable" : true,
-        "selectionSetURI" : "CIMPATH=SelectionSet/ef3ae58e5e1576ca4c9719423e558d34.dat",
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=.\\Wetland_Workspace.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\Temp\\SSURGO_WCT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "SSURGO_WCT",
+          "dataset" : "SSURGO_Mapunits",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
@@ -340,13 +339,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 1.4999999999999998,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            110,
-                            110,
-                            110,
+                            0,
+                            0,
+                            0,
                             100
                           ]
                         }
@@ -394,13 +393,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 1.4999999999999998,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            110,
-                            110,
-                            110,
+                            0,
+                            0,
+                            0,
                             100
                           ]
                         }
@@ -447,13 +446,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 1.4999999999999998,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            110,
-                            110,
-                            110,
+                            0,
+                            0,
+                            0,
                             100
                           ]
                         }
@@ -500,13 +499,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 1.4999999999999998,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            110,
-                            110,
-                            110,
+                            0,
+                            0,
+                            0,
                             100
                           ]
                         }
@@ -553,29 +552,8 @@
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=SelectionSet/ef3ae58e5e1576ca4c9719423e558d34.dat",
-      "data" : "CgMxLjAQARoFCgMyNDU="
-    }
-  ],
-  "elevationSurfaces" : [
-    {
-      "type" : "CIMMapElevationSurface",
-      "elevationMode" : "BaseGlobeSurface",
-      "name" : "Ground",
-      "verticalExaggeration" : 1,
-      "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}",
-      "color" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          255,
-          255,
-          255,
-          100
-        ]
-      },
-      "surfaceTINShadingMode" : "Smooth",
-      "visibility" : true,
-      "expanded" : true
+      "uRI" : "CIMPATH=Metadata/dbc586552418534d1ba09a02ef2a062e.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210222</CreaDate><CreaTime>11412800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Ponding Frequency Class</resTitle></idCitation><idAbs>SSURGO_WCT</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     }
   ],
   "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",

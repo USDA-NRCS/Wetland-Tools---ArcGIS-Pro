@@ -3,23 +3,23 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=map/water_table_depth___annual___minimum.xml"
+    "CIMPATH=ssurgo_wct/ssurgo_wct.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
       "name" : "Water Table Depth - Annual - Minimum",
-      "uRI" : "CIMPATH=map/water_table_depth___annual___minimum.xml",
+      "uRI" : "CIMPATH=ssurgo_wct/ssurgo_wct.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
-      "metadataURI" : "CIMPATH=Metadata/43a3827d15dbaa17c46784bf591fe3d8.xml",
       "useSourceMetadata" : true,
       "description" : "SSURGO_WCT",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{DFC64D37-2BF3-4F2D-8C2B-4FD2470244B6}"
+        "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : true,
@@ -37,9 +37,9 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\Temp\\SSURGO_WCT.gdb",
+          "workspaceConnectionString" : "DATABASE=.\\Wetland_Workspace.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "SSURGO_Mapunits",
+          "dataset" : "SSURGO_WCT",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
@@ -279,13 +279,13 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
+                    "width" : 0.69999999999999996,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        0,
-                        0,
-                        0,
+                        110,
+                        110,
+                        110,
                         100
                       ]
                     }
@@ -324,13 +324,13 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
+                    "width" : 0.69999999999999996,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        0,
-                        0,
-                        0,
+                        110,
+                        110,
+                        110,
                         100
                       ]
                     }
@@ -369,13 +369,13 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
+                    "width" : 0.69999999999999996,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        0,
-                        0,
-                        0,
+                        110,
+                        110,
+                        110,
                         100
                       ]
                     }
@@ -414,13 +414,13 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
+                    "width" : 0.69999999999999996,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        0,
-                        0,
-                        0,
+                        110,
+                        110,
+                        110,
                         100
                       ]
                     }
@@ -459,13 +459,13 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
+                    "width" : 0.69999999999999996,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        0,
-                        0,
-                        0,
+                        110,
+                        110,
+                        110,
                         100
                       ]
                     }
@@ -504,13 +504,13 @@
                     "joinStyle" : "Round",
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
+                    "width" : 0.69999999999999996,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        0,
-                        0,
-                        0,
+                        110,
+                        110,
+                        110,
                         100
                       ]
                     }
@@ -589,13 +589,13 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 1.4999999999999998,
+                "width" : 0.69999999999999996,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    0,
-                    0,
-                    0,
+                    110,
+                    110,
+                    110,
                     100
                   ]
                 }
@@ -669,20 +669,13 @@
       }
     }
   ],
-  "binaryReferences" : [
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/43a3827d15dbaa17c46784bf591fe3d8.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210222</CreaDate><CreaTime>11412800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Water Table Depth - Annual - Minimum</resTitle></idCitation><idAbs>SSURGO_WCT</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
-    }
-  ],
   "elevationSurfaces" : [
     {
       "type" : "CIMMapElevationSurface",
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{DFC64D37-2BF3-4F2D-8C2B-4FD2470244B6}",
+      "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

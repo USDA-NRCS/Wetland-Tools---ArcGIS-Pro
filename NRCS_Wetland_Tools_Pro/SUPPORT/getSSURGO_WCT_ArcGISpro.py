@@ -3,7 +3,7 @@
 # Purpose:     Develop SSURGO layers to be referenced within the Wetland
 #              Compliance process.
 
-# Author: Adolfo.Diaz
+# Author: Adolfo.Diaz anthony :)
 #         GIS Specialist
 #         National Soil Survey Center
 #         USDA - NRCS
@@ -23,7 +23,13 @@
 #   correclty without it.
 # - replaced the reserved python keyword 'property' with soilProperty
 # - slightly updated the metadata description
-#
+
+# ==========================================================================================
+# Updated  4/7/2021 - Adolfo Diaz
+# - Changed Hydric Rating interpretation from dominant condition to component frequency.
+#   This uses Jason Nemecek's approach
+# - Added URL to access Ecological Site Descriptions in EDIT database
+# - Added SSURGO Metadata for spatial and tabular version to final output.
 
 #-------------------------------------------------------------------------------
 
@@ -125,7 +131,23 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
     FROM @intersectedPolygonGeometries
     INNER JOIN mapunit M ON id = M.mukey
     INNER JOIN legend L ON M.lkey = L.lkey
+
+    SELECT CONVERT(varchar(10), [SAVEREST], 126) AS SAVEREST FROM SASTATUSMAP WHERE AREASYMBOL = '" + areaSym + "' AND SAPUBSTATUSCODE = 2
     """
+
+    """ -------------------- Query with spatialver and tabularver -----------------
+        ~DeclareGeometry(@aoi)~
+    select @aoi = geometry::STPolyFromText('POLYGON (( -93.557235688 44.189167781,-93.557235688 44.19613589,-93.547238902 44.19613589,-93.547238902 44.189167781,-93.557235688 44.189167781,-93.557235688 44.189167781))', 4326)
+    ~DeclareIdGeomTable(@intersectedPolygonGeometries)~
+    ~GetClippedMapunits(@aoi,polygon,geo,@intersectedPolygonGeometries)~
+
+    SELECT L.areasymbol, M.musym, M.muname, id AS mukey, S.spatialversion, CONVERT(varchar(10), [S].[spatialverest], 126) AS spatialdate, T.tabularversion,
+    CONVERT(varchar(10), [T].[tabularverest], 126) AS tabulardate, geom
+    FROM @intersectedPolygonGeometries
+    INNER JOIN mapunit M ON id = M.mukey
+    INNER JOIN legend L ON M.lkey = L.lkey
+    INNER JOIN saspatialver AS S ON L.areasymbol = S.areasymbol
+    INNER JOIN satabularver AS T ON L.areasymbol = T.areasymbol"""
 
     try:
         # Determine output SSURGO layer depending on output Workspace
@@ -175,13 +197,8 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
             AddMsgAndPrint("\nCould note create AOI minimum bounding coordinates",2)
             return False
 
-        # Create empty feature class along with fields
+        # Create empty feature class - fields will be added based on SDA metadata
         arcpy.management.CreateFeatureclass(os.path.dirname(outSSURGOlayerPath), outputName, "POLYGON", None, None, None, arcpy.env.outputCoordinateSystem )
-
-        arcpy.management.AddField(outSSURGOlayerPath, "AREASYMBOL", "TEXT", "#","#","20",field_alias="Area Symbol")
-        arcpy.management.AddField(outSSURGOlayerPath, "MUSYM", "TEXT", "#","#","6",field_alias="Mapunit Symbol")
-        arcpy.management.AddField(outSSURGOlayerPath, "MUNAME", "TEXT", "#", "#", "175", field_alias="Mapunit Name")
-        arcpy.management.AddField(outSSURGOlayerPath, "MUKEY", "TEXT", "#","#","30",field_alias="Mapunit Key")
 
         now = datetime.datetime.now()
         timeStamp = now.strftime('%Y-%m-%d T%H:%M:%S')
@@ -191,25 +208,27 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
 
         gQry += """
         ~DeclareGeometry(@aoi)~
-        select @aoi = geometry::STPolyFromText('POLYGON (( """ + coorStr + """))', 4326)\n
-
-        -- Extract all intersected polygons
+        select @aoi = geometry::STPolyFromText('POLYGON (( """ + coorStr + """))', 4326)
         ~DeclareIdGeomTable(@intersectedPolygonGeometries)~
         ~GetClippedMapunits(@aoi,polygon,geo,@intersectedPolygonGeometries)~
 
-        SELECT areasymbol, M.musym, M.muname, id AS mukey, geom
+        SELECT L.areasymbol, M.musym, M.muname, id AS mukey, S.spatialversion, CONVERT(varchar(10), [S].[spatialverest], 126) AS spatialdate, T.tabularversion,
+        CONVERT(varchar(10), [T].[tabularverest], 126) AS tabulardate, geom
         FROM @intersectedPolygonGeometries
         INNER JOIN mapunit M ON id = M.mukey
-        INNER JOIN legend L ON M.lkey = L.lkey"""
+        INNER JOIN legend L ON M.lkey = L.lkey
+        INNER JOIN saspatialver AS S ON L.areasymbol = S.areasymbol
+        INNER JOIN satabularver AS T ON L.areasymbol = T.areasymbol"""
+
+        #AddMsgAndPrint(str(gQry))
 
         # SDA url
         url = "https://SDMDataAccess.sc.egov.usda.gov/Tabular/post.rest"
-
         AddMsgAndPrint('Sending coordinates to Soil Data Access')
 
         # Create request using JSON, return data as JSON
         request = {}
-        request["format"] = "JSON"
+        request["format"] = "JSON+COLUMNNAME+METADATA"
         request["query"] = gQry
 
         #json.dumps = serialize obj (request dictionary) to a JSON formatted str
@@ -217,10 +236,6 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
 
         # Send request to SDA Tabular service using urllib library
         # because we are passing the "data" argument, this is a POST request, not a GET
-
-        # ArcMap Request
-        #req = urllib.Request(url, data)
-        #response = urllib.urlopen(req)
 
         # ArcPro Request
         data = data.encode('ascii')
@@ -238,19 +253,38 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
             # extract 'Data' List from dictionary to create list of lists
             # [u'455458',
             #  u'POLYGON ((-93.557235688 44.194375532084884, -93.5571424687631 44.1944048675063, -93.557235688 44.194519999876313, -93.557235688 44.194375532084884))']
-            resLst = qData["Table"]
+            queryData = qData["Table"]
 
-            # Create cursor to reconstruct incdividual polygons
-            rows =  arcpy.da.InsertCursor(outSSURGOlayerPath, ["AREASYMBOL","MUSYM","MUNAME","MUKEY","SHAPE@WKT"])
+            columnNames = queryData.pop(0)       # Isolate column names and remove from propertyData
+            columnNames.remove(columnNames[-1])     # Remove the geometry column information
+            columnInfo = queryData.pop(0)        # Isolate column info and remove from propertyData
+            columnInfo.remove(columnInfo[-1])       # Remove the geometry column information
 
-            for rec in resLst:
+            # Add the necessary fields from SDA to the FC
+            if not addSSURGOpropertyFld(outSSURGOlayerPath, columnNames, columnInfo):
+                return False
+
+            # Add "SHAPE@WKT" to the list of fields
+            # ['areasymbol','musym','muname','mukey','spatialversion','spatialdate','tabularversion','tabulardate','SHAPE@WKT']
+            columnNames.append('SHAPE@WKT')
+
+            # Create cursor to reconstruct incdividual polygons and populate the fields
+            # I need to design a better way of inserting records based on the number
+            # of fields and not hardcode it.
+            rows =  arcpy.da.InsertCursor(outSSURGOlayerPath, columnNames)
+
+            for rec in queryData:
                 areasym = rec[0]
                 musym = rec[1]
                 muname = rec[2]
                 mukey = rec[3]
-                polygon = rec[4]
+                spatialVer = rec[4]
+                spatialDate = rec[5]
+                tabularVer = rec[6]
+                tabularDate = rec[7]
+                polygon = rec[8]
 
-                value = areasym,musym,muname,mukey,polygon
+                value = areasym,musym,muname,mukey,spatialVer,spatialDate,tabularVer,tabularDate,polygon
                 rows.insertRow(value)
 
             AddMsgAndPrint("\nSuccessfully Created SSURGO Layer from Soil Data Access")
@@ -370,10 +404,28 @@ the dominant flood frequency class for the map unit, based on composition percen
 of map unit components whose composition in the map unit is equal to or exceeds 15%.",
 
                                     'Hydric Rating': "\
-Hydric Rating (hydricrating)\n\
-A yes/no field that indicates whether or not a map unit component is classified\n\
-as a \"hydric soil\". If rated as hydric, the specific criteria met are listed\n\
-in the Component Hydric Criteria table.\n\
+Hydric Soils Rating by Mapunit (hydric_rating)\n\
+This Hydric Soil Category rating indicates the components of map units that meet the criteria\n\
+for hydric soils. Map units are composed of one or more major soil components or soil types\n\
+that generally make up 20 percent or more of the map unit and are listed in the map unit name,\n\
+and they may also have one or more minor contrasting soil components that generally make up\n\
+less than 20 percent of the map unit. Each major and minor map unit component that meets the\n\
+hydric criteria is rated hydric. The map unit class ratings based on the hydric components\n\
+present are: Hydric, Predominantly Hydric, Partially Hydric, Predominantly Nonhydric, and\n\
+Nonhydric.\n\
+\n\
+     \"Hydric\" means that all major and minor components listed for a given map unit are rated\n\
+                as being hydric.\n\
+     \"Predominantly Hydric\" means that all major components listed for a given map unit are\n\
+                              rated as hydric, and at least one contrasting minor component is\n\
+                              not rated hydric.\n\
+     \"Partially Hydric\" means that at least one major component listed for a given map unit is\n\
+                          rated as hydric, and at least one other major component is not rated hydric.\n\
+     \"Predominantly Nonhydric\" means that no major component listed for a given map unit is rated\n\
+                                 as hydric, and at least one contrasting minor component is rated hydric.\n\
+     \"Nonhydric\" means no major or minor components for the map unit are rated hydric. The assumption is\n\
+                   that the map unit is nonhydric even if none of the components within the map unit have\n\
+                   been rated.\n\
 \n\
 Hydric soils are defined by the National Technical Committee for Hydric Soils (NTCHS)\n\
 as soils that formed under conditions of saturation, flooding, or ponding long enough\n\
@@ -483,7 +535,8 @@ vegetation."}
 
             lyrMetadata.copy(updatedMetadata)
             lyrMetadata.save()
-            AddMsgAndPrint("Successfully updated metadata for " + ssurgoProperty)
+            arcpy.SetProgressorLabel("Successfully updated metadata for " + ssurgoProperty)
+            #AddMsgAndPrint("Successfully updated metadata for " + ssurgoProperty)
 
         else:
             AddMsgAndPrint("Metadata is Read-only.  Could not update Description metadata for: " + ssurgoProperty,1)
@@ -561,6 +614,52 @@ def compileSQLquery(ssurgoProperty,aggregationMethod,mukeyList):
             " FROM #domcondition\n"\
             " JOIN #domcondition2 on #domcondition2.maxsumofcomppct_R = #domcondition.sumofcomppct_r AND #domcondition.mukey = #domcondition2.mukey\n"\
             " order by  #domcondition.areasymbol,#domcondition.musym, #domcondition.mukey\n"\
+
+        # This is for Jason Nemecek's
+        elif aggregationMethod == 'Component Count':
+            pQry = "SELECT areasymbol, musym, muname, mu.mukey/1  AS mukey,\n"\
+            " (SELECT TOP 1 COUNT_BIG(*)\n"\
+            " FROM mapunit\n"\
+            " INNER JOIN component ON component.mukey=mapunit.mukey AND mapunit.mukey = mu.mukey) AS comp_count,\n"\
+            " (SELECT TOP 1 COUNT_BIG(*)\n"\
+            " FROM mapunit\n"\
+            " INNER JOIN component ON component.mukey=mapunit.mukey AND mapunit.mukey = mu.mukey\n"\
+            " AND majcompflag = 'Yes') AS count_maj_comp,\n"\
+            " (SELECT TOP 1 COUNT_BIG(*)\n"\
+            " FROM mapunit\n"\
+            " INNER JOIN component ON component.mukey=mapunit.mukey AND mapunit.mukey = mu.mukey\n"\
+            " AND hydricrating = 'Yes' ) AS all_hydric,\n"\
+            " (SELECT TOP 1 COUNT_BIG(*)\n"\
+            " FROM mapunit\n"\
+            " INNER JOIN component ON component.mukey=mapunit.mukey AND mapunit.mukey = mu.mukey\n"\
+            " AND majcompflag = 'Yes' AND hydricrating = 'Yes') AS maj_hydric,\n"\
+            " (SELECT TOP 1 COUNT_BIG(*)\n"\
+            " FROM mapunit\n"\
+            " INNER JOIN component ON component.mukey=mapunit.mukey AND mapunit.mukey = mu.mukey\n"\
+            " AND majcompflag = 'Yes' AND hydricrating != 'Yes') AS maj_not_hydric,\n"\
+            " (SELECT TOP 1 COUNT_BIG(*)\n"\
+            " FROM mapunit\n"\
+            " INNER JOIN component ON component.mukey=mapunit.mukey AND mapunit.mukey = mu.mukey\n"\
+            " AND majcompflag != 'Yes' AND hydricrating  = 'Yes' ) AS hydric_inclusions,\n"\
+            " (SELECT TOP 1 COUNT_BIG(*)\n"\
+            " FROM mapunit\n"\
+            " INNER JOIN component ON component.mukey=mapunit.mukey AND mapunit.mukey = mu.mukey\n"\
+            " AND hydricrating  != 'Yes') AS all_not_hydric,\n"\
+            " (SELECT TOP 1 COUNT_BIG(*)\n"\
+            " FROM mapunit\n"\
+            " INNER JOIN component ON component.mukey=mapunit.mukey AND mapunit.mukey = mu.mukey\n"\
+            " AND hydricrating  IS NULL ) AS hydric_null\n"\
+            " INTO #main_query\n"\
+            " FROM legend AS l\n"\
+            " INNER JOIN  mapunit AS mu ON mu.lkey = l.lkey AND mu.mukey IN (" + keys + ")\n"\
+            " SELECT  areasymbol, musym, muname, mukey,\n"\
+            " CASE WHEN comp_count = all_not_hydric + hydric_null THEN  'Nonhydric'\n"\
+            " WHEN comp_count = all_hydric  THEN 'Hydric'\n"\
+            " WHEN comp_count != all_hydric AND count_maj_comp = maj_hydric THEN 'Predominantly Hydric'\n"\
+            " WHEN hydric_inclusions >= 0.5 AND  maj_hydric < 0.5 THEN  'Predominantly Nonydric'\n"\
+            " WHEN maj_not_hydric >= 0.5  AND  maj_hydric >= 0.5 THEN 'Partially Hydric' ELSE 'Error' END AS hydric_rating\n"\
+            " FROM #main_query\n"\
+
 
         elif aggregationMethod == 'comonth':
             pQry = " SELECT areasymbol, mapunit.mukey, musym, component.cokey, component.compname, component.comppct_r,\n"\
@@ -815,7 +914,7 @@ def lookupSSURGOFieldName(ssurgoProperty,returnAlias=False):
                     'Corrosion of Concrete': 'corcon',
                     'Corrosion of Steel': 'corsteel',
                     'Hydric Condition':'hydricon',
-                    'Hydric Rating':'hydricrating',
+                    'Hydric Rating':'hydric_rating',
                     'Hydric Classification Presence':'hydclprs',
                     'Drainage Class': 'drainagecl',
                     'Ecological Classification ID':'ecoclassid',
@@ -906,6 +1005,10 @@ def lookupSSURGOFieldName(ssurgoProperty,returnAlias=False):
 def addSSURGOpropertyFld(layer, fldNames, fldInfo):
 
     try:
+##        AddMsgAndPrint(str(fldNames),1)
+##        AddMsgAndPrint("--------------------",1)
+##        AddMsgAndPrint(str(fldInfo),1)
+
         # Dictionary: SQL Server to FGDB
         dType = dict()
 
@@ -1018,7 +1121,7 @@ def getSDATabularRequest(sqlQuery,layerPath):
         if "Table" in qData:
 
             # extract 'Data' List from dictionary to create list of lists
-            propertyData = qData["Table"]
+            queryData = qData["Table"]
 
 ##            # remove the column names and column info lists from propRes list above
 ##            # Last element represents info for specific property
@@ -1029,8 +1132,8 @@ def getSDATabularRequest(sqlQuery,layerPath):
 ##            columnNames.append(propRes.pop(0)[-1])
 ##            columnInfo.append(propRes.pop(0)[-1])
 
-            columnNames = propertyData.pop(0)       # Isolate column names and remove from propertyData
-            columnInfo = propertyData.pop(0)        # Isolate column info and remove from propertyData
+            columnNames = queryData.pop(0)       # Isolate column names and remove from queryData
+            columnInfo = queryData.pop(0)        # Isolate column info and remove from queryData
             mukeyIndex = columnNames.index('mukey') # list index of where 'mukey' is found
             propertyIndex = len(columnNames) -1     # list index of where property of interest is found; normally last place
             propertyFldName = columnNames[propertyIndex] # SSURGO field name of the property of interest
@@ -1046,13 +1149,13 @@ def getSDATabularRequest(sqlQuery,layerPath):
             if fieldAlias:
                 arcpy.AlterField_management(layerPath,propertyFldName,"#",fieldAlias)
 
-            # rearrange propertyData list into a dictionary of lists with the
+            # rearrange queryData list into a dictionary of lists with the
             # mukey as key and tabular info as a list of values.  This will be used
             # in the UpdateCursor to lookup tabular info by MUKEY
             # '455428': [u'MN161','L110E','Lester-Ridgeton complex, 18 to 25 percent slopes','B']
             propertyDict = dict()
 
-            for item in propertyData:
+            for item in queryData:
                 propertyDict[item[mukeyIndex]] = item
 
             # columnNames = [u'areasymbol', u'musym', u'muname', u'mukey', u'drainagecl']
@@ -1102,6 +1205,8 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
 
     # ------------------------------------------------------------------
     def UpdateLyrxSymbology(lyrxObj):
+        #AddMsgAndPrint("-----------------------")
+        #AddMsgAndPrint("Updating symbology for " + lyrxObj.name)
         sym = lyrxObj.symbology
 
         if sym.renderer.type == 'UniqueValueRenderer':
@@ -1146,20 +1251,32 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
                 bUpdateRenderer = True
                 for val in uniqueRendererValues:
                     sym.renderer.removeValues({fieldAlias: [val]})
-                    #AddMsgAndPrint("Removing " + str(val) + " from " + str(fieldAlias),1)
+                    #AddMsgAndPrint("REMOVING " + str(val))
 
             # Add values to Symbology renderer
             if len(valuesToAdd) > 0:
                 bUpdateRenderer = True
                 for val in valuesToAdd:
                     sym.renderer.addValues({fieldAlias: [val]})
-                    #AddMsgAndPrint("Adding " + str(val) + " to " + str(fieldAlias),1)
+                    #AddMsgAndPrint("ADDING " + str(val))
+
+                # The symbology for the newly added values will be the default symbology
+                # Update the outlineColor and size
+                for grp in sym.renderer.groups:
+                    for itm in grp.items:
+                        # Set the outline color and size to black and 1.5
+                        itm.symbol.outlineColor = {'RGB' : [0, 0, 0, 0]}
+                        itm.symbol.size = 1.5
+                        #AddMsgAndPrint("Updated Symbology for " + itm.label)
 
             if bUpdateRenderer:
                 lyrxObj.symbology = sym
+                #AddMsgAndPrint("SYMBOLOGY UPDATED!!!!!!!!!!!!!!")
     # ------------------------------------------------------------------
 
     try:
+        AddMsgAndPrint("Adding Layers to ArcGIS Pro")
+
         # path to individual .lyrx files
         scriptPath = os.path.dirname(__file__)
 
@@ -1225,7 +1342,8 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
                     for lyrx in lyrxToAddToArcPro:
                         map.addLayerToGroup(mapLyr,lyrx)
                         bAddedLyrxFilesToPro = True
-                        AddMsgAndPrint("Adding Layer to ArcGIS Pro: " + lyrx.name)
+                        arcpy.SetProgressorLabel("Adding Layer to ArcGIS Pro: " + lyrx.name)
+                        #AddMsgAndPrint("Adding Layer to ArcGIS Pro: " + lyrx.name)
             break
 
         # Get existing group layer object
@@ -1244,7 +1362,8 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
             for lyrx in lyrxToAddToArcPro:
                 map.addLayerToGroup(mapGroupLayer,lyrx)
                 bAddedLyrxFilesToPro = True
-                AddMsgAndPrint("Adding Layer to ArcGIS Pro: " + lyrx.name)
+                arcpy.SetProgressorLabel("Adding Layer to ArcGIS Pro: " + lyrx.name)
+                #AddMsgAndPrint("Adding Layer to ArcGIS Pro: " + lyrx.name)
 
         # Update symbology for newly added SSURGO_WCT layers
         aprx = arcpy.mp.ArcGISProject("CURRENT")
@@ -1256,6 +1375,12 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
             if lyr.name == groupLayerName and lyr.isGroupLayer:
                 for newLayer in lyr.listLayers():
                     UpdateLyrxSymbology(newLayer)
+
+                    # Turn off visibility for every layer except the SSURGO Mapunits layer
+                    if not newLayer.name == "SSURGO Mapunits":
+                        newLayer.showLabels = False
+                        newLayer.transparency = 50
+                        newLayer.visible = False
 
     except:
         errorMsg()
@@ -1273,13 +1398,14 @@ def start(aoi,soilPropertyList,outputWS):
 
     try:
 
-        # This section is for Ecological Classification interps.
+        # --------------- This section is for Ecological Classification
+        #                   and Ponding Frequency Class -------------------------------------------
         ecoList = ['Ecological Classification Name - Dominant Condition',
                    'Ecological Classification ID - Dominant Condition',
                    'Ecological Classification Type Name - Dominant Condition']
 
-        tempList = soilPropertyList
-        bEcoInterpPresent = False    # boolean
+        tempList = soilPropertyList  # make a copy of the soilPropertyList
+        bEcoInterpPresent = False    # True if ecological interp is present
 
         # iterate through the soilPropertyList and modify the ecological interp.
         # If any Ecological Classification interp is included in the soil
@@ -1319,10 +1445,17 @@ def start(aoi,soilPropertyList,outputWS):
                 updatePropertyName = tempProp[0:tempProp.find('-')+2] + 'comonth'
                 soilPropertyList = [x.replace(tempProp,updatePropertyName) for x in soilPropertyList]
 
+##            if tempProp == 'Hydric Classification Presence - Mapunit Aggregate':
+##
+##                # rename item from:
+##                # 'Ponding Frequency Class - Dominant Condition' TO
+##                # 'Ponding Frequency Class - comonth'
+##                updatePropertyName = tempProp[0:tempProp.find('-')+2] + 'hydroclass'
+##                soilPropertyList = [x.replace(tempProp,updatePropertyName) for x in soilPropertyList]
 
         # get SSURGO polgyons from SDA
+        #outSSURGOlayer = r'E:\Temp\scratch.gdb\SSURGO_Mapunits'
         outSSURGOlayer = getSSURGOgeometryFromSDA(aoi, outputWS, "SSURGO_Mapunits")
-        #outSSURGOlayer = r'E:\python_scripts\GitHub\SSURGO_WCT\Wetland_Workspace.gdb\SSURGO_WCT'
 
         if not outSSURGOlayer:
             AddMsgAndPrint("Failed to get SSURGO from Soil Data Access",2)
@@ -1334,14 +1467,44 @@ def start(aoi,soilPropertyList,outputWS):
 
             for soilproperty in soilPropertyList:
 
-                propSplit = soilproperty.split('-')
-                soilproperty = propSplit[0].strip()
-                aggMethod = propSplit[1].strip()
+                propSplit = soilproperty.split('-')  # ['Hydric Classification Presence ', ' Mapunit Aggregate']
+                soilproperty = propSplit[0].strip()  # Hydric Classification Presence
+                aggMethod = propSplit[1].strip()     # Mapunit Aggregate
+
+##                print(propSplit)
+##                print(soilproperty)
+##                print(aggMethod)
+##                exit()
 
                 theQuery = compileSQLquery(soilproperty,aggMethod,listOfMukeys)
+                #AddMsgAndPrint(str(theQuery),1)
                 tbRequest = getSDATabularRequest(theQuery,outSSURGOlayer)
-
                 updateMetadataDescription(soilproperty,outSSURGOlayer)
+
+            # Add EDIT URL field if ecoclassname or ecoclassid fields are present
+            if "Ecological Classification Name - coecoclass" in soilPropertyList:
+
+                AddMsgAndPrint("Adding Ecological Site Description web link")
+                # https://edit.jornada.nmsu.edu/catalogs/esd/103X/F103XY030MN
+                editURL = r'https://edit.jornada.nmsu.edu/catalogs/esd'
+                editFld = "EDIT_URL"
+
+                arcpy.AddField_management(outSSURGOlayer, editFld, "text", "", "", 100, "EDIT URL")
+
+                expression = "getEditURL(!ecoclassid!)"
+                codeblock = """
+def getEditURL(ecoID):
+    # URL of eco site descriptions
+    editURL = r'https://edit.jornada.nmsu.edu/catalogs/esd'
+
+    if ecoID:
+        # extract MLRA name from ecological class ID
+        mlraName = ecoID[1:5]
+        return editURL + r'/' + mlraName + r'/' + ecoID
+    else:
+        return None"""
+
+                arcpy.CalculateField_management(outSSURGOlayer, editFld, expression, "PYTHON3", codeblock)
 
         else:
             AddMsgAndPrint("Failed to get a list of MUKEYs from " + os.path.basename(outSSURGOlayer),2)
@@ -1371,9 +1534,18 @@ if __name__ == '__main__':
         propertyList = arcpy.GetParameter(1)  # python List of SSURGO Properties
         outLoc = arcpy.GetParameterAsText(2)  # Must be a FGDB
 
-##        feature = r'E:\python_scripts\GitHub\SSURGO_WCT\Wetland_Workspace.gdb\CLU_example2'
-##        propertyList = ['Ecological Classification Name - Dominant Condition', 'Drainage Class - Dominant Condition', 'Hydric Condition - Dominant Condition', 'Hydric Rating - Dominant Condition', 'Hydrologic Group - Dominant Condition', 'Ponding Frequency Class - Dominant Component', 'Water Table Depth Annual - Mapunit Aggregate']
-##        outLoc = r'E:\python_scripts\GitHub\SSURGO_WCT\Wetland_Workspace.gdb'
+##        feature = r'E:\Temp\SSURGO_WCT.gdb\WSS_aoi'
+##        propertyList = ['Hydric Classification Presence - Mapunit Aggregate']
+##        propertyList = ['Ecological Classification Name - Dominant Condition',
+##                         'Drainage Class - Dominant Condition',
+##                         'Hydric Classification Presence - Mapunit Aggregate',
+##                         'Hydric Condition - Dominant Condition',
+##                         'Hydric Rating - Dominant Condition',
+##                         'Hydrologic Group - Dominant Condition',
+##                         'Ponding Frequency Class - Dominant Component',
+##                         'Water Table Depth Annual - Mapunit Aggregate',
+##                         'Hydric Rating - Component Count']
+##        outLoc = r'E:\Temp\scratch.gdb'
 
         outputLayer = start(feature,propertyList,outLoc)
 

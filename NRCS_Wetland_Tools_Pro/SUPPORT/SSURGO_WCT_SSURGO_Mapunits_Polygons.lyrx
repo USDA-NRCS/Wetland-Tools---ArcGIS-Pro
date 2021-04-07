@@ -13,6 +13,7 @@
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
+      "metadataURI" : "CIMPATH=Metadata/151e2e9f681c2edf4c41d16e909612af.xml",
       "useSourceMetadata" : true,
       "description" : "SSURGO_WCT",
       "layerElevation" : {
@@ -39,7 +40,7 @@
           "type" : "CIMStandardDataConnection",
           "workspaceConnectionString" : "DATABASE=..\\..\\..\\Temp\\SSURGO_WCT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "SSURGO_WCT",
+          "dataset" : "SSURGO_Mapunits",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
@@ -150,7 +151,7 @@
               "type" : "CIMMaplexInternalZonePriorities",
               "center" : 1
             },
-            "polygonPlacementMethod" : "CurvedInPolygon",
+            "polygonPlacementMethod" : "HorizontalInPolygon",
             "primaryOffset" : 1,
             "primaryOffsetUnit" : "Point",
             "removeExtraWhiteSpace" : false,
@@ -226,11 +227,11 @@
               "extrapolateBaselines" : true,
               "fontEffects" : "Normal",
               "fontEncoding" : "Unicode",
-              "fontFamilyName" : "Times New Roman",
+              "fontFamilyName" : "Arial",
               "fontStyleName" : "Bold",
               "fontType" : "TTOpenType",
               "haloSize" : 1,
-              "height" : 8,
+              "height" : 10,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
               "kerning" : true,
@@ -288,8 +289,8 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    230,
-                    152,
+                    0,
+                    0,
                     0,
                     100
                   ]
@@ -314,6 +315,13 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/151e2e9f681c2edf4c41d16e909612af.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210222</CreaDate><CreaTime>11412800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>SSURGO Mapunits</resTitle></idCitation><idAbs>SSURGO_WCT</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     }
   ],
   "elevationSurfaces" : [

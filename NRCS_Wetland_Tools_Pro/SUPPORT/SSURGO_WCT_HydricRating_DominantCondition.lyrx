@@ -3,23 +3,23 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=ssurgo_wct/ssurgo_wct6.xml"
+    "CIMPATH=map/hydric_rating___dom__cond_.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
       "name" : "Hydric Rating - Dom. Cond.",
-      "uRI" : "CIMPATH=ssurgo_wct/ssurgo_wct6.xml",
+      "uRI" : "CIMPATH=map/hydric_rating___dom__cond_.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
+      "metadataURI" : "CIMPATH=Metadata/ae451ba86a8adb279f4173007b2ae4bc.xml",
       "useSourceMetadata" : true,
       "description" : "SSURGO_WCT",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}"
+        "mapElevationID" : "{DFC64D37-2BF3-4F2D-8C2B-4FD2470244B6}"
       },
-      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : true,
@@ -50,9 +50,9 @@
         },
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=.\\Wetland_Workspace.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\Temp\\SSURGO_WCT.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "SSURGO_WCT",
+          "dataset" : "SSURGO_Mapunits",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
@@ -369,13 +369,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 1.5,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            110,
-                            110,
-                            110,
+                            0,
+                            0,
+                            0,
                             100
                           ]
                         }
@@ -422,13 +422,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.40000000000000002,
+                        "width" : 1.5,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            110,
-                            110,
-                            110,
+                            0,
+                            0,
+                            0,
                             100
                           ]
                         }
@@ -476,13 +476,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 0.69999999999999996,
+                        "width" : 1.4999999999999998,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            110,
-                            110,
-                            110,
+                            0,
+                            0,
+                            0,
                             100
                           ]
                         }
@@ -532,13 +532,20 @@
       }
     }
   ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/ae451ba86a8adb279f4173007b2ae4bc.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210222</CreaDate><CreaTime>11412700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Hydric Rating - Dom. Cond.</resTitle></idCitation><idAbs>SSURGO_WCT</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    }
+  ],
   "elevationSurfaces" : [
     {
       "type" : "CIMMapElevationSurface",
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{48A0A550-CDEE-41B1-986A-F331BCBB4C7F}",
+      "mapElevationID" : "{DFC64D37-2BF3-4F2D-8C2B-4FD2470244B6}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

@@ -3,17 +3,17 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=map/water_table_depth___annual___minimum.xml"
+    "CIMPATH=map/hydric_classification_presence.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Water Table Depth - Annual - Minimum",
-      "uRI" : "CIMPATH=map/water_table_depth___annual___minimum.xml",
+      "name" : "Hydric Classification Presence",
+      "uRI" : "CIMPATH=map/hydric_classification_presence.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
-      "metadataURI" : "CIMPATH=Metadata/43a3827d15dbaa17c46784bf591fe3d8.xml",
+      "metadataURI" : "CIMPATH=Metadata/d8bea491fef1645cc4e6a805d442a2c6.xml",
       "useSourceMetadata" : true,
       "description" : "SSURGO_WCT",
       "layerElevation" : {
@@ -45,6 +45,73 @@
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
+      "featureTemplates" : [
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "Not Hydric (0%)",
+          "tags" : "Polygon",
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "defaultValues" : {
+            "type" : "PropertySet",
+            "propertySetItems" : [
+              "hydclprs",
+              0
+            ]
+          }
+        },
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "Partially Hydric (1 to 32%)",
+          "tags" : "Polygon",
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "defaultValues" : {
+            "type" : "PropertySet",
+            "propertySetItems" : [
+              "hydclprs",
+              16
+            ]
+          }
+        },
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "Partially Hydric (32 to 65%)",
+          "tags" : "Polygon",
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "defaultValues" : {
+            "type" : "PropertySet",
+            "propertySetItems" : [
+              "hydclprs",
+              48.5
+            ]
+          }
+        },
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "Partially Hydric (66 to 99%)",
+          "tags" : "Polygon",
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "defaultValues" : {
+            "type" : "PropertySet",
+            "propertySetItems" : [
+              "hydclprs",
+              82
+            ]
+          }
+        },
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "Hydric (100%)",
+          "tags" : "Polygon",
+          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "defaultValues" : {
+            "type" : "PropertySet",
+            "propertySetItems" : [
+              "hydclprs",
+              99.5
+            ]
+          }
+        }
+      ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
@@ -265,7 +332,7 @@
         "breaks" : [
           {
             "type" : "CIMClassBreak",
-            "label" : "0 - 25 cm",
+            "label" : "Not Hydric (0%)",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -296,9 +363,53 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        253,
-                        131,
-                        124,
+                        129,
+                        255,
+                        125,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type" : "CIMClassBreak",
+            "label" : "Partially Hydric (1 to 32%)",
+            "patch" : "Default",
+            "symbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMPolygonSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidStroke",
+                    "enable" : true,
+                    "capStyle" : "Round",
+                    "joinStyle" : "Round",
+                    "lineStyle3D" : "Strip",
+                    "miterLimit" : 10,
+                    "width" : 1.4999999999999998,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        0,
+                        0,
+                        0,
+                        100
+                      ]
+                    }
+                  },
+                  {
+                    "type" : "CIMSolidFill",
+                    "enable" : true,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        205,
+                        255,
+                        206,
                         100
                       ]
                     }
@@ -306,11 +417,11 @@
                 ]
               }
             },
-            "upperBound" : 25
+            "upperBound" : 32
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "25 - 50 cm",
+            "label" : "Partially Hydric (32 to 65%)",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -342,8 +453,8 @@
                       "type" : "CIMRGBColor",
                       "values" : [
                         255,
-                        217,
-                        116,
+                        255,
+                        152,
                         100
                       ]
                     }
@@ -351,11 +462,11 @@
                 ]
               }
             },
-            "upperBound" : 50
+            "upperBound" : 65
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "50 - 100 cm",
+            "label" : "Partially Hydric (66 to 99%)",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -386,9 +497,54 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        242,
-                        251,
-                        190,
+                        255,
+                        201,
+                        118,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "upperBound" : 99
+          },
+          {
+            "type" : "CIMClassBreak",
+            "label" : "Hydric (100%)",
+            "patch" : "Default",
+            "symbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMPolygonSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidStroke",
+                    "enable" : true,
+                    "capStyle" : "Round",
+                    "joinStyle" : "Round",
+                    "lineStyle3D" : "Strip",
+                    "miterLimit" : 10,
+                    "width" : 1.4999999999999998,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        0,
+                        0,
+                        0,
+                        100
+                      ]
+                    }
+                  },
+                  {
+                    "type" : "CIMSolidFill",
+                    "enable" : true,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        244.80000000000001,
+                        110,
+                        114,
                         100
                       ]
                     }
@@ -397,141 +553,6 @@
               }
             },
             "upperBound" : 100
-          },
-          {
-            "type" : "CIMClassBreak",
-            "label" : "100 - 150 cm",
-            "patch" : "Default",
-            "symbol" : {
-              "type" : "CIMSymbolReference",
-              "symbol" : {
-                "type" : "CIMPolygonSymbol",
-                "symbolLayers" : [
-                  {
-                    "type" : "CIMSolidStroke",
-                    "enable" : true,
-                    "capStyle" : "Round",
-                    "joinStyle" : "Round",
-                    "lineStyle3D" : "Strip",
-                    "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        0,
-                        0,
-                        0,
-                        100
-                      ]
-                    }
-                  },
-                  {
-                    "type" : "CIMSolidFill",
-                    "enable" : true,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        196,
-                        249,
-                        235,
-                        100
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            "upperBound" : 150
-          },
-          {
-            "type" : "CIMClassBreak",
-            "label" : "150 - 200 cm",
-            "patch" : "Default",
-            "symbol" : {
-              "type" : "CIMSymbolReference",
-              "symbol" : {
-                "type" : "CIMPolygonSymbol",
-                "symbolLayers" : [
-                  {
-                    "type" : "CIMSolidStroke",
-                    "enable" : true,
-                    "capStyle" : "Round",
-                    "joinStyle" : "Round",
-                    "lineStyle3D" : "Strip",
-                    "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        0,
-                        0,
-                        0,
-                        100
-                      ]
-                    }
-                  },
-                  {
-                    "type" : "CIMSolidFill",
-                    "enable" : true,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        167,
-                        202,
-                        255,
-                        100
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            "upperBound" : 200
-          },
-          {
-            "type" : "CIMClassBreak",
-            "label" : "> 200 cm",
-            "patch" : "Default",
-            "symbol" : {
-              "type" : "CIMSymbolReference",
-              "symbol" : {
-                "type" : "CIMPolygonSymbol",
-                "symbolLayers" : [
-                  {
-                    "type" : "CIMSolidStroke",
-                    "enable" : true,
-                    "capStyle" : "Round",
-                    "joinStyle" : "Round",
-                    "lineStyle3D" : "Strip",
-                    "miterLimit" : 10,
-                    "width" : 1.4999999999999998,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        0,
-                        0,
-                        0,
-                        100
-                      ]
-                    }
-                  },
-                  {
-                    "type" : "CIMSolidFill",
-                    "enable" : true,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        128,
-                        125,
-                        255,
-                        100
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            "upperBound" : 1000
           }
         ],
         "classBreakType" : "GraduatedColor",
@@ -563,7 +584,7 @@
           "interpolationSpace" : "HSV",
           "polarDirection" : "Auto"
         },
-        "field" : "wtdepannmin",
+        "field" : "hydclprs",
         "numberFormat" : {
           "type" : "CIMNumericFormat",
           "alignmentOption" : "esriAlignLeft",
@@ -573,9 +594,8 @@
           "zeroPad" : true
         },
         "showInAscendingOrder" : true,
-        "heading" : "Water Table Depth Annual Minimum",
+        "heading" : "Hydric Classification Presence",
         "sampleSize" : 10000,
-        "useDefaultSymbol" : true,
         "defaultSymbolPatch" : "Default",
         "defaultSymbol" : {
           "type" : "CIMSymbolReference",
@@ -589,13 +609,13 @@
                 "joinStyle" : "Round",
                 "lineStyle3D" : "Strip",
                 "miterLimit" : 10,
-                "width" : 1.4999999999999998,
+                "width" : 0.69999999999999996,
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    0,
-                    0,
-                    0,
+                    110,
+                    110,
+                    110,
                     100
                   ]
                 }
@@ -606,9 +626,9 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
-                    234,
-                    235,
-                    230,
+                    130,
+                    130,
+                    130,
                     100
                   ]
                 }
@@ -616,7 +636,7 @@
             ]
           }
         },
-        "defaultLabel" : "Not rated or not available",
+        "defaultLabel" : "<out of range>",
         "polygonSymbolColorTarget" : "Fill",
         "normalizationType" : "Nothing",
         "exclusionLabel" : "<excluded>",
@@ -672,8 +692,8 @@
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/43a3827d15dbaa17c46784bf591fe3d8.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210222</CreaDate><CreaTime>11412800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Water Table Depth - Annual - Minimum</resTitle></idCitation><idAbs>SSURGO_WCT</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/d8bea491fef1645cc4e6a805d442a2c6.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210222</CreaDate><CreaTime>11412700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Hydric Classification Presence</resTitle></idCitation><idAbs>SSURGO_WCT</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
     }
   ],
   "elevationSurfaces" : [
