@@ -166,8 +166,7 @@ try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
     sourceCWD = arcpy.GetParameterAsText(0)
-
-
+    
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
@@ -265,6 +264,10 @@ try:
     name028 = "CLU_CWD_028"
     cluCWD026 = wcGDB_path + os.sep + name026
     cluCWD028 = wcGDB_path + os.sep + name028
+
+    excelAdmin = userWorkspace + os.sep + "Admin_Table.xlsx"
+    excel026 = wetDir + os.sep + "CLU_CWD_026.xlsx"
+    excel028 = wetDir + os.sep + "CLU_CWD_028.xlsx"
 
     # Temp layers list for cleanup at the start and at the end
     tempLayers = [clucwd_multi, clucwd_single, pccs_multi, pccs_single]
@@ -383,6 +386,22 @@ try:
     case_fields = ["clu_number", "wetland_label", "occur_year"]
     stats_fields = [['acres', 'SUM']]
     arcpy.Statistics_analysis(cluCWD, cluCWD026, stats_fields, case_fields)
+
+
+    #### Export Excel Tables to get ready for forms and letters tool.
+    AddMsgAndPrint("\nExporting Excel tables...\n",0)
+    if arcpy.Exists(excelAdmin):
+        arcpy.Delete_management(excelAdmin)
+    arcpy.TableToExcel_conversion(projectTable, excelAdmin)
+    
+    if arcpy.Exists(excel026):
+        arcpy.Delete_management(excel026)
+    arcpy.TableToExcel_conversion(cluCWD026, excel026)
+
+    if arcpy.Exists(excel028):
+        arcpy.Delete_management(excel028)
+    if arcpy.Exists(cluCWD028):
+        arcpy.TableToExcel_conversion(cluCWD028, excel028)
 
 
     #### Clean up Temporary Datasets

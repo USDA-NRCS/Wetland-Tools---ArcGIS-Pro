@@ -190,6 +190,10 @@ def createSU():
     #### Remove existing sampling unit related layers from the Pro maps
     AddMsgAndPrint("\nRemoving Sampling Unit related layers from project maps, if present...\n",0)
 
+    # Remove attribute rules from the SU layer first
+    if arcpy.Exists(projectSU):
+        arcpy.DeleteAttributeRule_management(projectSU, rules_su_names)
+
     # Set sampling unit related layers to remove from the map
     mapLayersToRemove = [suName, suTopoName]
 
@@ -216,7 +220,7 @@ def createSU():
     #### Create the Sampling Unit Layer
     AddMsgAndPrint("\nCreating the Sampling Units layer...\n",0)
     # Create an empty Sampling Unit feature class
-    arcpy.CreateFeatureclass_management(wcFD, suName, "POLYGON", templateSU)
+    arcpy.CreateFeatureclass_management(wcFD, suNewName, "POLYGON", templateSU)
 
     # Create the SU layer by intersecting the Reqeust Extent with the CLU
     arcpy.Intersect_analysis([projectExtent, projectCLU], suMulti, "NO_FID", "#", "INPUT")
@@ -226,9 +230,9 @@ def createSU():
     if keepFields == "No":
         dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
         arcpy.Dissolve_management(suTemp1, suTemp2, dis_fields, "", "SINGLE_PART", "")
-        arcpy.Append_management(suTemp2, projectSU, "NO_TEST")
+        arcpy.Append_management(suTemp2, projectSUnew, "NO_TEST")
     else:
-        arcpy.Append_management(suTemp1, projectSU, "NO_TEST")
+        arcpy.Append_management(suTemp1, projectSUnew, "NO_TEST")
 
     # Incorporate existing sampling unit data if previous certifications fall within the request extent
     if arcpy.Exists(prevAdminSite):
@@ -241,27 +245,26 @@ def createSU():
             AddMsgAndPrint("\tIntegrating previous Sampling Unit data into new Sampling Unit layer...",0)
             arcpy.Clip_analysis(prevSUmulti, prevAdminSite, prevSUclip)
             arcpy.MultipartToSinglepart_management(prevSUclip, prevSU)
-            arcpy.Erase_analysis(projectSU, prevAdminSite, suTemp4)
+            arcpy.Erase_analysis(projectSUnew, prevAdminSite, suTemp4)
             arcpy.MultipartToSinglepart_management(suTemp4, suTemp5)
             arcpy.Delete_management(projectSU)
             arcpy.CreateFeatureclass_management(wcFD, suName, "POLYGON", templateSU)
             arcpy.Append_management(suTemp5, projectSU, "NO_TEST")
             arcpy.Append_management(prevSU, projectSU, "NO_TEST")
-    
+
 
     #### Assign domains to the SU layer
-    arcpy.AssignDomainToField_management(projectSU, "eval_status", "Evaluation Status")
-    arcpy.AssignDomainToField_management(projectSU, "three_factors", "YN")
-    arcpy.AssignDomainToField_management(projectSU, "request_type", "Request Type")
-    arcpy.AssignDomainToField_management(projectSU, "deter_method", "Method")
-
+    arcpy.AssignDomainToField_management(projectSUnew, "eval_status", "Evaluation Status")
+    arcpy.AssignDomainToField_management(projectSUnew, "three_factors", "YN")
+    arcpy.AssignDomainToField_management(projectSUnew, "request_type", "Request Type")
+    arcpy.AssignDomainToField_management(projectSUnew, "deter_method", "Method")
 
     #### Update SU layer attributes
 ##    # job_id and eval_status are now inherited from the Extent layer
 
     # Update calculated acres
     expression = "!Shape.Area@acres!"
-    arcpy.CalculateField_management(projectSU, "acres", expression, "PYTHON_9.3")
+    arcpy.CalculateField_management(projectSUnew, "acres", expression, "PYTHON_9.3")
     del expression
 
     # Get admin attributes from project table for request_date, request_type, deter_staff, dig_staff, and dig_date (current date) and assign them to New/Revised areas
@@ -279,7 +282,7 @@ def createSU():
         digDate = time.strftime('%m/%d/%Y')
 
         fields = ['eval_status','request_date','request_type','deter_staff','dig_staff','dig_date']
-        cursor = arcpy.da.UpdateCursor(projectSU, fields)
+        cursor = arcpy.da.UpdateCursor(projectSUnew, fields)
         for row in cursor:
             if row[0] == "New Request" or row[0] == "Revision":
                 row[1] = rDate
@@ -289,11 +292,16 @@ def createSU():
                 row[5] = digDate
             cursor.updateRow(row)
         del cursor, fields
-
+        
 
     #### Import attribute rules to various layers in the project.
-    arcpy.ImportAttributeRules_management(projectSU, rules_su)
+    #arcpy.ImportAttributeRules_management(projectSUnew, rules_su)
 
+
+    #### Rename because reasons
+    arcpy.Rename_management(projectSUnew, projectSU)
+    arcpy.ImportAttributeRules_management(projectSU, rules_su)
+    
     
 ##    #### Add the layer to the map
 ##    # Use starting reference layer files for the tool installation to add layer with automatic placement
@@ -523,10 +531,10 @@ try:
 ##    existingROP = arcpy.GetParameterAsText(7)
 ##    existingREF = arcpy.GetParameterAsText(8)
 ##    existingDRAIN = arcpy.GetParameterAsText(9)
-    suLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(7))
-    ropLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(8))
-    refLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(9))
-    drainLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(10))
+    suLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(7)).listLayers()[0]
+    ropLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(8)).listLayers()[0]
+    refLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(9)).listLayers()[0]
+    drainLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(10)).listLayers()[0]
 
 
     #### Initial Validations
@@ -590,6 +598,8 @@ try:
 
     suName = "Site_Sampling_Units"
     projectSU = wcFD + os.sep + suName
+    suNewName = "Site_Sampling_Units_New"
+    projectSUnew = wcFD + os.sep + suNewName
     suMulti = scratchGDB + os.sep + "SU_Multi" + projectName
     suTemp1 = scratchGDB + os.sep + "SU_Temp1_" + projectName
     suTemp2 = scratchGDB + os.sep + "SU_Temp2_" + projectName
@@ -632,8 +642,12 @@ try:
     updatedCert = wcFD + os.sep + "Updated_Cert"
     updatedAdmin = wcFD + os.sep + "Updated_Admin"
     
-    # Attribute rule files
+    # Attribute rule files and lists
     rules_su = os.path.join(os.path.dirname(sys.argv[0]), "Rules_SU.csv")
+    rules_su_names = ['Update Acres', 'Add SU Job ID', 'Add SU Admin State', 'Add SU Admin State Name',
+                      'Add SU Admin County', 'Add SU Admin County Name', 'Add SU State Code', 'Add SU State Name',
+                      'Add SU County Code', 'Add SU County Name', 'Add SU Farm Number', 'Add SU Tract Number',
+                      'Add Request Date', 'Add Request Type', 'Add Eval Status']
     rules_rops = os.path.join(os.path.dirname(sys.argv[0]), "Rules_ROPs.csv")
     rules_refs = os.path.join(os.path.dirname(sys.argv[0]), "Rules_REF.csv")
     rules_lines = os.path.join(os.path.dirname(sys.argv[0]), "Rules_Drains.csv")
@@ -712,16 +726,18 @@ try:
     #### Create or Reset the Sampling Units layer
     if not arcpy.Exists(projectSU):
         createSU()
+        #arcpy.ImportAttributeRules_management(projectSU, rules_su)
     if resetSU == "Yes":
-        arcpy.Delete_management(projectSU)
+        #arcpy.Delete_management(projectSU)
         createSU()
+        #arcpy.ImportAttributeRules_management(projectSU, rules_su)
 
 
     #### Create or Reset the ROPs Layer
     if not arcpy.Exists(projectROP):
         createROP()
     if resetROPs == "Yes":
-        arcpy.Delete_management(projectROP)
+        #arcpy.Delete_management(projectROP)
         createROP()
 
 
@@ -729,7 +745,7 @@ try:
     if not arcpy.Exists(projectREF):
         createREF()
     if resetREF == "Yes":
-        arcpy.Delete_management(projectREF)
+        #arcpy.Delete_management(projectREF)
         createREF()
 
 
@@ -737,7 +753,7 @@ try:
     if not arcpy.Exists(projectLines):
         createDRAIN()
     if resetDrains == "Yes":
-        arcpy.Delete_management(projectLines)
+        #arcpy.Delete_management(projectLines)
         createDRAIN()
 
 
@@ -765,28 +781,45 @@ try:
     #### Add to map
     # Use starting reference layer files from the tool installation to add layers with automatic placement
     lyr_list = m.listLayers()
-    if suName not in lyr_list:
+    lyr_name_list = []
+    for lyr in lyr_list:
+        lyr_name_list.append(lyr.name)
+    if suName not in lyr_name_list:
+        suLyr_cp = suLyr.connectionProperties
+        suLyr_cp['connection_info']['database'] = wcGDB_path
+        suLyr_cp['dataset'] = suName
+        suLyr.updateConnectionProperties(suLyr.connectionProperties, suLyr_cp)
         m.addLayer(suLyr)
-    if ropName not in lyr_list:
+##        m.addLayer(suLyr)
+##        suNew = m.listLayers(suName)[0]
+##        changeSource(suNew, wcGDB_path, suName)
+    if ropName not in lyr_name_list:
+        ropLyr_cp = ropLyr.connectionProperties
+        ropLyr_cp['connection_info']['database'] = wcGDB_path
+        ropLyr_cp['dataset'] = ropName
+        ropLyr.updateConnectionProperties(ropLyr.connectionProperties, ropLyr_cp)
         m.addLayer(ropLyr)
-    if refName not in lyr_list:
+##        m.addLayer(ropLyr)
+##        ropNew = m.listLayers(ropName)[0]
+##        changeSource(ropNew, wcGDB_path, ropName)
+    if refName not in lyr_name_list:
+        refLyr_cp = ropLyr.connectionProperties
+        refLyr_cp['connection_info']['database'] = wcGDB_path
+        refLyr_cp['dataset'] = refName
+        refLyr.updateConnectionProperties(refLyr.connectionProperties, refLyr_cp)
         m.addLayer(refLyr)
-    if drainName not in lyr_list:
+##        m.addLayer(refLyr)
+##        refNew = m.listLayers(refName)[0]
+##        changeSource(refNew, wcGDB_path, refName)
+    if drainName not in lyr_name_list:
+        drainLyr_cp = ropLyr.connectionProperties
+        drainLyr_cp['connection_info']['database'] = wcGDB_path
+        drainLyr_cp['dataset'] = drainName
+        drainLyr.updateConnectionProperties(drainLyr.connectionProperties, drainLyr_cp)
         m.addLayer(drainLyr)
-
-    # Replace data sources of layer files from installed layers to the project layers. Can always do, even if layer is not new or reset.
-    # First get the current layers in the map
-    suNew = m.listLayers(suName)[0]
-    ropNew = m.listLayers(ropName)[0]
-    refNew = m.listLayers(refName)[0]
-    drainNew = m.listLayers(drainName)[0]
-
-    # Call the function to change the data source on add layers
-    changeSource(suNew, wcGDB_path, suName)
-    changeSource(ropNew, wcGDB_path, ropName)
-    changeSource(refNew, wcGDB_path, refName)
-    changeSource(drainNew, wcGDB_path, drainName)
-    
+##        m.addLayer(drainLyr)
+##        drainNew = m.listLayers(drainName)[0]
+##        changeSource(drainNew, wcGDB_path, drainName)
     
     #### Adjust visibility of layers to aid in moving to the next step in the process
     # Turn off all CLUs/Common, Define_AOI, and Extent layers

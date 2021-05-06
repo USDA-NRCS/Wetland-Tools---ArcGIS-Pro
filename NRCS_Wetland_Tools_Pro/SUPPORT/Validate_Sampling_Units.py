@@ -590,7 +590,7 @@ try:
                 if su_row[2] == None:
                     cur_su = str(su_row[1])
                 else:
-                    cur_su = str(su_row[1] + su_row[2]
+                    cur_su = str(su_row[1] + su_row[2])
                 if len(su_ids) == 0:
                     su_ids = su_ids + cur_su
                 else:
