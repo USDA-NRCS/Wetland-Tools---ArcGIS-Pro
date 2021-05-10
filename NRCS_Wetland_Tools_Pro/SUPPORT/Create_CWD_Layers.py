@@ -20,6 +20,10 @@
 ## rev. 03/23/2021
 ## -Started updated from ArcMap NRCS Compliance Tools and the Create WC Layer tool.
 ##
+## rev. 05/10/2021
+## -Debugging passes to get replacement layers working
+## -Change the way that layers are added to the map
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -137,23 +141,23 @@ def removeFCs(fc_list, wc='', ws ='', in_topos=''):
 ## ===============================================================================================================
 def createCWD():
     #### Remove existing extent and CWD related layers from the Pro maps to create or re-create them
-    AddMsgAndPrint("\nRemoving Request Extent and CWD related layers from project maps, if present...\n",0)
-
-    # Set layers to remove from the map
-    mapLayersToRemove = [extentName, cwdName, cluCwdName]
-
-    # Find CWD related annotation layers to add to the list of map layers to be removed
-    cwdAnnoString = "Site_CWD" + "Anno*"
-    clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
-    anno_list = [cwdAnnoString, clucwdAnnoString]
-    for maps in aprx.listMaps():
-        for anno in anno_list:
-            for lyr in maps.listLayers(anno):
-                mapLayersToRemove.append(lyr.name)
-
-    # Remove the layers
-    removeLayers(mapLayersToRemove)
-    del mapLayersToRemove
+##    AddMsgAndPrint("\nRemoving Request Extent and CWD related layers from project maps, if present...\n",0)
+##
+##    # Set layers to remove from the map
+##    mapLayersToRemove = [extentName, cwdName, cluCwdName]
+##
+##    # Find CWD related annotation layers to add to the list of map layers to be removed
+##    cwdAnnoString = "Site_CWD" + "Anno*"
+##    clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
+##    anno_list = [cwdAnnoString, clucwdAnnoString]
+##    for maps in aprx.listMaps():
+##        for anno in anno_list:
+##            for lyr in maps.listLayers(anno):
+##                mapLayersToRemove.append(lyr.name)
+##
+##    # Remove the layers
+##    removeLayers(mapLayersToRemove)
+##    del mapLayersToRemove
 
     # Remove existing cwd layers from the geodatabase to create or re-create them
     AddMsgAndPrint("\nRemoving CWD related layers from project database, if present...\n",0)
@@ -381,14 +385,14 @@ def createCWD():
 ## ===============================================================================================================
 def createPJW():
     #### Remove existing PJW related layers from the Pro maps
-    AddMsgAndPrint("\nRemoving PJW related layers from project maps, if present...\n",0)
-
-    # Set PJW related layers to remove from the map
-    mapLayersToRemove = [pjwName]
-
-    # Remove the layers
-    removeLayers(mapLayersToRemove)
-    del mapLayersToRemove
+##    AddMsgAndPrint("\nRemoving PJW related layers from project maps, if present...\n",0)
+##
+##    # Set PJW related layers to remove from the map
+##    mapLayersToRemove = [pjwName]
+##
+##    # Remove the layers
+##    removeLayers(mapLayersToRemove)
+##    del mapLayersToRemove
 
     # Remove existing PJW layers from the geodatabase
     AddMsgAndPrint("\nRemoving PJW related layers from project database, if present...\n",0)
@@ -452,9 +456,9 @@ try:
     resetCWD = arcpy.GetParameterAsText(1)
     resetPJW = arcpy.GetParameterAsText(2)
     existingCWD = arcpy.GetParameterAsText(3)                   #### MISSING FROM SCRIPT
-    cwdLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(4))
-    pjwLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(5))
-    extLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(6))
+    cwdLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(4)).listLayers()[0]
+    pjwLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(5)).listLayers()[0]
+    extLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(6)).listLayers()[0]
 
 
     #### Initial Validations
@@ -483,8 +487,6 @@ try:
     wetDir = os.path.dirname(wcGDB_path)
     userWorkspace = os.path.dirname(wetDir)
     projectName = os.path.basename(userWorkspace).replace(" ", "_")
-
-    arcpy.AddMessage("Debugging...")
     
     wcGDB_name = os.path.basename(userWorkspace).replace(" ", "_") + "_WC.gdb"
     wcGDB_path = wetDir + os.sep + wcGDB_name
@@ -502,7 +504,7 @@ try:
     refName = "Site_Reference_Points"
     drainName = "Site_Drainage_Lines"
     cluCwdName = "Site_CLU_CWD"
-
+    
     projectTable = basedataGDB_path + os.sep + "Table_" + projectName
     wetDetTableName = "Admin_Table"
     wetDetTable = wcGDB_path + os.sep + wetDetTableName
@@ -517,7 +519,7 @@ try:
     SU_Clip_Multi = scratchGDB + os.sep + "suClipMulti"
     SU_Clip_Temp = scratchGDB + os.sep + "suClipTemp"
     SU_Clip_New = scratchGDB + os.sep + "suClipNew"
-    Prev_SU_Multi = scratchGDB + os.sesp + "prevSuMulti"
+    Prev_SU_Multi = scratchGDB + os.sep + "prevSuMulti"
     Prev_SU_Temp = scratchGDB + os.sep + "prevSuTemp"
     suRev = scratchGDB + os.sep + "suRevised"
     suRevDissolve = scratchGDB + os.sep + "suRevDis"
@@ -531,8 +533,10 @@ try:
     cwdTopoName = "CWD_Topology"
     cwdTopo = wcFD + os.sep + cwdTopoName
     
-    prevCert = wcFD + os.sep + "Previous_CWD"
-    prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
+    prevCertName = "Previous_CWD"
+    prevCert = wcFD + os.sep + prevCertName
+    psc_name = "Site_Previous_CWD"
+    prevCertSite = wcFD + os.sep + psc_name
     prevAdmin = wcFD + os.sep + "Previous_Admin"
     prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
     updatedCert = wcFD + os.sep + "Updated_Cert"
@@ -540,7 +544,9 @@ try:
     
     # Attribute rule files
     rules_cwd = os.path.join(os.path.dirname(sys.argv[0]), "Rules_CWD.csv")
+    rules_cwd_names = ['Update Acres']
     rules_pjw = os.path.join(os.path.dirname(sys.argv[0]), "Rules_PJW.csv")
+    rules_pjw_names = ['Add PJW Job ID']
 
     # Temp layers list for cleanup at the start and at the end
     tempLayers = [extentTemp1, extentTemp2, SU_Clip_Temp, SU_Clip_New, Prev_SU_Temp, suRev, suRevDissolve, SU_Clip_Multi, Prev_SU_Multi]
@@ -552,7 +558,30 @@ try:
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
-        
+
+    #### Always remove all layers from the map to minimize issues with file locks and edit locks during processing.
+    # Remove attribute rules first
+    if arcpy.Exists(projectCWD):
+        arcpy.DeleteAttributeRule_management(projectCWD, rules_cwd_names)
+    if arcpy.Exists(projectPJW):
+        arcpy.DeleteAttributeRule_management(projectPJW, rules_pjw_names)
+    
+    # Set layers to remove from the map
+    mapLayersToRemove = [extentName, cwdName, cwdTopoName, cluCwdName, pjwName]
+
+    # Find CWD related annotation layers to add to the list of map layers to be removed
+    cwdAnnoString = "Site_CWD" + "Anno*"
+    clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
+    anno_list = [cwdAnnoString, clucwdAnnoString]
+    for maps in aprx.listMaps():
+        for anno in anno_list:
+            for lyr in maps.listLayers(anno):
+                mapLayersToRemove.append(lyr.name)
+
+    # Remove the layers
+    removeLayers(mapLayersToRemove)
+    del mapLayersToRemove
+    
     #### Check Project Integrity
     AddMsgAndPrint("\nChecking project integrity...",0)
 
@@ -660,24 +689,30 @@ try:
 
     #### Add to map
     # Use starting reference layer files from the tool installation to add layers with automatic placement
+    AddMsgAndPrint("\nAdding layers to the map...",0)
     lyr_list = m.listLayers()
-    if cwdName not in lyr_list:
+    lyr_name_list = []
+    for lyr in lyr_list:
+        lyr_name_list.append(lyr.name)
+    if cwdName not in lyr_name_list:
+        cwdLyr_cp = cwdLyr.connectionProperties
+        cwdLyr_cp['connection_info']['database'] = wcGDB_path
+        cwdLyr_cp['dataset'] = cwdName
+        cwdLyr.updateConnectionProperties(cwdLyr.connectionProperties, cwdLyr_cp)
         m.addLayer(cwdLyr)
-    if pjwName not in lyr_list:
+    if pjwName not in lyr_name_list:
+        pjwLyr_cp = pjwLyr.connectionProperties
+        pjwLyr_cp['connection_info']['database'] = wcGDB_path
+        pjwLyr_cp['dataset'] = pjwName
+        pjwLyr.updateConnectionProperties(pjwLyr.connectionProperties, pjwLyr_cp)
         m.addLayer(pjwLyr)
-    if extentName not in lyr_list:
+    if extentName not in lyr_name_list:
+        extLyr_cp = extLyr.connectionProperties
+        extLyr_cp['connection_info']['database'] = wcGDB_path
+        extLyr_cp['dataset'] = extentName
+        extLyr.updateConnectionProperties(extLyr.connectionProperties, extLyr_cp)
         m.addLayer(extLyr)
 
-    # Replace data sources of layer files from installed layers to the project layers. Can always do, even if layer is not new or reset.
-    # First get the current layers in the map
-    cwdNew = m.listLayers(cwdName)[0]
-    pjwNew = m.listLayers(pjwName)[0]
-    extNew = m.listLayers(extentName)[0]
-
-    # Call the function to change the data source on add layers
-    changeSource(cwdNew, wcGDB_path, cwdName)
-    changeSource(pjwNew, wcGDB_path, pjwName)
-    changeSource(extNew, wcGDB_path, extentName)
     
     #### Adjust visibility of layers to aid in moving to the next step in the process
     # Turn off all layers from previous steps

@@ -368,7 +368,8 @@ try:
 
         # Else just convert the one input DEM to become the tempDEM
         else:
-            firstDEM = scratchGDB + os.sep + "tempDEM_0"
+            #firstDEM = scratchGDB + os.sep + "tempDEM_0"
+            firstDEM = inputDEMs[0]
             arcpy.CopyRaster_management(firstDEM, tempDEM)
 
         # Delete clippedDEM files

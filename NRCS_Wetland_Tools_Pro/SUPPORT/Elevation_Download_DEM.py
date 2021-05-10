@@ -124,8 +124,7 @@ try:
     sourceCLU = arcpy.GetParameterAsText(0)                     # User selected project CLU
     sourceService = arcpy.GetParameterAsText(1)
     sourceCellsize = arcpy.GetParameterAsText(2)
-
-
+    
     #### Set base path
     sourceCLU_path = arcpy.Describe(sourceCLU).CatalogPath
     if sourceCLU_path.find('.gdb') > 0 and sourceCLU_path.find('Determinations') > 0 and sourceCLU_path.find('Site_CLU') > 0:
@@ -134,15 +133,20 @@ try:
         arcpy.AddError("\nSelected Site CLU layer is not from a Determinations project folder. Exiting...")
         exit()
 
+    
 
     #### Variables
     userWorkspace = os.path.dirname(basedataGDB_path)
     basedataFD = basedataGDB_path + os.sep + "Layers"
     projectName = os.path.basename(userWorkspace).replace(" ","_")
-    projectAOI = basedataFD + os.sep + "Site_AOI"
-    if arcpy.Exists(projectAOI) == False:
-        arcpy.AddError("\nCannot find Determination project's maximum AOI feature class! Exiting...")
+    dl_extent = basedataFD + os.sep + "dl_extent"
+    bufferDistPlus = "550 Feet"
+    arcpy.Buffer_analysis(sourceCLU, dl_extent, bufferDistPlus, "FULL", "", "ALL", "")
+    if arcpy.Exists(dl_extent) == False:
+        arcpy.AddError("\nCould not create download extent from Site CLU layer! Exiting...")
         exit()
+
+    
     WGS84_DEM = basedataGDB_path + os.sep + "WGS84_DEM"
     final_DEM = basedataGDB_path + os.sep + "Downloaded_DEM"
     DEM_out = "Downloaded_DEM"
@@ -171,7 +175,7 @@ try:
     AddMsgAndPrint("\nConverting AOI to WGS 1984...\n",0)
     wgs_AOI = os.path.join(basedataGDB_path, 'AOI_WGS84')
     wgs_CS = arcpy.SpatialReference(4326)
-    arcpy.Project_management(projectAOI, wgs_AOI, wgs_CS)
+    arcpy.Project_management(dl_extent, wgs_AOI, wgs_CS)
 
 
     #### Use the WGS 1984 AOI to clip/extract the DEM from the service
