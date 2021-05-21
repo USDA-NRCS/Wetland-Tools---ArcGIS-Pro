@@ -506,19 +506,24 @@ try:
         pass
 
     
-    #### If overwrite was selected, delete existing starting datasets (CLU, Tract, and Tract/Request Data Table)
+    #### If overwrite was selected, delete everything and start over
     if owFlag == True:
-        if arcpy.Exists(projectCLU):
-            AddMsgAndPrint("\nOverwrite selected. Deleting existing data...",0)
-            datasetsToRemove = [projectCLU, projectTract, projectDAOI]
-            for dataset in datasetsToRemove:
-                if arcpy.Exists(dataset):
-                    try:
-                        arcpy.Delete_management(dataset)
-                    except:
-                        pass
-            del dataset, datasetsToRemove
-
+        AddMsgAndPrint("\nOverwrite selected. Deleting all existing project data...",0)
+        if arcpy.Exists(basedataFD):
+            ws = arcpy.env.workspace
+            arcpy.env.workspace = basedataGDB_path
+            fcs = arcpy.ListFeatureClasses(feature_dataset="Layers")
+            for fc in fcs:
+                try:
+                    path = os.path.join(basedataFD, fc)
+                    arcpy.Delete_management(path)
+                except:
+                    pass
+            arcpy.Delete_management(basedataFD)
+            arcpy.CreateFeatureDataset_management(basedataGDB_path, "Layers", outSpatialRef)
+            arcpy.env.workspace = ws
+            del ws
+            
 
     #### Download the CLU
     # If the CLU doesn't exist, download it

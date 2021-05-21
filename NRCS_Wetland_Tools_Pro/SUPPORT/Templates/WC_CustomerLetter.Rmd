@@ -1,0 +1,107 @@
+---
+title: ""
+author: ""
+date: ""
+output: 
+  
+  word_document: 
+    reference_docx: WC_Letter_Template.docx
+---
+```{r setup, include=FALSE}
+
+admin <- read.xlsx(Admin_Excel_Path, sheetIndex = 1, sheetName = "Admin_Table")
+
+NRCS_FSA <- read.xlsx("C:/GIS_Tools/NRCS_Wetland_Tools_Pro/SUPPORT/Templates/NRCS_Address.xlsx", sheetIndex = 1, sheetName = "NRCS_Address")
+colnames(NRCS_FSA)[colnames(NRCS_FSA) == 'NRCSCounty'] <- 'admin_county_name'
+
+df <- merge(admin, NRCS_FSA, by='admin_county_name')
+
+tract <- df[11]
+cname <- df[12]
+caddress1 <- df[18]
+caddress2 <- df[19]
+ccity <- df[20]
+cstate <- df[21]
+czip <- df[22]
+oaddress <- df[30]
+ocity <- df[31]
+ostate <- df[26]
+ozip <- df[27]
+ophone <- df[28]
+ofax <- df[29]
+adminstate <- df[4]
+admincounty <- df[1]
+wcform <- df[16]
+con_name <- df[14]
+
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+`r format(Sys.Date(), "%A, %B %d, %Y")`
+
+##### CERTIFIED MAIL  
+##### RETURN RECEIPT REQUESTED  
+Natural Resources Conservation Service  
+`r oaddress`  
+`r c(ocity, ostate, ozip)`  
+Phone: `r ophone`  
+Fax: `r ofax`  
+
+`r cname`   
+`r caddress1`
+`r caddress2`   
+`r c(ccity, cstate, czip)`
+
+SUBJECT:  Preliminary Wetland Technical Determination
+
+TRACT:  `r tract`  
+Administrative County name:   `r c(admincounty, adminstate)`
+
+This is to notify you the Natural Resources Conservation Service (NRCS) has made a preliminary wetland technical determination on the tract listed above.  This determination is part of the conservation provisions of the Food Security Act of 1985, as amended, and was made in response to the completion of form **`r wcform`**.
+
+
+In order to maintain USDA program eligibility, program participants must not produce an agricultural commodity on wetlands converted after December 23, 1985 and must not convert a wetland after November 28, 1990 for the purpose or to have the effect of making the production of an agricultural commodity possible.
+
+
+The results of the preliminary wetland determination are shown on the enclosed NRCS-CPA-026-WC “Certified Wetland Determination”.  The determination was conducted in accordance with the National Food Security Act Manual, 1987 US Army Corps of Engineers (USACE) Wetland Delineation Manual, corresponding USACE Regional Supplements, and/or State Offsite Methods for Wetland Identification. 
+
+Wetlands are identified through the confirmation of three factors:
+
+### Presence of Hydrophytic Vegetation:  
+#### Hydrophytic vegetation means plants growing in water or in a substrate that is at least periodically deficient in oxygen during a growing season as a result of excessive water content (7 CFR § 12.31(b)).  
+
+### Presence of Hydric Soils:
+#### Hydric soil means soil that, in its undrained condition, is saturated, flooded, or ponded long enough during a growing season to develop an anaerobic condition that supports the growth and regeneration of hydrophytic vegetation (7 CFR § 12.31(a)).
+
+### Presence of Wetland Hydrology:
+#### Wetland hydrology means inundation or saturation by surface or groundwater during a growing season at a frequency and duration sufficient to support a prevalence of hydrophytic vegetation  (7 CFR § 12.31(c)).  
+
+The 2014 Farm Bill connected producer eligibility for Federal crop insurance premium subsidy to compliance with the wetland conservation provisions. Eligibility for most USDA programs is lost for any wetland conversions that have occurred after December 23, 1985. However, only wetland conversions that occur after February 7, 2014 result in ineligibility for Federal crop insurance premium subsidy.  
+
+**If you agree** with this preliminary technical determination, it will become final 30 calendar days after you receive this notification, and no further action is required.
+
+**If you do not agree** with this preliminary technical determination, you may request a reconsideration field visit or mediation within thirty days of receipt of this letter. Your request should be made in writing to the above office address and should state clearly what you are appealing and why you believe the determination is in error. For further information on the appeals process, please see the attached Appeals Information sheet. If no reconsideration field visit or mediation is requested within thirty days of receipt of this letter, this preliminary technical determination will become a final technical determination with further appeal rights as described in the attached Appeals Information sheet.
+
+This certified wetland determination has been conducted for the purpose of implementing the Wetland Conservation Provisions of the Food Security Act of 1985, as amended. This determination may not be valid for identifying the extent of Clean Water Act jurisdiction for this site. If you intend to conduct any activity that constitutes a discharge of dredged or fill material into wetlands or other waters, you should contact the local district office of the U.S. Army Corps of Engineers prior to starting work.
+
+****STATE TEMPLATE ADDITION - Optional State Program and/or Mitigation Language**** 
+
+If you are the owner of this tract of land and have a tenant, I urge you to discuss this preliminary determination with your tenant. Likewise, if you are the tenant of this tract of land, you are urged to discuss this letter with your landlord.
+
+Sincerely,
+
+
+*`r con_name`*  
+
+
+Enclosures:  
+NRCS-CPA-026-WC  
+Determination Map   
+Appeals Information  
+Basis for Technical Decision (if applicable)
+
+Cc: 
+Farm Service Agency  
+Affiliated Clients (if applicable)  
+NRCS Field Office (if applicable)
+

@@ -360,7 +360,7 @@ try:
 
         # Do summary stats to make an acres table for use with the 028
         AddMsgAndPrint("\nGenerating Previous_CLU_CWD summary tables...\n",0)
-        case_fields = ["clu_number", "wetland_label", "occur_year"]
+        case_fields = ["clu_number", "wetland_label", "occur_year","cert_date"]
         stats_fields = [['acres', 'SUM']]
         arcpy.Statistics_analysis(prevCluCertSite, cluCWD028, stats_fields, case_fields)
 

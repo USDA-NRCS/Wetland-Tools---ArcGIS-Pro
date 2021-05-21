@@ -76,6 +76,17 @@ def logBasicSettings():
     del f
 
 ## ===============================================================================================================
+def removeLayers(layer_list):
+    # Remove the layers in the list
+    try:
+        for maps in aprx.listMaps():
+            for lyr in maps.listLayers():
+                if lyr.name in layer_list:
+                    maps.removeLayer(lyr)
+    except:
+        pass
+    
+## ===============================================================================================================
 def deleteTempLayers(lyrs):
     for lyr in lyrs:
         if arcpy.Exists(lyr):
@@ -139,32 +150,39 @@ try:
     userWorkspace = os.path.dirname(basedataGDB_path)
     basedataFD = basedataGDB_path + os.sep + "Layers"
     projectName = os.path.basename(userWorkspace).replace(" ","_")
-    dl_extent = basedataFD + os.sep + "dl_extent"
+    supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
+    scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
+    dl_extent = scratchGDB + os.sep + "dl_extent"
+    wgs_AOI = scratchGDB + os.sep + "AOI_WGS84"
+    WGS84_DEM = scratchGDB + os.sep + "WGS84_DEM"
+    final_DEM = basedataGDB_path + os.sep + "Downloaded_DEM"
+    DEM_out = "Downloaded_DEM"
+    
+
+    #### Set up log file path and start logging
+    arcpy.AddMessage("Commence logging...\n")
+    textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
+    logBasicSettings()
+
+
+    #### Delete temporary layers
+    tempLayers = [dl_extent, wgs_AOI, WGS84_DEM]
+    deleteTempLayers(tempLayers)
+
+
+    #### Buffer the CLU
     bufferDistPlus = "550 Feet"
     arcpy.Buffer_analysis(sourceCLU, dl_extent, bufferDistPlus, "FULL", "", "ALL", "")
     if arcpy.Exists(dl_extent) == False:
         arcpy.AddError("\nCould not create download extent from Site CLU layer! Exiting...")
         exit()
 
-    
-    WGS84_DEM = basedataGDB_path + os.sep + "WGS84_DEM"
-    final_DEM = basedataGDB_path + os.sep + "Downloaded_DEM"
-    DEM_out = "Downloaded_DEM"
-
-
-    #### Set up log file path and start logging
-    arcpy.AddMessage("Commence logging...\n")
-    textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
-    logBasicSettings()
-    
-
+        
     #### Remove the Source_DEM from the map and geodatabase if it already exists
+    layers_to_remove = [DEM_out]
+    removeLayers(layers_to_remove)
+    
     if arcpy.Exists(final_DEM):
-        DEM_lyr = m.listLayers(DEM_out)[0]
-        try:
-            m.removeLayer(DEM_lyr)
-        except:
-            pass
         try:
             arcpy.Delete_management(final_DEM)
         except:
@@ -173,7 +191,6 @@ try:
 
     #### Re-project the AOI to WGS84 Geographic (EPSG WKID: 4326)
     AddMsgAndPrint("\nConverting AOI to WGS 1984...\n",0)
-    wgs_AOI = os.path.join(basedataGDB_path, 'AOI_WGS84')
     wgs_CS = arcpy.SpatialReference(4326)
     arcpy.Project_management(dl_extent, wgs_AOI, wgs_CS)
 
@@ -204,8 +221,7 @@ try:
         pass
     
     AddMsgAndPrint("\nCleaning up temp files and adding DEM to map...\n",0)
-    arcpy.Delete_management(WGS84_DEM)
-    arcpy.Delete_management(wgs_AOI)
+    deleteTempLayers(tempLayers)
 
     arcpy.SetParameterAsText(3, final_DEM)
     

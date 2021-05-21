@@ -31,6 +31,9 @@
 ## -Removed the steps to check that ROPs are inside the Sampling Units (now enforced with an attribute rule).
 ## -Added Sampling Unit attribute validations to this tool, and renamed this tool to Validate Sampling Units.
 ##
+## rev. 05/11/2021
+## -Added a check for multiple ROPs within a single sampling unit.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -174,6 +177,8 @@ try:
     ropName = "Site_ROPs"
     projectROP = wcFD + os.sep + ropName
 
+    ropCount = scratchGDB + os.sep + "ropCount"
+
     domain_base = supportGDB
     method_domain = domain_base + os.sep + "domain_method"
     eval_domain = domain_base + os.sep + "domain_evaluation_status"
@@ -238,6 +243,22 @@ try:
         arcpy.Delete_management(suBackup)
     arcpy.CopyFeatures_management(projectSU, suBackup)
 
+
+    #### Count the number of ROPs within each SU. If greater than 1, then stop and give an error
+    AddMsgAndPrint("\nChecking number of ROPs per Sampling Unit...",0)
+    if arcpy.Exists(ropCount):
+        arcpy.Delete_management(ropCount)
+    arcpy.analysis.SpatialJoin(projectSU, projectROP, ropCount, "JOIN_ONE_TO_ONE", "KEEP_ALL", "", "COMPLETELY_CONTAINS")
+    cursor = arcpy.da.SearchCursor(ropCount, "Join_Count")
+    for row in cursor:
+        if row[0] > 1:
+            AddMsgAndPrint("\nAt least one Sampling Unit contains more than one ROP. Delete or move the errant ROP(s). Exiting...", 2)
+            arcpy.Delete_management(ropCount)
+            exit()
+        else:
+            AddMsgAndPrint("\nThere is not more than one ROP per Sampling Unit.", 0)
+            arcpy.Delete_management(ropCount)
+    
 
     #### Topology review 1 (check for overlaps within the SU layer)
     AddMsgAndPrint("\nChecking for overlaps within the Sampling Units layer...",0)

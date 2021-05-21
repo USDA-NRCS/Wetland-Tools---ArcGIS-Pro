@@ -147,24 +147,27 @@ def removeFCs(fc_list, wc='', ws ='', in_topos=''):
 ## ===============================================================================================================
 def createSU():
     #### Remove existing sampling unit related layers from the Pro maps
-##    AddMsgAndPrint("\nRemoving Sampling Unit related layers from project maps, if present...\n",0)
-##
-##    # Remove attribute rules from the SU layer first
-##    if arcpy.Exists(projectSU):
-##        arcpy.DeleteAttributeRule_management(projectSU, rules_su_names)
-##
-##    # Set sampling unit related layers to remove from the map
-##    mapLayersToRemove = [suName, suTopoName]
-##
-##    # Find Sampling Unit related annotation layers to add to the list of map layers to be removed
-##    suAnnoString = "Site_Sampling_Units" + "Anno*"
-##    for maps in aprx.listMaps():
-##        for lyr in maps.listLayers(suAnnoString):
-##            mapLayersToRemove.append(lyr.name)
-##
-##    # Remove the layers
-##    removeLayers(mapLayersToRemove)
-##    del mapLayersToRemove
+    AddMsgAndPrint("\nRemoving Sampling Unit related layers from project maps, if present...\n",0)
+
+    # Remove attribute rules from the SU layer first
+    if arcpy.Exists(projectSU):
+        try:
+            arcpy.DeleteAttributeRule_management(projectSU, rules_su_names)
+        except:
+            pass
+        
+    # Set sampling unit related layers to remove from the map
+    mapLayersToRemove = [suName, suTopoName]
+
+    # Find Sampling Unit related annotation layers to add to the list of map layers to be removed
+    suAnnoString = "Site_Sampling_Units" + "Anno*"
+    for maps in aprx.listMaps():
+        for lyr in maps.listLayers(suAnnoString):
+            mapLayersToRemove.append(lyr.name)
+
+    # Remove the layers
+    removeLayers(mapLayersToRemove)
+    del mapLayersToRemove
 
     # Remove existing sampling unit layers from the geodatabase
     AddMsgAndPrint("\nRemoving Sampling Unit related layers from project database, if present...\n",0)
@@ -175,6 +178,8 @@ def createSU():
     removeFCs(datasetsToRemove, wildcard, wkspace, toposToRemove)
     del datasetsToRemove, wildcard, wkspace, toposToRemove
 
+    arcpy.Compact_management(wcGDB_path)
+    
             
     #### Create the Sampling Unit Layer
     AddMsgAndPrint("\nCreating the Sampling Units layer...\n",0)
@@ -252,11 +257,12 @@ def createSU():
             cursor.updateRow(row)
         del cursor, fields
 
-
-    #### Rename because reasons
+    # Rename to get final correct version of layer
     arcpy.Rename_management(projectSUnew, projectSU)
+
+
+    #### Import attribute rules
     arcpy.ImportAttributeRules_management(projectSU, rules_su)
-    
 
 ## ===============================================================================================================
 def createROP():
@@ -264,22 +270,25 @@ def createROP():
     #### Remove existing ROP related layers from the Pro maps
     AddMsgAndPrint("\nRemoving ROP related layers from project maps, if present...\n",0)
 
-##    # Remove attribute rules from the ROP layer first
-##    if arcpy.Exists(projectROP):
-##        arcpy.DeleteAttributeRule_management(projectROP, rules_rop_names)
-##
-##    # Set ROP related layers to remove from the map
-##    mapLayersToRemove = [ropName]
-##
-##    # Find ROP related annotation layers to add to the list of map layers to be removed
-##    ropAnnoString = "Site_ROPs" + "Anno*"
-##    for maps in aprx.listMaps():
-##        for lyr in maps.listLayers(ropAnnoString):
-##            mapLayersToRemove.append(lyr.name)
-##
-##    # Remove the layers
-##    removeLayers(mapLayersToRemove)
-##    del mapLayersToRemove
+    # Remove attribute rules from the ROP layer first
+    if arcpy.Exists(projectROP):
+        try:
+            arcpy.DeleteAttributeRule_management(projectROP, rules_rop_names)
+        except:
+            pass
+        
+    # Set ROP related layers to remove from the map
+    mapLayersToRemove = [ropName]
+
+    # Find ROP related annotation layers to add to the list of map layers to be removed
+    ropAnnoString = "Site_ROPs" + "Anno*"
+    for maps in aprx.listMaps():
+        for lyr in maps.listLayers(ropAnnoString):
+            mapLayersToRemove.append(lyr.name)
+
+    # Remove the layers
+    removeLayers(mapLayersToRemove)
+    del mapLayersToRemove
 
     # Remove existing ROP layers from the geodatabase
     AddMsgAndPrint("\nRemoving ROP related layers from project database, if present...\n",0)
@@ -289,6 +298,8 @@ def createROP():
     removeFCs(datasetsToRemove, wildcard, wkspace)
     del datasetsToRemove, wildcard, wkspace
 
+    arcpy.Compact_management(wcGDB_path)
+    
             
     #### Create the ROPs Layer
     AddMsgAndPrint("\nCreating the ROPs layer...\n",0)
@@ -303,31 +314,33 @@ def createROP():
 ##            arcpy.Append_management(prevROPs, projectROPs, "NO_TEST")
 
 
-    #### Import attribute rules to various layers in the project.
+    #### Import Attribute Rules
     arcpy.ImportAttributeRules_management(projectROP, rules_rops)
-
-
+    
 ## ===============================================================================================================
 def createREF():
     #### Remove existing Reference Points related layers from the Pro maps
     AddMsgAndPrint("\nRemoving Reference Point related layers from project maps, if present...\n",0)
 
-##    # Remove attribute rules from the REF layer first
-##    if arcpy.Exists(projectREF):
-##        arcpy.DeleteAttributeRule_management(projectREF, rules_ref_names)
-##        
-##    # Set Reference Points related layers to remove from the map
-##    mapLayersToRemove = [refName]
-##
-##    # Find Reference Points related annotation layers to add to the list of map layers to be removed
-##    refAnnoString = "Site_Reference_Points" + "Anno*"
-##    for maps in aprx.listMaps():
-##        for lyr in maps.listLayers(refAnnoString):
-##            mapLayersToRemove.append(lyr.name)
-##
-##    # Remove the layers
-##    removeLayers(mapLayersToRemove)
-##    del mapLayersToRemove
+    # Remove attribute rules from the REF layer first
+    if arcpy.Exists(projectREF):
+        try:
+            arcpy.DeleteAttributeRule_management(projectREF, rules_ref_names)
+        except:
+            pass
+        
+    # Set Reference Points related layers to remove from the map
+    mapLayersToRemove = [refName]
+
+    # Find Reference Points related annotation layers to add to the list of map layers to be removed
+    refAnnoString = "Site_Reference_Points" + "Anno*"
+    for maps in aprx.listMaps():
+        for lyr in maps.listLayers(refAnnoString):
+            mapLayersToRemove.append(lyr.name)
+
+    # Remove the layers
+    removeLayers(mapLayersToRemove)
+    del mapLayersToRemove
 
     # Remove existing Reference Points layers from the geodatabase
     AddMsgAndPrint("\nRemoving Reference Points related layers from project database, if present...\n",0)
@@ -337,6 +350,8 @@ def createREF():
     removeFCs(datasetsToRemove, wildcard, wkspace)
     del datasetsToRemove, wildcard, wkspace
 
+    arcpy.Compact_management(wcGDB_path)
+    
             
     #### Create the Reference Points Layer
     AddMsgAndPrint("\nCreating the Reference Points layer...\n",0)
@@ -349,31 +364,33 @@ def createREF():
     arcpy.AssignDomainToField_management(projectREF, "soil", "Yes No")
 
 
-    #### Import attribute rules to various layers in the project.
+    #### Import attribute rules
     arcpy.ImportAttributeRules_management(projectREF, rules_refs)
-
-
+    
 ## ===============================================================================================================
 def createDRAIN():
     #### Remove existing Drainage Lines related layers from the Pro maps
     AddMsgAndPrint("\nRemoving Drainage Lines related layers from project maps, if present...\n",0)
 
-##    # Remove attribute rules from the Drainage layer first
-##    if arcpy.Exists(projectLines):
-##        arcpy.DeleteAttributeRule_management(projectLines, rules_line_names)
-##        
-##    # Set Drainage Lines related layers to remove from the map
-##    mapLayersToRemove = [drainName]
-##
-##    # Find Drainage Lines related annotation layers to add to the list of map layers to be removed
-##    drainAnnoString = "Site_Drainage_Lines" + "Anno*"
-##    for maps in aprx.listMaps():
-##        for lyr in maps.listLayers(drainAnnoString):
-##            mapLayersToRemove.append(lyr.name)
-##
-##    # Remove the layers
-##    removeLayers(mapLayersToRemove)
-##    del mapLayersToRemove
+    # Remove attribute rules from the Drainage layer first
+    if arcpy.Exists(projectLines):
+        try:
+            arcpy.DeleteAttributeRule_management(projectLines, rules_line_names)
+        except:
+            pass
+        
+    # Set Drainage Lines related layers to remove from the map
+    mapLayersToRemove = [drainName]
+
+    # Find Drainage Lines related annotation layers to add to the list of map layers to be removed
+    drainAnnoString = "Site_Drainage_Lines" + "Anno*"
+    for maps in aprx.listMaps():
+        for lyr in maps.listLayers(drainAnnoString):
+            mapLayersToRemove.append(lyr.name)
+
+    # Remove the layers
+    removeLayers(mapLayersToRemove)
+    del mapLayersToRemove
 
     # Remove existing Drainage Lines layers from the geodatabase
     AddMsgAndPrint("\nRemoving Drainage Lines related layers from project database, if present...\n",0)
@@ -383,6 +400,8 @@ def createDRAIN():
     removeFCs(datasetsToRemove, wildcard, wkspace)
     del datasetsToRemove, wildcard, wkspace
 
+    arcpy.Compact_management(wcGDB_path)
+    
             
     #### Create the Drainage Lines Layer
     AddMsgAndPrint("\nCreating the Drainage Lines layer...\n",0)
@@ -394,9 +413,8 @@ def createDRAIN():
     arcpy.AssignDomainToField_management(projectLines, "manip_era", "Pre Post")
 
 
-    #### Import attribute rules to various layers in the project.
+    #### Import attribute rules
     arcpy.ImportAttributeRules_management(projectLines, rules_lines)
-
 
 ## ===============================================================================================================
 #### Import system modules
@@ -590,49 +608,6 @@ try:
     logBasicSettings()
 
 
-    #### Always remove all layers from the map to minimize issues with file locks and edit locks during processing.
-    # Remove attribute rules first
-    if arcpy.Exists(projectSU):
-        arcpy.DeleteAttributeRule_management(projectSU, rules_su_names)
-    if arcpy.Exists(projectROP):
-        arcpy.DeleteAttributeRule_management(projectROP, rules_rop_names)
-    if arcpy.Exists(projectREF):
-        arcpy.DeleteAttributeRule_management(projectREF, rules_ref_names)
-    if arcpy.Exists(projectLines):
-        arcpy.DeleteAttributeRule_management(projectLines, rules_line_names)
-
-    # Set sampling unit related layers to remove from the map
-    mapLayersToRemove = [suName, suTopoName, ropName, refName, drainName]
-
-    # Find Sampling Unit related annotation layers to add to the list of map layers to be removed
-    suAnnoString = "Site_Sampling_Units" + "Anno*"
-    for maps in aprx.listMaps():
-        for lyr in maps.listLayers(suAnnoString):
-            mapLayersToRemove.append(lyr.name)
-
-    # Find ROP related annotation layers to add to the list of map layers to be removed
-    ropAnnoString = "Site_ROPs" + "Anno*"
-    for maps in aprx.listMaps():
-        for lyr in maps.listLayers(ropAnnoString):
-            mapLayersToRemove.append(lyr.name)
-
-    # Find Reference Points related annotation layers to add to the list of map layers to be removed
-    refAnnoString = "Site_Reference_Points" + "Anno*"
-    for maps in aprx.listMaps():
-        for lyr in maps.listLayers(refAnnoString):
-            mapLayersToRemove.append(lyr.name)
-
-    # Find Drainage Lines related annotation layers to add to the list of map layers to be removed
-    drainAnnoString = "Site_Drainage_Lines" + "Anno*"
-    for maps in aprx.listMaps():
-        for lyr in maps.listLayers(drainAnnoString):
-            mapLayersToRemove.append(lyr.name)
-    
-    # Remove the layers
-    removeLayers(mapLayersToRemove)
-    del mapLayersToRemove
-
-
     #### If project wetlands geodatabase and feature dataset do not exist, create them.
     # Get the spatial reference from the Define AOI feature class and use it, if needed
     AddMsgAndPrint("\nChecking project integrity...",0)
@@ -696,18 +671,14 @@ try:
     #### Create or Reset the Sampling Units layer
     if not arcpy.Exists(projectSU):
         createSU()
-        #arcpy.ImportAttributeRules_management(projectSU, rules_su)
     if resetSU == "Yes":
-        #arcpy.Delete_management(projectSU)
         createSU()
-        #arcpy.ImportAttributeRules_management(projectSU, rules_su)
 
 
     #### Create or Reset the ROPs Layer
     if not arcpy.Exists(projectROP):
         createROP()
     if resetROPs == "Yes":
-        #arcpy.Delete_management(projectROP)
         createROP()
 
 
@@ -715,7 +686,6 @@ try:
     if not arcpy.Exists(projectREF):
         createREF()
     if resetREF == "Yes":
-        #arcpy.Delete_management(projectREF)
         createREF()
 
 
@@ -723,7 +693,6 @@ try:
     if not arcpy.Exists(projectLines):
         createDRAIN()
     if resetDrains == "Yes":
-        #arcpy.Delete_management(projectLines)
         createDRAIN()
 
 
@@ -747,50 +716,44 @@ try:
     arcpy.env.workspace = startWorkspace
     del startWorkspace
 
-
+    
     #### Add to map
     # Use starting reference layer files from the tool installation to add layers with automatic placement
     AddMsgAndPrint("\nAdding layers to the map...",0)
+    
     lyr_list = m.listLayers()
     lyr_name_list = []
     for lyr in lyr_list:
         lyr_name_list.append(lyr.name)
+        
     if suName not in lyr_name_list:
         suLyr_cp = suLyr.connectionProperties
         suLyr_cp['connection_info']['database'] = wcGDB_path
         suLyr_cp['dataset'] = suName
         suLyr.updateConnectionProperties(suLyr.connectionProperties, suLyr_cp)
         m.addLayer(suLyr)
-##        m.addLayer(suLyr)
-##        suNew = m.listLayers(suName)[0]
-##        changeSource(suNew, wcGDB_path, suName)
+
     if ropName not in lyr_name_list:
         ropLyr_cp = ropLyr.connectionProperties
         ropLyr_cp['connection_info']['database'] = wcGDB_path
         ropLyr_cp['dataset'] = ropName
         ropLyr.updateConnectionProperties(ropLyr.connectionProperties, ropLyr_cp)
         m.addLayer(ropLyr)
-##        m.addLayer(ropLyr)
-##        ropNew = m.listLayers(ropName)[0]
-##        changeSource(ropNew, wcGDB_path, ropName)
+
     if refName not in lyr_name_list:
         refLyr_cp = ropLyr.connectionProperties
         refLyr_cp['connection_info']['database'] = wcGDB_path
         refLyr_cp['dataset'] = refName
         refLyr.updateConnectionProperties(refLyr.connectionProperties, refLyr_cp)
         m.addLayer(refLyr)
-##        m.addLayer(refLyr)
-##        refNew = m.listLayers(refName)[0]
-##        changeSource(refNew, wcGDB_path, refName)
+
     if drainName not in lyr_name_list:
         drainLyr_cp = ropLyr.connectionProperties
         drainLyr_cp['connection_info']['database'] = wcGDB_path
         drainLyr_cp['dataset'] = drainName
         drainLyr.updateConnectionProperties(drainLyr.connectionProperties, drainLyr_cp)
         m.addLayer(drainLyr)
-##        m.addLayer(drainLyr)
-##        drainNew = m.listLayers(drainName)[0]
-##        changeSource(drainNew, wcGDB_path, drainName)
+
     
     #### Adjust visibility of layers to aid in moving to the next step in the process
     # Turn off all CLUs/Common, Define_AOI, and Extent layers

@@ -343,6 +343,7 @@ try:
                 mosaicInputs = mosaicInputs + ";" + str(outClip)
             DEMlist.append(str(outClip))
             x += 1
+            del sr
 
         cellsize = 0
         # Determine largest cell size
@@ -361,7 +362,8 @@ try:
     ##            if cellsize > 9.84252:
     ##                AddMsgAndPrint("\nOne or more input DEMs has a cell size greater than 3 meters or 9.84252 feet! Please verify input DEM data and try again. Exiting...",2)
     ##                exit()
-
+            del sr
+            
         # Merge the DEMs
         if DEMcount > 1:
             arcpy.MosaicToNewRaster_management(mosaicInputs, scratchGDB, "tempDEM", "#", "32_BIT_FLOAT", cellsize, "1", "MEAN", "#")

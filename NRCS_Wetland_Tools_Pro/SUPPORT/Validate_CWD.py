@@ -19,7 +19,6 @@
 ## -Start revisions of Validate Topology ArcMap tool to National Wetlands Tool in ArcGIS Pro.
 ##
 ## rev. 04/02/2021
-## -Request Extent and Certified/Revision area enforcement added.
 ## -Combined the Topology validation and the Attribute validation tools.
 ## -Gaps validation removed
 ##

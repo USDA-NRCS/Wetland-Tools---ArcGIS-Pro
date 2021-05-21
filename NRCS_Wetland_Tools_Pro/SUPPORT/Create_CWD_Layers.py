@@ -141,23 +141,30 @@ def removeFCs(fc_list, wc='', ws ='', in_topos=''):
 ## ===============================================================================================================
 def createCWD():
     #### Remove existing extent and CWD related layers from the Pro maps to create or re-create them
-##    AddMsgAndPrint("\nRemoving Request Extent and CWD related layers from project maps, if present...\n",0)
-##
-##    # Set layers to remove from the map
-##    mapLayersToRemove = [extentName, cwdName, cluCwdName]
-##
-##    # Find CWD related annotation layers to add to the list of map layers to be removed
-##    cwdAnnoString = "Site_CWD" + "Anno*"
-##    clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
-##    anno_list = [cwdAnnoString, clucwdAnnoString]
-##    for maps in aprx.listMaps():
-##        for anno in anno_list:
-##            for lyr in maps.listLayers(anno):
-##                mapLayersToRemove.append(lyr.name)
-##
-##    # Remove the layers
-##    removeLayers(mapLayersToRemove)
-##    del mapLayersToRemove
+    AddMsgAndPrint("\nRemoving Request Extent and CWD related layers from project maps, if present...\n",0)
+
+    # Remove attribute rules first
+    if arcpy.Exists(projectCWD):
+        try:
+            arcpy.DeleteAttributeRule_management(projectCWD, rules_cwd_names)
+        except:
+            pass
+        
+    # Set layers to remove from the map
+    mapLayersToRemove = [extentName, cwdName, cluCwdName]
+
+    # Find CWD related annotation layers to add to the list of map layers to be removed
+    cwdAnnoString = "Site_CWD" + "Anno*"
+    clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
+    anno_list = [cwdAnnoString, clucwdAnnoString]
+    for maps in aprx.listMaps():
+        for anno in anno_list:
+            for lyr in maps.listLayers(anno):
+                mapLayersToRemove.append(lyr.name)
+
+    # Remove the layers
+    removeLayers(mapLayersToRemove)
+    del mapLayersToRemove
 
     # Remove existing cwd layers from the geodatabase to create or re-create them
     AddMsgAndPrint("\nRemoving CWD related layers from project database, if present...\n",0)
@@ -344,7 +351,6 @@ def createCWD():
         cursor.updateRow(row)
     del cursor, fields
 
-    
     # Update the acres of the CWD layer
     expression = "!Shape.Area@acres!"
     arcpy.CalculateField_management(projectCWD, "acres", expression, "PYTHON_9.3")
@@ -364,8 +370,8 @@ def createCWD():
 
         digDate = time.strftime('%m/%d/%Y')
 
-        fields = ['eval_status','request_date','request_type','deter_staff','dig_staff','dig_date']
-        cursor = arcpy.da.UpdateCursor(projectSU, fields)
+        fields = ['eval_status','request_date','request_type','deter_staff','dig_staff','dig_date','cert_date']
+        cursor = arcpy.da.UpdateCursor(projectCWD, fields)
         for row in cursor:
             if row[0] == "New Request" or row[0] == "Revision":
                 row[1] = rDate
@@ -373,6 +379,7 @@ def createCWD():
                 row[3] = detStaff
                 row[4] = digStaff
                 row[5] = digDate
+                row[6] = None
             cursor.updateRow(row)
         del cursor, fields
     edit.stopEditing(True)
@@ -385,14 +392,21 @@ def createCWD():
 ## ===============================================================================================================
 def createPJW():
     #### Remove existing PJW related layers from the Pro maps
-##    AddMsgAndPrint("\nRemoving PJW related layers from project maps, if present...\n",0)
-##
-##    # Set PJW related layers to remove from the map
-##    mapLayersToRemove = [pjwName]
-##
-##    # Remove the layers
-##    removeLayers(mapLayersToRemove)
-##    del mapLayersToRemove
+    AddMsgAndPrint("\nRemoving PJW related layers from project maps, if present...\n",0)
+
+    # Remove attribute rules first
+    if arcpy.Exists(projectPJW):
+        try:
+            arcpy.DeleteAttributeRule_management(projectPJW, rules_pjw_names)
+        except:
+            pass
+        
+    # Set PJW related layers to remove from the map
+    mapLayersToRemove = [pjwName]
+
+    # Remove the layers
+    removeLayers(mapLayersToRemove)
+    del mapLayersToRemove
 
     # Remove existing PJW layers from the geodatabase
     AddMsgAndPrint("\nRemoving PJW related layers from project database, if present...\n",0)
@@ -558,29 +572,6 @@ try:
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
-
-    #### Always remove all layers from the map to minimize issues with file locks and edit locks during processing.
-    # Remove attribute rules first
-    if arcpy.Exists(projectCWD):
-        arcpy.DeleteAttributeRule_management(projectCWD, rules_cwd_names)
-    if arcpy.Exists(projectPJW):
-        arcpy.DeleteAttributeRule_management(projectPJW, rules_pjw_names)
-    
-    # Set layers to remove from the map
-    mapLayersToRemove = [extentName, cwdName, cwdTopoName, cluCwdName, pjwName]
-
-    # Find CWD related annotation layers to add to the list of map layers to be removed
-    cwdAnnoString = "Site_CWD" + "Anno*"
-    clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
-    anno_list = [cwdAnnoString, clucwdAnnoString]
-    for maps in aprx.listMaps():
-        for anno in anno_list:
-            for lyr in maps.listLayers(anno):
-                mapLayersToRemove.append(lyr.name)
-
-    # Remove the layers
-    removeLayers(mapLayersToRemove)
-    del mapLayersToRemove
     
     #### Check Project Integrity
     AddMsgAndPrint("\nChecking project integrity...",0)
@@ -708,7 +699,7 @@ try:
         m.addLayer(pjwLyr)
     if extentName not in lyr_name_list:
         extLyr_cp = extLyr.connectionProperties
-        extLyr_cp['connection_info']['database'] = wcGDB_path
+        extLyr_cp['connection_info']['database'] = basedataGDB_path
         extLyr_cp['dataset'] = extentName
         extLyr.updateConnectionProperties(extLyr.connectionProperties, extLyr_cp)
         m.addLayer(extLyr)

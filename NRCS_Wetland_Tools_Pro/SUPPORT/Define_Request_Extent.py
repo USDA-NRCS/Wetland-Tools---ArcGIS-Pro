@@ -225,6 +225,9 @@ try:
     updatedCert = wcFD + os.sep + "Updated_Cert"
     updatedAdmin = wcFD + os.sep + "Updated_Admin"
 
+    out_shape_name = "Request_Extent.shp"
+    out_shape = wetDir + os.sep + out_shape_name
+    
     # Temp layers list for cleanup at the start and at the end
     tempLayers = [extentTemp1, extentTemp2, extentTemp3, prevCertMulti, prevCertTemp1, tractTest]
     deleteTempLayers(tempLayers)
@@ -473,6 +476,15 @@ try:
         # There are no previous CWDs. Just use the newly defined extent.
         arcpy.FeatureClassToFeatureClass_conversion(extentTemp2, basedataFD, extentName)
 
+
+    #### Export Request Extent shapefile for users to have for external uses (e.g. WSS Reports)
+    if arcpy.Exists(out_shape):
+        try:
+            arcpy.Delete_management(out_shape)
+        except:
+            pass
+    arcpy.FeatureClassToShapefile_conversion([projectExtent], wetDir)
+    
 
     #### Clean up Temporary Datasets
     # Temporary datasets specifically from this tool
