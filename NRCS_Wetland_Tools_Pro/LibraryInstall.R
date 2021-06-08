@@ -4,7 +4,16 @@
 #June, 8, 2021.
 
 
-#This script runs in two parts, first to remove arcgisbinding and redirect the source and second, for install all libraries. To run the first part of the tool highlight or select from line 9 to line 16 and select or click the Run icon in the upper right of this pane. After the section finished with the restart highlight or select from line 18 to line 22 and select or click the Run icon in the upper right of this pane. When process completed close the R Studio section.
+#This script runs in two parts. The first part removes existing arcgisbinding packages that may
+# be installed in the documents folder and redirects the local packages library for R to conform
+# to the soil survey division's configuration for R. The second part installs all R packages
+# needed for the WC Tool.
+
+#To run the first part of the tool highlight lines 19 through 25, below, and then click 
+# the Run icon in the upper right corner of this pane. After the first section finishes, highlight
+# lines 28 through 31, below, and then click the Run icon in the upper right corner of this pane
+# When the second section is complete, close R Studio.
+
 
 #Unistall arcgisbinding package
 remove.packages(arcgisbinding)
