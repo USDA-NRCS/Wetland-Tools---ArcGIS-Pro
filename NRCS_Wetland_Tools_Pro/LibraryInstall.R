@@ -4,7 +4,7 @@
 #June, 8, 2021.
 
 
-#To run this script press the control A key to select the script, then click the Run icon located in the upper right of this pane.
+#This script runs in two parts, first to remove arcgisbinding and redirect the source and second, for install all libraries. To run the first part of the tool highlight or select from line 9 to line 16 and select or click the Run icon in the upper right of this pane. After the section finished with the restart highlight or select from line 18 to line 22 and select or click the Run icon in the upper right of this pane. When process completed close the R Studio section.
 
 #Unistall arcgisbinding package
 remove.packages(arcgisbinding)
@@ -20,4 +20,3 @@ install.packages(c("flextable", "knitr", "rmarkdown", "textreader", "xlsx"), dep
 
 #Install arcgidbinding package
 install.packages("arcgisbinding", repos = "https://r.esri.com", type = "win.binary")
-
