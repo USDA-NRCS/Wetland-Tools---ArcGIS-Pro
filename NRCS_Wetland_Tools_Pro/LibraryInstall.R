@@ -25,7 +25,7 @@ source('https://raw.githubusercontent.com/ncss-tech/soilReports/master/R/install
 .rs.restartR()
 
 #Install packages needed for the report generator
-install.packages(c("flextable", "knitr", "rmarkdown", "textreader", "xlsx"), dependencies = TRUE)
+install.packages(c("flextable", "knitr", "rmarkdown", "textreadr", "xlsx"), dependencies = TRUE)
 
 #Install arcgidbinding package
 install.packages("arcgisbinding", repos = "https://r.esri.com", type = "win.binary")
