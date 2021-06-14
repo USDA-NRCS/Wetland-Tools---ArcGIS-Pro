@@ -32,6 +32,9 @@
 ## -Adjust extent within which to generate reference data layers based on user specified input parameter for full
 ##  tract or request extent.
 ##
+## rev. 06/11/2021
+## -Fixed bug that was copying and processing entire input DEM when only one input DEM was specified.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -166,6 +169,10 @@ try:
     demSR = arcpy.GetParameterAsText(8)
     cluSR = arcpy.GetParameterAsText(9)
     transform = arcpy.GetParameterAsText(10)
+##    if demSR == cluSR:
+##        matchSR = True
+##    else:
+##        matchSR = False
 
 
     #### Exit if neither data download option was selected to be run
@@ -222,6 +229,7 @@ try:
     projectTract = basedataFD + os.sep + "Site_Tract"
     #projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
     projectAOI = basedataFD + os.sep + "project_AOI"
+    pcsAOI = scratchGDB + os.sep + "pcsAOI"
     projectAOI_B = basedataFD + os.sep + "project_AOI_B"
     projectExtent = basedataFD + os.sep + "Request_Extent"
     bufferDist = "500 Feet"
@@ -235,6 +243,7 @@ try:
         projectContours = basedataGDB_path + os.sep + "Site_Contours"
 
         tempDEM = scratchGDB + os.sep + "tempDEM"
+        tempDEM2 = scratchGDB + os.sep + "tempDEM2"
         DEMagg = scratchGDB + os.sep + "aggDEM"
         DEMsmooth = scratchGDB + os.sep + "DEMsmooth"
         ContoursTemp = scratchGDB + os.sep + "ContoursTemp"
@@ -251,7 +260,7 @@ try:
         hillshadeOut = "Site_Hillshade"
 
         # Temp layers list for cleanup at the start and at the end
-        tempLayers = [tempDEM, DEMagg, DEMsmooth, ContoursTemp, extendedContours, Temp_DEMbase, Fill_DEMaoi, FilMinus]
+        tempLayers = [pcsAOI, tempDEM, tempDEM2, DEMagg, DEMsmooth, ContoursTemp, extendedContours, Temp_DEMbase, Fill_DEMaoi, FilMinus]
         deleteTempLayers(tempLayers)
 
 
@@ -262,6 +271,7 @@ try:
 
 
     #### Create the projectAOI and projectAOI_B layers based on the choice selected by user input
+    AddMsgAndPrint("\nBuffering extent...",0)
     if dataExtent == "Request Extent":
         # Use the request extent to create buffers for use in data extraction
         arcpy.Buffer_analysis(projectExtent, projectAOI, bufferDist, "FULL", "", "ALL", "")
@@ -274,11 +284,13 @@ try:
 
     #### Call SSURGO download script if it was selected
     if bSSURGO:
+        AddMsgAndPrint("\nLaunching Soil Data Access download module...",0)
         getSSURGO_WCT_ArcGISpro.start(projectAOI, propertyList, basedataGDB_path)
 
 
     #### Call Elevation processing
     if bElevation:
+        AddMsgAndPrint("\nProcessing elevation data...",0)
         #### Remove existing project DEM related layers from the Pro maps
         AddMsgAndPrint("\nRemoving layers from project maps, if present...\n",0)
         
@@ -311,13 +323,21 @@ try:
 
 
         #### Process the input DEMs
-        AddMsgAndPrint("\nProcessing the DEM...",0)
+        AddMsgAndPrint("\nProcessing the input DEM file(s)...",0)
+
+##        # Convert the projectAOI to a tempAOI that matches the input DEM PCS
+##        if matchSR == False:
+##            AddMsgAndPrint("\tConverting AOI to coordinate system of input DEM...",0)
+##            arcpy.Project_management(projectAOI_B, pcsAOI, demSR, transform)
+        
         # Clip out the DEMs that were entered
+        AddMsgAndPrint("\tExtracting input DEM(s)...",0)
         x = 0
         DEMlist = []
         while x < DEMcount:
             raster = inputDEMs[x].replace("'", "")
             desc = arcpy.Describe(raster)
+            raster_path = desc.CatalogPath
             sr = desc.SpatialReference
             units = sr.LinearUnitName
             if units == "Meter":
@@ -327,15 +347,19 @@ try:
             elif units == "Foot_US":
                 units = "Feet"
             else:
-                AddMsgAndPrint("\nHorizontal units of one or more input DEMs do not appear to be feet or meters! Exiting...",2)
+                AddMsgAndPrint("\tHorizontal units of one or more input DEMs do not appear to be feet or meters! Exiting...",2)
                 exit()
             outClip = tempDEM + "_" + str(x)
             try:
                 #arcpy.Clip_management(raster, "", outClip, projectAOI, "", "ClippingGeometry")
-                extractedDEM = arcpy.sa.ExtractByMask(raster, projectAOI)
+##                if matchSR == False:
+##                    extractedDEM = arcpy.sa.ExtractByMask(raster_path, pcsAOI)
+##                else:
+##                    extractedDEM = arcpy.sa.ExtractByMask(raster_path, projectAOI_B)
+                extractedDEM = arcpy.sa.ExtractByMask(raster_path, projectAOI_B)
                 extractedDEM.save(outClip)
             except:
-                AddMsgAndPrint("\nOne or more input DEMs may have a problem! Please verify that the input DEMs cover the tract area and try to run again. Exiting...",2)
+                AddMsgAndPrint("\tOne or more input DEMs may have a problem! Please verify that the input DEMs cover the tract area and try to run again. Exiting...",2)
                 sys.exit()
             if x == 0:
                 mosaicInputs = "" + str(outClip) + ""
@@ -366,17 +390,29 @@ try:
             
         # Merge the DEMs
         if DEMcount > 1:
+            AddMsgAndPrint("\nMerging multiple input DEM(s)...",0)
             arcpy.MosaicToNewRaster_management(mosaicInputs, scratchGDB, "tempDEM", "#", "32_BIT_FLOAT", cellsize, "1", "MEAN", "#")
 
         # Else just convert the one input DEM to become the tempDEM
         else:
+            AddMsgAndPrint("\nOnly one input DEM detected. Carrying extract forward for final DEM processing...",0)
             #firstDEM = scratchGDB + os.sep + "tempDEM_0"
-            firstDEM = inputDEMs[0]
+            firstDEM = DEMlist[0]
             arcpy.CopyRaster_management(firstDEM, tempDEM)
 
         # Delete clippedDEM files
+        AddMsgAndPrint("\nDeleting initial temp DEM file(s)...",0)
         for raster in DEMlist:
             arcpy.Delete_management(raster)
+
+##        # Convert the input DEM to the target PCS, if necessary
+##        if matchSR == False:
+##            AddMsgAndPrint("\nProjecting new DEM back to local determination's coordinate system...",0)
+##            arcpy.ProjectRaster_management(tempDEM2, tempDEM, cluSR, "BILINEAR", "", transform)
+##        else:
+##            AddMsgAndPrint("\nCopying temporary DEM for further processing...",0)
+##            arcpy.CopyRaster_management(tempDEM2, tempDEM)
+        
 
         # Gather info on the final temp DEM
         desc = arcpy.Describe(tempDEM)
@@ -409,8 +445,9 @@ try:
             AddMsgAndPrint("\n\n\t" + os.path.basename(tempDEM) + " is not in a projected Coordinate System! Exiting...",2)
             exit()
 
-        # Clip out the DEM with extended buffer for temp processing and standard buffer for final DEM display
-        arcpy.Clip_management(tempDEM, "", projectDEM, projectAOI_B, "", "ClippingGeometry")
+        # Clip out the tempDEM with the smaller buffer to get final projectDEM extent
+        AddMsgAndPrint("\nClipping project DEM to buffered extent...",0)
+        arcpy.Clip_management(tempDEM, "", projectDEM, projectAOI, "", "ClippingGeometry")
 
         # Create a temporary smoothed DEM to use for creating a slope layer and a contours layer
         AddMsgAndPrint("\tCreating a 3-meter pixel resolution version of the DEM for use in contours and slopes...",0)
@@ -418,7 +455,7 @@ try:
         
         #outAggreg = arcpy.sa.Aggregate(tempDEM, smoothing, "MEAN", "TRUNCATE", "DATA")
         #outAggreg.save(DEMagg)
-
+        AddMsgAndPrint("\tSmoothing the DEM with Focal Statistics...",0)
         outFocalStats = arcpy.sa.FocalStatistics(DEMagg, "RECTANGLE 3 3 CELL", "MEAN", "DATA")
         outFocalStats.save(DEMsmooth)
         AddMsgAndPrint("\tSuccessful",0)
