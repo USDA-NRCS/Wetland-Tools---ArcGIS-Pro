@@ -462,13 +462,17 @@ try:
     resetREF = arcpy.GetParameterAsText(4)
     resetDrains = arcpy.GetParameterAsText(5)
     existingSU = arcpy.GetParameterAsText(6)
-##    existingROP = arcpy.GetParameterAsText(7)
-##    existingREF = arcpy.GetParameterAsText(8)
-##    existingDRAIN = arcpy.GetParameterAsText(9)
-    suLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(7)).listLayers()[0]
-    ropLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(8)).listLayers()[0]
-    refLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(9)).listLayers()[0]
-    drainLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(10)).listLayers()[0]
+####    existingROP = arcpy.GetParameterAsText(7)
+####    existingREF = arcpy.GetParameterAsText(8)
+####    existingDRAIN = arcpy.GetParameterAsText(9)
+##    suLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(7)).listLayers()[0]
+##    ropLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(8)).listLayers()[0]
+##    refLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(9)).listLayers()[0]
+##    drainLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(10)).listLayers()[0]
+    suLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Sampling_Units.lyrx").listLayers()[0]
+    ropLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "ROP.lyrx").listLayers()[0]
+    refLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Reference_Points.lyrx").listLayers()[0]
+    drainLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Drainage_Lines.lyrx").listLayers()[0]
 
 
     #### Initial Validations

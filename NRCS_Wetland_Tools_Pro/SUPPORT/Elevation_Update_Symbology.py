@@ -88,7 +88,8 @@ try:
     depthsSym = arcpy.GetParameterAsText(3)
     #slpSym = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Slope_Pct.lyrx'
     #depthsSym = r'C:\GIS_Tools\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Local_Depths.lyrx'
-
+    #slpSym = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Slope_Pct.lyrx").listLayers()[0]
+    #depthsSym = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Local_Depths.lyrx").listLayers()[0]
 
     #### Get the layers
     slopeLayer = m.listLayers(slpLyr)[0]

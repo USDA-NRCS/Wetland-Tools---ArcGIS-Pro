@@ -34,6 +34,7 @@
 ##
 ## rev. 06/11/2021
 ## -Fixed bug that was copying and processing entire input DEM when only one input DEM was specified.
+## -Update method to add Slope and Depth Grid to map so they load with the correct legend.
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -174,6 +175,8 @@ try:
 ##    else:
 ##        matchSR = False
 
+    slpLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Slope_Pct.lyrx").listLayers()[0]
+    dgLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Local_Depths.lyrx").listLayers()[0]
 
     #### Exit if neither data download option was selected to be run
     if bSSURGO == False and bElevation == False:
@@ -181,15 +184,15 @@ try:
         exit()
 
 
-    if bElevation:
-        #### Manage spatial references
-        arcpy.env.outputCoordinateSystem = cluSR
-        if transform != '':
-            arcpy.env.geographicTransformations = transform
-        else:
-            arcpy.env.geographicTransformations = "WGS_1984_(ITRF00)_To_NAD_1983"
-        arcpy.env.resamplingMethod = "BILINEAR"
-        arcpy.env.pyramid = "PYRAMIDS -1 BILINEAR DEFAULT 75 NO_SKIP"
+##    if bElevation:
+##        #### Manage spatial references
+##        arcpy.env.outputCoordinateSystem = cluSR
+##        if transform != '':
+##            arcpy.env.geographicTransformations = transform
+##        else:
+##            arcpy.env.geographicTransformations = "WGS_1984_(ITRF00)_To_NAD_1983"
+##        arcpy.env.resamplingMethod = "BILINEAR"
+##        arcpy.env.pyramid = "PYRAMIDS -1 BILINEAR DEFAULT 75 NO_SKIP"
 
                 
     #### Set base path
@@ -238,8 +241,10 @@ try:
     if bElevation:
         projectDEM = basedataGDB_path + os.sep + "Site_DEM"
         projectHillshade = basedataGDB_path + os.sep + "Site_Hillshade"
-        projectDepths = basedataGDB_path + os.sep + "Site_Depth_Grid"
-        projectSlope = basedataGDB_path + os.sep + "Site_Slope_Pct"
+        dgName = "Site_Depth_Grid"
+        projectDepths = basedataGDB_path + os.sep + dgName
+        slpName = "Site_Slope_Pct"
+        projectSlope = basedataGDB_path + os.sep + slpName
         projectContours = basedataGDB_path + os.sep + "Site_Contours"
 
         tempDEM = scratchGDB + os.sep + "tempDEM"
@@ -291,6 +296,16 @@ try:
     #### Call Elevation processing
     if bElevation:
         AddMsgAndPrint("\nProcessing elevation data...",0)
+
+        #### Manage spatial references
+        arcpy.env.outputCoordinateSystem = cluSR
+        if transform != '':
+            arcpy.env.geographicTransformations = transform
+        else:
+            arcpy.env.geographicTransformations = "WGS_1984_(ITRF00)_To_NAD_1983"
+        arcpy.env.resamplingMethod = "BILINEAR"
+        arcpy.env.pyramid = "PYRAMIDS -1 BILINEAR DEFAULT 75 NO_SKIP"
+        
         #### Remove existing project DEM related layers from the Pro maps
         AddMsgAndPrint("\nRemoving layers from project maps, if present...\n",0)
         
@@ -566,11 +581,31 @@ try:
 
         #### Add layers to Pro Map
         AddMsgAndPrint("\nAdding Layers to Map...",0)
+        lyr_list = m.listLayers()
+        lyr_name_list = []
+        for lyr in lyr_list:
+            lyr_name_list.append(lyr.name)
+        
         arcpy.SetParameterAsText(11, projectContours)
-        arcpy.SetParameterAsText(12, projectSlope)
+
+        if dgName not in lyr_name_list:
+            dgLyr_cp = dgLyr.connectionProperties
+            dgLyr_cp['connection_info']['database'] = basedataGDB_path
+            dgLyr_cp['dataset'] = dgName
+            dgLyr.updateConnectionProperties(dgLyr.connectionProperties, dgLyr_cp)
+            m.addLayer(dgLyr)
+            
+        #arcpy.SetParameterAsText(12, projectSlope)
         arcpy.SetParameterAsText(13, projectDEM)
         arcpy.SetParameterAsText(14, projectHillshade)
-        arcpy.SetParameterAsText(15, projectDepths)
+        #arcpy.SetParameterAsText(15, projectDepths)
+        
+        if slpName not in lyr_name_list:
+            slpLyr_cp = slpLyr.connectionProperties
+            slpLyr_cp['connection_info']['database'] = basedataGDB_path
+            slpLyr_cp['dataset'] = slpName
+            slpLyr.updateConnectionProperties(slpLyr.connectionProperties, slpLyr_cp)
+            m.addLayer(slpLyr)
 
 
     #### Compact FGDB

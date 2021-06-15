@@ -149,8 +149,10 @@ try:
     wholeTract = arcpy.GetParameterAsText(1)
     selectFields = arcpy.GetParameterAsText(2)
     sourceAOI = arcpy.GetParameterAsText(3)
-    existing_cwd = arcpy.GetParameterAsText(4)
-    extentLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(5))
+    plss_point = arcpy.GetParameterAsText(4)
+    existing_cwd = arcpy.GetParameterAsText(5)
+##    extentLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(6))
+    extentLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Extent.lyrx").listLayers()[0]
 
 
     #### Initial Validations
@@ -508,14 +510,28 @@ try:
 
     #### Add to map
     # Use starting reference layer files for the tool installation to add layer with automatic placement
-    m.addLayer(extentLyr)
+    AddMsgAndPrint("\nAdding layers to the map...",0)
 
-    # Replace data sources of layer files from installed layers to the project layers
-    # First get the current layers in the map
-    extentNew = m.listLayers(extentName)[0]
+    lyr_list = m.listLayers()
+    lyr_name_list = []
+    for lyr in lyr_list:
+        lyr_name_list.append(lyr.name)
 
-    # Call the function to change the data source via CIM
-    changeSource(extentNew, basedataGDB_path, extentName)
+    if extentName not in lyr_name_list:
+        extentLyr_cp = extentLyr.connectionProperties
+        extentLyr_cp['connection_info']['database'] = basedataGDB_path
+        extentLyr_cp['dataset'] = extentName
+        extentLyr.updateConnectionProperties(extentLyr.connectionProperties, extentLyr_cp)
+        m.addLayer(extentLyr)
+    
+##    m.addLayer(extentLyr)
+##
+##    # Replace data sources of layer files from installed layers to the project layers
+##    # First get the current layers in the map
+##    extentNew = m.listLayers(extentName)[0]
+##
+##    # Call the function to change the data source via CIM
+##    changeSource(extentNew, basedataGDB_path, extentName)
 
 
     #### Clear selections from source AOI layer if it was used with selections
