@@ -34,6 +34,14 @@ admincounty <- df[1]
 wcform <- df[16]
 con_name <- df[14]
 
+canull <- is.na(df[19])
+cadd <- if (canull == TRUE){
+  caddress1
+} else {
+  c(caddress1,caddress2)
+}
+
+
 
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -48,8 +56,7 @@ Phone: `r ophone`
 Fax: `r ofax`  
 
 `r cname`   
-`r caddress1`
-`r caddress2`   
+`r cadd`    
 `r c(ccity, cstate, czip)`
 
 SUBJECT:  Preliminary Wetland Technical Determination

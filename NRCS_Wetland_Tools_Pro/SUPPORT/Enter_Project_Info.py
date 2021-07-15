@@ -140,7 +140,7 @@ try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
     m = aprx.listMaps("Determinations")[0]
 except:
-    arcpy.AddError("\nThis tool must be run from a active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
+    arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
 

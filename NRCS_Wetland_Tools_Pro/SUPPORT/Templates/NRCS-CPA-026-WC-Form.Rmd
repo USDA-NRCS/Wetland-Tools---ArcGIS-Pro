@@ -7,7 +7,9 @@ output:
     reference_docx: NRCS-CPA-026-WC-Template.docx
 ---
 
-```{r setup, include=FALSE}
+# CERTIFIED WETLAND DETERMINATION
+
+```{r cdf, echo=FALSE}
 
 admin <- read.xlsx(Admin_Excel_Path, sheetIndex = 1, sheetName = "Admin_Table")
 
@@ -31,23 +33,47 @@ cfarm <- df[10]
 ddate <- df[15]
 wcform <- df[16]
 
-knitr::opts_chunk$set(echo = TRUE)
+canull <- is.na(df[19])
+cadd <- if (canull == TRUE){
+  caddress1
+} else {
+  c(caddress1,caddress2)
+}
+
+taddress <- data.frame(x1 = cadd,
+                 x2 = ccity,
+                 x3= cstate,
+                 x4 = czip)
+taddress <- list(taddress)
+
+N <- 4  # total number of rows to preallocate--possibly an overestimate
+
+df2 <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
+                  stringsAsFactors=FALSE)
+df2[1, ] <- list("1. Name:",cname,"2. Location County:",ocounty)
+df2[2, ] <- list("3. Address:",taddress,"4. Admin. County:",admincounty)
+df2[3, ] <- list("5. Request Form:",wcform,"6. Farm Number:",cfarm)
+df2[4, ] <- list("7. Request Date:",format(ddate),"8. Tract Number:",tract)
+
+cdf <- flextable(as.data.frame(df2))
+cdf <- delete_part(cdf, part = "header")
+cdf <- fontsize(cdf, size = 11)
+cdf <- font(cdf, fontname = "Times")
+cdf <- height(cdf, height = 1.5)
+cdf <- width(cdf, width = 1.8)
+cdf <- align(cdf, align = "left", part = "all")
+cdf <- theme_box(cdf)
+cdf <- bg(cdf, j = c("txt.1", "txt.3"), bg = "light cyan")
+cdf
+
 ```
-
-# CERTIFIED WETLAND DETERMINATION  
-
-
-**Name:**        |`r cname`                                       |**Location County:**|`r ocounty`
------------------|------------------------------------------------|--------------------|-
-**Address:**     |`r c(caddress1, caddress2, ccity, cstate, czip)`|**Admin. County:**  |`r admincounty`
-**Request Form:**|`r wcform`                                      |**Farm Number:**    |`r cfarm`
-**Request Date:**|`r format(ddate)`                               |**Tract Number:**   |`r tract`  
 
 This certified wetland determination identifies areas subject to the wetland conservation provisions of the 1985 Food Security Act, as amended. See the attached **Definitions of Wetland Labels and Uses** for additional information and currently authorized activities under the Act.  
 
 ```{r wcdet026, echo=FALSE}
 wctable <- read.xlsx(CLU_CWD_026_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_026")
 wctable <- wctable[ ,c(2,3,4,6)]
+wctable <- wctable[order(as.numeric(wctable$clu_number)),]
 wcdf <- flextable(wctable)
 wcdf <- bold(wcdf, part = "header")
 wcdf <- fontsize(wcdf, part = "header", size = 11)
@@ -58,20 +84,53 @@ wcdf <- set_header_labels(wcdf, clu_number = "Field", wetland_label = "Label", o
 wcdf <- align(wcdf, j = c("clu_number", "wetland_label", "occur_year"), align = "center", part = "all")
 wcdf <- colformat_double(wcdf, j = "SUM_acres", big.mark=",", digits = 2, na_str = "N/A")
 wcdf <- set_table_properties(wcdf, width = 1, layout = "autofit")
-wcdf <- theme_booktabs(wcdf)
+wcdf <- theme_box(wcdf)
+wcdf <- bg(wcdf, bg = "light cyan")
 wcdf
+
+knitr::asis_output("\n \\newline \n")
+
+N3 <- 1  # total number of rows to preallocate--possibly an overestimate
+
+df3 <- data.frame(txt=rep("", N3),  # as many cols as you need
+                  stringsAsFactors=FALSE)
+df3[1, ] <- list("")
+
+remk <- flextable(as.data.frame(df3))
+remk <- set_header_labels(remk, txt = "9. Remarks")
+remk <- fontsize(remk, size = 11, part = "header")
+remk <- font(remk, fontname = "Times", part = "header")
+remk <- fontsize(remk, size = 11)
+remk <- font(remk, fontname = "Times")
+remk <- height(remk, height = 5)
+remk <- width(remk, width = 7)
+remk <- theme_box(remk)
+remk <- bg(remk, bg = "light cyan")
+remk
 ```
-  
    
-**Remarks:**  
-
-
 I certify that the above determinations are sufficient for the purpose of making a determination of eligibility for program benefits and were conducted in accordance with policies and procedures contained in the National Food Security Act Manual.  
 
-**Signature Designed Conservationist:**|**Date:**
----------------------------------------|---------
--                                      |`r format(Sys.Date(), "%A, %B %d, %Y")`  
+```{r remk, echo=FALSE}
+N4 <- 2  # total number of rows to preallocate--possibly an overestimate
 
+df4 <- data.frame(txt=rep("", N3), txt=rep("", N3),  # as many cols as you need
+                  stringsAsFactors=FALSE)
+df4[1, ] <- list("", format(Sys.Date(), "%A, %B %d, %Y"))
+
+sid <- flextable(as.data.frame(df4))
+sid <- set_header_labels(sid, txt = "10. Signature Designed Conservationist:", txt.1 = "Date:")
+sid <- fontsize(sid, size = 11, part = "header")
+sid <- font(sid, fontname = "Times", part = "header")
+sid <- fontsize(sid, size = 11)
+sid <- font(sid, fontname = "Times")
+sid <- height(sid, height = 5)
+sid <- width(sid, width = 3.5)
+sid <- theme_box(sid)
+sid <- bg(sid, bg = "light cyan")
+sid
+```
+   
 \newpage
 # Definition of Wetland Labels and Uses  
 
@@ -83,7 +142,7 @@ deftable <- fontsize(deftable, part = "header", size = 11)
 deftable <- font(deftable, part = "header", fontname = "Times")
 deftable <- fontsize(deftable, size = 10)
 deftable <- font(deftable, fontname = "Times")
-deftable <- set_header_labels(deftable, Label_Name = "Lable and Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
+deftable <- set_header_labels(deftable, Label_Name = "Label and Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
 deftable <- set_table_properties(deftable, width = 1, layout = "autofit")
 deftable <- theme_box(deftable)
 deftable

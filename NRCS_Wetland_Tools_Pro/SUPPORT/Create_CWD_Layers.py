@@ -450,7 +450,7 @@ try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
     m = aprx.listMaps("Determinations")[0]
 except:
-    arcpy.AddError("\nThis tool must be run from a active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
+    arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
 
@@ -470,9 +470,12 @@ try:
     resetCWD = arcpy.GetParameterAsText(1)
     resetPJW = arcpy.GetParameterAsText(2)
     existingCWD = arcpy.GetParameterAsText(3)                   #### MISSING FROM SCRIPT
-    cwdLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(4)).listLayers()[0]
-    pjwLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(5)).listLayers()[0]
-    extLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(6)).listLayers()[0]
+##    cwdLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(4)).listLayers()[0]
+##    pjwLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(5)).listLayers()[0]
+##    extLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(6)).listLayers()[0]
+    cwdLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "CWD.lyrx").listLayers()[0]
+    pjwLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "PJW.lyrx").listLayers()[0]
+    extLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Extent.lyrx").listLayers()[0]
 
 
     #### Initial Validations
@@ -665,13 +668,13 @@ try:
     # Look for and delete anything else that may remain in the installed SCRATCH.gdb
     startWorkspace = arcpy.env.workspace
     arcpy.env.workspace = scratchGDB
-    fcs = []
-    for fc in arcpy.ListFeatureClasses('*'):
-        fcs.append(os.path.join(scratchGDB, fc))
-    for fc in fcs:
-        if arcpy.Exists(fc):
+    dss = []
+    for ds in arcpy.ListDatasets('*'):
+        dss.append(os.path.join(scratchGDB, ds))
+    for ds in dss:
+        if arcpy.Exists(ds):
             try:
-                arcpy.Delete_management(fc)
+                arcpy.Delete_management(ds)
             except:
                 pass
     arcpy.env.workspace = startWorkspace
@@ -681,22 +684,26 @@ try:
     #### Add to map
     # Use starting reference layer files from the tool installation to add layers with automatic placement
     AddMsgAndPrint("\nAdding layers to the map...",0)
+
     lyr_list = m.listLayers()
     lyr_name_list = []
     for lyr in lyr_list:
         lyr_name_list.append(lyr.name)
+        
     if cwdName not in lyr_name_list:
         cwdLyr_cp = cwdLyr.connectionProperties
         cwdLyr_cp['connection_info']['database'] = wcGDB_path
         cwdLyr_cp['dataset'] = cwdName
         cwdLyr.updateConnectionProperties(cwdLyr.connectionProperties, cwdLyr_cp)
         m.addLayer(cwdLyr)
+        
     if pjwName not in lyr_name_list:
         pjwLyr_cp = pjwLyr.connectionProperties
         pjwLyr_cp['connection_info']['database'] = wcGDB_path
         pjwLyr_cp['dataset'] = pjwName
         pjwLyr.updateConnectionProperties(pjwLyr.connectionProperties, pjwLyr_cp)
         m.addLayer(pjwLyr)
+        
     if extentName not in lyr_name_list:
         extLyr_cp = extLyr.connectionProperties
         extLyr_cp['connection_info']['database'] = basedataGDB_path

@@ -39,6 +39,9 @@
 ##  the entirety of very large tracts where only small requests in one part of the tract take place and are needed.
 ## -Added the Job ID generation to the CLU and Tract layer outputs.
 ##
+## rev. 07/08/2021
+## -Added checks for Determinations map coordinate system to stop if a recommended PCS is not assigned
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -135,8 +138,6 @@ tractNumber = arcpy.GetParameterAsText(7)
 owFlag = arcpy.GetParameter(8)
 map_name = arcpy.GetParameterAsText(11)
 specific_sr = arcpy.GetParameterAsText(12)
-#check_previous = arcpy.GetParameterAsText(13)
-#previous_layer = arcpy.GetParameterAsText(14)
 
 
 #### Update Environments
@@ -147,7 +148,42 @@ try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
     m = aprx.listMaps("Determinations")[0]
 except:
-    arcpy.AddError("\nThis tool must be run from a active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
+    arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
+    exit()
+
+# Check for a projected, WGS 1984 UTM coordinate system for the Determinations map
+mapSR = m.spatialReference
+if mapSR.type != "Projected":
+    arcpy.AddError("\nThe Determinations map is not set to a Projected coordinate sytsem.")
+    arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
+    arcpy.AddError("\nThese systems are found in the Determination map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
+    arcpy.AddError("\nAfter applying a coordinate system, save your template and try this tool again.")
+    arcpy.AddError("\nExiting...")
+    exit()
+
+if "1984" not in mapSR.name:
+    arcpy.AddError("\nThe Determinations map is not using a projected coordinate system tied to WGS 1984.")
+    arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
+    arcpy.AddError("\nThese systems are found in the Determination map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
+    arcpy.AddError("\nAfter applying a coordinate system, save your template and try this tool again.")
+    arcpy.AddError("\nExiting...")
+    exit()
+
+if "WGS" not in mapSR.name:
+    arcpy.AddError("\nThe Determinations map is not using coordinate system tied to WGS 1984.")
+    arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
+    arcpy.AddError("\nThese systems are found in the Determination map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
+    arcpy.AddError("\nAfter applying a coordinate system, save your template and try this tool again.")
+    arcpy.AddError("\nExiting...")
+    exit()
+
+
+if "UTM" not in mapSR.name:
+    arcpy.AddError("\nThe Determinations map is not using a UTM coordinate system.")
+    arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
+    arcpy.AddError("\nThese systems are found in the Determination map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
+    arcpy.AddError("\nAfter applying a coordinate system, save your template and try this tool again.")
+    arcpy.AddError("\nExiting...")
     exit()
 
 # Set output Pro map
@@ -549,7 +585,10 @@ try:
 
         # Search the downloaded CLU for geographic state and county codes
         stateCo, countyCo = '', ''
-        field_names = ['state_code','county_code']
+        if sourceState == "Alaska":
+            field_names = ['state_ansi_code','county_ansi_code']
+        else:
+            field_names = ['state_code','county_code']
         with arcpy.da.SearchCursor(projectCLUTemp, field_names) as cursor:
             for row in cursor:
                 stateCo = row[0]
@@ -584,6 +623,16 @@ try:
                 cursor.updateRow(row)
         del field_names
 
+        # If the state is Alaska, update the admin_county FIPS and county_code FIPS from the county_ansi_code field
+        if sourceState == "Alaska":
+            field_names = ['admin_county','county_code','county_ansi_code']
+            with arcpy.da.UpdateCursor(projectCLUTemp, field_names) as cursor:
+                for row in cursor:
+                    row[0] = row[2]
+                    row[1] = row[2]
+                    cursor.updateRow(row)
+            del field_names
+        
         # Create the projectCLU feature class and append projectCLUTemp to it. This is done as a cheat to using field mappings to re-order fields.
         AddMsgAndPrint("\nWriting Site CLU layer...",0)
         arcpy.CreateFeatureclass_management(basedataFD, cluName, "POLYGON", templateCLU)
@@ -619,18 +668,7 @@ try:
         arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, DAOIname)
 
 
-    #### Zoom to tract quarter mile buffer (not possible to Implement in Pro?)
-##    AddMsgAndPrint("\nZooming to tract...",0)
-##    fc = projectCLU
-##    arcpy.MakeFeatureLayer_management(fc, "CLUExtent")
-##    mxd = arcpy.mapping.MapDocument("CURRENT")
-##    df = arcpy.mapping.ListDataFrames(mxd)[0]
-##    lyr = arcpy.mapping.Layer("CLUExtent")
-##    df.extent = lyr.getExtent()
-##    df.scale = df.scale * 1.1
-##    arcpy.Delete_management("CLUExtent")
-##    del fc, mxd, df, lyr
-##    AddMsgAndPrint("\tSuccessful",0)
+    #### Zoom to tract (move out of code and into Tasks for the process)
 
 
     #### Prepare to add to map

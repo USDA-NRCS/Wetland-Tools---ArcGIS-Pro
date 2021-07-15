@@ -150,7 +150,7 @@ try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
     m = aprx.listMaps("Determinations")[0]
 except:
-    arcpy.AddError("\nThis tool must be run from a active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
+    arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
 
@@ -607,6 +607,23 @@ try:
             slpLyr.updateConnectionProperties(slpLyr.connectionProperties, slpLyr_cp)
             m.addLayer(slpLyr)
 
+
+    #### Clean up
+    # Look for and delete anything else that may remain in the installed SCRATCH.gdb
+    startWorkspace = arcpy.env.workspace
+    arcpy.env.workspace = scratchGDB
+    dss = []
+    for ds in arcpy.ListDatasets('*'):
+        dss.append(os.path.join(scratchGDB, ds))
+    for ds in dss:
+        if arcpy.Exists(ds):
+            try:
+                arcpy.Delete_management(ds)
+            except:
+                pass
+    arcpy.env.workspace = startWorkspace
+    del startWorkspace
+    
 
     #### Compact FGDB
     try:

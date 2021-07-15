@@ -104,7 +104,7 @@ try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
     m = aprx.listMaps("Determinations")[0]
 except:
-    arcpy.AddError("\nThis tool must be run from a active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
+    arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
     
 
@@ -138,13 +138,13 @@ try:
         arcpy.AddError("\nSelected Samplint Units layer is not from a Determinations project folder. Exiting...")
         exit()
 
-    #### Do not run if an unsaved edits exist in the target workspace
+    #### Do not run if any unsaved edits exist in the target workspace
     # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
     # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
     workspace = wcGDB_path
     edit = arcpy.da.Editor(workspace)
     if edit.isEditing:
-        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
+        arcpy.AddError("\nThere are unsaved data edits in this project. Please Save or Discard Edits and then run this tool again. Exiting...")
         exit()
     del workspace, edit
 
@@ -611,7 +611,7 @@ try:
                 if su_row[2] == None:
                     cur_su = str(su_row[1])
                 else:
-                    cur_su = str(su_row[1] + su_row[2])
+                    cur_su = str(su_row[1]) + su_row[2]
                 if len(su_ids) == 0:
                     su_ids = su_ids + cur_su
                 else:

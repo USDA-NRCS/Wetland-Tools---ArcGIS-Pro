@@ -733,7 +733,11 @@ def start(state,county,trctNmbr,outSR,outWS,addCLUtoSoftware=False):
         cluRESTurl = """https://gis.sc.egov.usda.gov/appserver/rest/services/common_land_units/common_land_units/FeatureServer/0/query"""
 
         # ADMIN_STATE = 29 AND ADMIN_COUNTY = 017 AND TRACT_NUMBER = 1207
-        whereClause = "ADMIN_STATE = " + str(adminState) + " AND ADMIN_COUNTY = " + str(adminCounty) + " AND TRACT_NUMBER = " + str(tractNumber)
+        # This was updated for Alaska purpose only b/c Alaska doesn't use Admin_county, they use county_ansi_code
+        if adminState == '02':
+            whereClause = "ADMIN_STATE = " + str(adminState) + " AND COUNTY_ANSI_CODE = " + str(adminCounty) + " AND TRACT_NUMBER = " + str(tractNumber)
+        else:
+            whereClause = "ADMIN_STATE = " + str(adminState) + " AND ADMIN_COUNTY = " + str(adminCounty) + " AND TRACT_NUMBER = " + str(tractNumber)
 
         AddMsgAndPrint("Querying GeoPortal for CLU fields where: " + whereClause)
         if not getCLUgeometryByTractQuery(whereClause,cluFC,cluRESTurl):
