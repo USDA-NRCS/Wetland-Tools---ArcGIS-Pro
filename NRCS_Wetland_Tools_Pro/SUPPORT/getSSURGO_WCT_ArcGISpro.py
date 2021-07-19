@@ -31,6 +31,13 @@
 # - Added URL to access Ecological Site Descriptions in EDIT database
 # - Added SSURGO Metadata for spatial and tabular version to final output.
 
+# ==========================================================================================
+# Updated  7/9/2021 - Adolfo Diaz
+# - Addressed a bug that occurred while adding the symbolized layers to ArcGIS Pro.
+#   Updated the map reference object to "aprxMap" when the 'SSURGO Layer' group does NOT exist.
+#   Prior to this update, the 'map' object that was being referenced came from the first attempt
+#   at determining whether the 'SSURGO Layer' group layer existed.  That 'map' object is now deleted.
+
 #-------------------------------------------------------------------------------
 
 
@@ -1344,7 +1351,9 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
                         bAddedLyrxFilesToPro = True
                         arcpy.SetProgressorLabel("Adding Layer to ArcGIS Pro: " + lyrx.name)
                         #AddMsgAndPrint("Adding Layer to ArcGIS Pro: " + lyrx.name)
-            break
+
+                break
+        del map
 
         # Get existing group layer object
         if not bGroupLayerExists:
@@ -1360,7 +1369,8 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
             # 'SSURGO Layers' group exists in Pro Session
             # Add the layers in lyrxToAddToArcPro list to ArcPro
             for lyrx in lyrxToAddToArcPro:
-                map.addLayerToGroup(mapGroupLayer,lyrx)
+                aprxMap.addLayerToGroup(mapGroupLayer,lyrx)
+                #map.addLayerToGroup(mapGroupLayer,lyrx)
                 bAddedLyrxFilesToPro = True
                 arcpy.SetProgressorLabel("Adding Layer to ArcGIS Pro: " + lyrx.name)
                 #AddMsgAndPrint("Adding Layer to ArcGIS Pro: " + lyrx.name)

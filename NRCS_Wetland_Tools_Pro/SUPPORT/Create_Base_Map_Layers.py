@@ -708,15 +708,40 @@ try:
     # Look for and delete anything else that may remain in the installed SCRATCH.gdb
     startWorkspace = arcpy.env.workspace
     arcpy.env.workspace = scratchGDB
-    dss = []
-    for ds in arcpy.ListDatasets('*'):
-        dss.append(os.path.join(scratchGDB, ds))
-    for ds in dss:
-        if arcpy.Exists(ds):
+
+    # Feature Classes
+    fcs = []
+    for fc in arcpy.ListFeatureClasses('*'):
+        fcs.append(os.path.join(scratchGDB, fc))
+    for fc in fcs:
+        if arcpy.Exists(fc):
             try:
-                arcpy.Delete_management(ds)
+                arcpy.Delete_management(fc)
             except:
                 pass
+
+    # Rasters
+    rasters = []
+    for ras in arcpy.ListRasters('*'):
+        rasters.append(os.path.join(scratchGDB, ras))
+    for ras in rasters:
+        if arcpy.Exists(ras):
+            try:
+                arcpy.Delete_management(ras)
+            except:
+                pass
+
+    # Tables
+    tables = []
+    for tbl in arcpy.ListTables('*'):
+        tables.append(os.path.join(scratchGDB, tbl))
+    for tbl in tables:
+        if arcpy.Exists(tbl):
+            try:
+                arcpy.Delete_management(tbl)
+            except:
+                pass
+    
     arcpy.env.workspace = startWorkspace
     del startWorkspace
 

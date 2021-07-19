@@ -1,5 +1,5 @@
 ## ===============================================================================================================
-## Name:    Generate Determination Map
+## Name:    Export Determination Map
 ## Purpose: Export a determination map for the site at the current map extent.
 ##
 ## Authors: Adolfo Diaz
@@ -23,7 +23,7 @@
 ## ===============================================================================================================
 ##
 ## rev. 07/14/2021
-## -Start revisions from the Generate Base Map tool to retool for the determination map.
+## -Start revisions from the Export Base Map tool to retool for the determination map.
 ##
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -70,7 +70,7 @@ def logBasicSettings():
     import getpass, time
     f = open(textFilePath,'a+')
     f.write("\n######################################################################\n")
-    f.write("Executing Generate Determination Map tool...\n")
+    f.write("Executing Export Determination Map tool...\n")
     f.write("User Name: " + getpass.getuser() + "\n")
     f.write("Date Executed: " + time.ctime() + "\n")
     f.write("User Parameters:\n")
@@ -89,7 +89,7 @@ def logBasicSettings():
         f.write("\tShow PLSS Location Text Box: True\n")
     else:
         f.write("\tShow PLSS Location Text Box: False\n")
-    if owLayout:
+    if owDetLayout:
         f.write("\tOverwrite Determination Map: True\n")
     else:
         f.write("\tOverwrite Determination Map: False\n")
@@ -336,9 +336,11 @@ try:
     sourcePJW = arcpy.GetParameterAsText(3)
     includeDL = arcpy.GetParameter(4)
     sourceDL = arcpy.GetParameterAsText(5)
-    showLocation = arcpy.GetParameter(6)
-    plssPoint = arcpy.GetParameterAsText(7)
-    owDetLayout = arcpy.GetParameter(8)
+    zoomType = arcpy.GetParameterAsText(6)
+    zoomLyr = arcpy.GetParameterAsText(7)
+    showLocation = arcpy.GetParameter(8)
+    plssPoint = arcpy.GetParameterAsText(9)
+    owDetLayout = arcpy.GetParameter(10)
 
 
     #### Initial Validations
@@ -584,6 +586,16 @@ try:
     #####################################################################################################
     AddMsgAndPrint("\nCreating the Determination Map PDF file...",0)
 
+    # Zoom to specified extent if applicable
+    if zoomType == "Zoom to a layer":
+        mf = dm_lyt.listElements('MAPFRAME_ELEMENT', "Map Frame")[0]
+        lyr = m.listLayers(zoomLyr)[0]
+        ext = mf.getLayerExtent(lyr)
+        cam = mf.camera
+        cam.setExtent(ext)
+        cam.scale *= 1.25
+        del lyr
+        
     # Set required layers and corresponding annotation or labels to be visible
     if selectedLayer == "Site CWD layer":
         cwd_lyr.visible = True
@@ -647,15 +659,40 @@ try:
     # Look for and delete anything else that may remain in the installed SCRATCH.gdb
     startWorkspace = arcpy.env.workspace
     arcpy.env.workspace = scratchGDB
-    dss = []
-    for ds in arcpy.ListDatasets('*'):
-        dss.append(os.path.join(scratchGDB, ds))
-    for ds in dss:
-        if arcpy.Exists(ds):
+
+    # Feature Classes
+    fcs = []
+    for fc in arcpy.ListFeatureClasses('*'):
+        fcs.append(os.path.join(scratchGDB, fc))
+    for fc in fcs:
+        if arcpy.Exists(fc):
             try:
-                arcpy.Delete_management(ds)
+                arcpy.Delete_management(fc)
             except:
                 pass
+
+    # Rasters
+    rasters = []
+    for ras in arcpy.ListRasters('*'):
+        rasters.append(os.path.join(scratchGDB, ras))
+    for ras in rasters:
+        if arcpy.Exists(ras):
+            try:
+                arcpy.Delete_management(ras)
+            except:
+                pass
+
+    # Tables
+    tables = []
+    for tbl in arcpy.ListTables('*'):
+        tables.append(os.path.join(scratchGDB, tbl))
+    for tbl in tables:
+        if arcpy.Exists(tbl):
+            try:
+                arcpy.Delete_management(tbl)
+            except:
+                pass
+    
     arcpy.env.workspace = startWorkspace
     del startWorkspace
     

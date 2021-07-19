@@ -19,12 +19,12 @@
       "description" : "master_clu_cwd",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
+        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
       },
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -304,7 +304,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "if(!IsEmpty($feature.occur_year)) {\r\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + $feature.occur_year + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\r\n}",
+          "expression" : "if(!IsEmpty($feature.occur_year)) {\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\n}\nelse {\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + $feature.occur_year + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\n}",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -506,8 +506,8 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
+                        85,
                         255,
-                        170,
                         0,
                         100
                       ]
@@ -555,8 +555,8 @@
                 "color" : {
                   "type" : "CIMRGBColor",
                   "values" : [
+                    85,
                     255,
-                    170,
                     0,
                     100
                   ]
@@ -596,7 +596,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}",
+      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

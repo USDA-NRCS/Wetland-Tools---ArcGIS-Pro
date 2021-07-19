@@ -1,6 +1,6 @@
 ## ===============================================================================================================
-## Name:    Generate Base Map
-## Purpose: Export a base map for the site at the current map extent.
+## Name:    Export Previous Determination Map
+## Purpose: Export a previous determination map for the site at the current map extent.
 ##
 ## Authors: Adolfo Diaz
 ##          GIS Specialist
@@ -16,18 +16,14 @@
 ##          chris.morse@usda.gov
 ##          317.295.5849
 ##
-## Created: 06/23/2021
+## Created: 07/15/2021
 ##
 ## ===============================================================================================================
 ## Changes
 ## ===============================================================================================================
 ##
-## rev. 06/21/2021
-## -Start revisions of Generate WC Map ArcMap tool to National Wetlands Tool in ArcGIS Pro and retool to Base Map.
-##
-## rev. 07/07/2021
-## -Add Town Range Section query sequence
-## -Refine map export process to streamline tool and remove extraneous layer ordering and display
+## rev. 07/15/2021
+## -Start revisions from the Export Determination Map tool to retool for the previous determinations map.
 ##
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -74,32 +70,19 @@ def logBasicSettings():
     import getpass, time
     f = open(textFilePath,'a+')
     f.write("\n######################################################################\n")
-    f.write("Executing Generate Base Map tool...\n")
+    f.write("Executing Export Previous Determinations Map tool...\n")
     f.write("User Name: " + getpass.getuser() + "\n")
     f.write("Date Executed: " + time.ctime() + "\n")
     f.write("User Parameters:\n")
-    f.write("\tInput Sampling Units Layer: " + arcpy.Describe(sourceSU).CatalogPath + "\n")
-    f.write("\tInput ROPs Layer: " + arcpy.Describe(sourceROP).CatalogPath + "\n")
-    if includeRP:
-        f.write("\tInput Representative Points Layer: " + arcpy.Describe(sourceROP).CatalogPath + "\n")
-    if includeDL:
-        f.write("\tInput Drainage Lines Layer: " + arcpy.Describe(sourceDL).CatalogPath + "\n")
-    if sourceRoads:
-        f.write("\tInput Roads Layer: " + sourceRoads + "\n")
-    if imageType:
-        f.write("\tBase Map Type: " + imageType + "\n")
-        if imageType == "Local File or Web Imagery Service":
-            f.write("\tImagery Layer: " + sourceImage + "\n")
-        if imageType == "Web Map Service or Basemap":
-            f.write("\tImagery Layer: " + sourceService + "\n")
+    f.write("\tInput Previous CLU CWD Layer: " + arcpy.Describe(sourcePrevCWD).CatalogPath + "\n")
     if showLocation:
         f.write("\tShow PLSS Location Text Box: True\n")
     else:
         f.write("\tShow PLSS Location Text Box: False\n")
-    if owLayouts:
-        f.write("\tOverwrite Base Map: True\n")
+    if owLayout:
+        f.write("\tOverwrite Previous Determinations Map: True\n")
     else:
-        f.write("\tOverwrite Base Map: False\n")
+        f.write("\tOverwrite Previous Determinations Map: False\n")
     f.close
     del f
 
@@ -337,51 +320,24 @@ except:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
-    sourceSU = arcpy.GetParameterAsText(0)
-    sourceROP = arcpy.GetParameterAsText(1)
-    includeRP = arcpy.GetParameter(2)
-    sourceRP = arcpy.GetParameterAsText(3)
-    includeDL = arcpy.GetParameter(4)
-    sourceDL = arcpy.GetParameterAsText(5)
-    sourceRoads = arcpy.GetParameterAsText(6)
-    imageType = arcpy.GetParameterAsText(7)
-    sourceImage = arcpy.GetParameterAsText(8)
-    sourceService = arcpy.GetParameterAsText(9)
-    showLocation = arcpy.GetParameter(10)
-    plssPoint = arcpy.GetParameterAsText(11)
-    owLayouts = arcpy.GetParameter(12)
-
-#### OLD ARCMAP PARAMETERS ###
-##    localFlag = arcpy.GetParameter(1)
-##    localImage = arcpy.GetParameterAsText(2)
-##    webFlag = arcpy.GetParameter(3)
-##    webImage = arcpy.GetParameterAsText(4)
-##    hideCLUlabels = arcpy.GetParameter(6)
-##    ledgerLayout = arcpy.GetParameter(7)
-##    wcaLayout = arcpy.GetParameter(8)
-##    ropFlag = arcpy.GetParameter(9)
-##    sourceROP = arcpy.GetParameterAsText(10)
-##    includeLines = arcpy.GetParameter(12)
+    sourcePrevCWD = arcpy.GetParameterAsText(0)
+    zoomType = arcpy.GetParameterAsText(1)
+    zoomLyr = arcpy.GetParameterAsText(2)
+    showLocation = arcpy.GetParameter(3)
+    plssPoint = arcpy.GetParameterAsText(4)
+    owDetLayout = arcpy.GetParameter(5)
 
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
-    # If Sampling Units or ROPs layers have features selected, clear the selections so that all features from it are processed.
-    try:
-        clear_lyr1 = m.listLayers(sourceSU)[0]
-        clear_lyr2 = m.listLayers("Site_ROPs")[0]
-        arcpy.SelectLayerByAttribute_management(clear_lyr1, "CLEAR_SELECTION")
-        arcpy.SelectLayerByAttribute_management(clear_lyr2, "CLEAR_SELECTION")
-    except:
-        pass
 
     
     #### Set base path
-    sourceSU_path = arcpy.Describe(sourceSU).CatalogPath
-    if sourceSU_path.find('.gdb') > 0 and sourceSU_path.find('Determinations') > 0 and sourceSU_path.find('Site_Sampling_Units') > 0:
-        wcGDB_path = sourceSU_path[:sourceSU_path.find('.gdb')+4]
+    sourcePrevCWD_path = arcpy.Describe(sourcePrevCWD).CatalogPath
+    if sourcePrevCWD_path.find('.gdb') > 0 and sourcePrevCWD_path.find('Determinations') > 0 and sourcePrevCWD_path.find('CWD') > 0:
+        wcGDB_path = sourcePrevCWD_path[:sourcePrevCWD_path.find('.gdb')+4]
     else:
-        arcpy.AddError("\nSelected Site Sampling Units layer is not from a Determinations project folder. Exiting...")
+        arcpy.AddError("\nSelected Site Previous CLU CWD layer is not from a Determinations project folder. Exiting...")
         exit()
 
 
@@ -415,10 +371,9 @@ try:
     projectTable = basedataGDB_path + os.sep + "Table_" + projectName
 
     cluName = "Site_CLU"
-    suName = "Site_Sampling_Units"
-    ropName = "Site_ROPs"
-    rpName = "Site_Reference_Points"
-    drainName = "Site_Drainage_Lines"
+    cwdName = "Site_CWD"
+    clucwdName = "Site_CLU_CWD"
+    prevcwdName = "Site_Previous_CLU_CWD"
 
 
     #### Set up log file path and start logging
@@ -428,17 +383,17 @@ try:
 
 
     #### Setup output PDF file name(s)
-    outPDF = wetDir + os.sep + "Base_Map_" + projectName + ".pdf"
+    outPDF = wetDir + os.sep + "Previous_Determinations_Map_" + projectName + ".pdf"
     # If overwrite existing maps is checked, use standard file name
-    if owLayouts == True:
-        outPDF = wetDir + os.sep + "Base_Map_" + projectName + ".pdf"
+    if owDetLayout == True:
+        outPDF = wetDir + os.sep + "Previous_Determinations_Map_" + projectName + ".pdf"
     
     # Else enumerate the output map name(s)
     else:
         if os.path.exists(outPDF):
             count = 1
             while count > 0:
-                outPDF = wetDir + os.sep + "Base_Map_" + projectName + "_" + str(count) + ".pdf"
+                outPDF = wetDir + os.sep + "Previous_Determinations_Map_" + projectName + "_" + str(count) + ".pdf"
                 if os.path.exists(outPDF):
                     count += 1
                 else:
@@ -453,32 +408,32 @@ try:
     if os.path.exists(myfile):
         try:
             os.rename(myfile, myfile + "_opentest")
-            arcpy.AddMessage("The project's Base Map PDF file is available to overwrite!")
+            arcpy.AddMessage("The project's Previous Determinations Map PDF file is available to overwrite!")
             os.rename(myfile + "_opentest", myfile)
         except:
-            arcpy.AddMessage("The Base Map PDF file is open or in use by another program. Please close the PDF and try running this tool again. Exiting...")
+            arcpy.AddMessage("The Previous Determinations Map PDF file is open or in use by another program. Please close the PDF and try running this tool again. Exiting...")
             exit()
     else:
-        arcpy.AddMessage("The Base Map PDF file does not exist for this project and will be created.")
+        arcpy.AddMessage("The Previous Determinations Map PDF file does not exist for this project and will be created.")
 
-        
-    #### Retrieve PLSS Text for Base Map, if applicable
+
+    #### Retrieve PLSS Text for Determination Map, if applicable
     # Set starting boolean for location text box. Stays false unless all query criteria to show location are met
-    display_bm_location = False
-    bm_plss_text = ''
+    display_dm_location = False
+    dm_plss_text = ''
         
     if showLocation:
-        AddMsgAndPrint("\nShow location selected. Processing reference location...",0)
-        bm_plss_text = getPLSS(plssPoint)
-        if bm_plss_text != '':
-            AddMsgAndPrint("\nThe PLSS query was successful and a location text box will be shown on the Base Map.",0)
-            display_bm_location = True
+        AddMsgAndPrint("\nShow location selected for Previous Determinations Map. Processing reference location...",0)
+        dm_plss_text = getPLSS(plssPoint)
+        if dm_plss_text != '':
+            AddMsgAndPrint("\nThe PLSS query was successful and a location text box will be shown on the Previous Determinations Map.",0)
+            display_dm_location = True
                
     # If any part of the PLSS query failed, or if show location was not enabled, then do not show the Location text box
-    if display_bm_location == False:
+    if display_dm_location == False:
         AddMsgAndPrint("\tEither the Show Location parameter was not enabled or the PLSS query failed.",0)
-        AddMsgAndPrint("\tA Town, Range, Section text box will not be shown on the Base Map.",0)
-
+        AddMsgAndPrint("\tA Town, Range, Section text box will not be shown on the Previous Determinations Map.",0)
+            
 
     #### Harvest project based data from the project table to use on the layout
     if arcpy.Exists(projectTable):
@@ -506,32 +461,21 @@ try:
     AddMsgAndPrint("\nUpdating layout elements...",0)
     # Get Base Map layout
     try:
-        bm_lyt = aprx.listLayouts("Base Map")[0]
+        dm_lyt = aprx.listLayouts("Previous Determination Map")[0]
     except:
-        AddMsgAndPrint("\nCould not find installed Base Map layout. Exiting...",2)
+        AddMsgAndPrint("\nCould not find installed Previous Determination Map layout. Exiting...",2)
         exit()
 
     # Send information to function to set the layout elements
-    setLytElements(bm_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, bm_plss_text)
+    setLytElements(dm_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, dm_plss_text)
 
-    
-    #####################################################################################################
-    ########################################## BASE MAP START ###########################################
-    #####################################################################################################
+
     #### Manage layers as objects for visibility and movement control
-    # Set typical layer objects for layers that must be active on the base map
-    AddMsgAndPrint("\nPreparing map layers for display on the layout...",0)
-    
-    su_lyr = m.listLayers(suName)[0]
-    rop_lyr = m.listLayers(ropName)[0]
-    try:
-        rp_lyr = m.listLayers(rpName)[0]
-    except:
-        rp_lyr = ''
-    try:
-        dl_lyr = m.listLayers(drainName)[0]
-    except:
-        dl_lyr = ''
+    AddMsgAndPrint("\nPreparing map layers for display on the Previous Determination Map layout...",0)
+
+    cwd_lyr = m.listLayers(cwdName)[0]
+    clucwd_lyr = m.listLayers(clucwdName)[0]
+    prev_cwd_lyr = m.listLayers(prevcwdName)[0]
 
     plss_lyr = ''
     if plssPoint:
@@ -541,98 +485,85 @@ try:
                 plss_lyr = m.listLayers(plssPoint)[0]
             except:
                 plss_lyr = ''
-                
+        
     # Find annotation for the typical layers, if any
     lyrs = m.listLayers()
+
+    prev_cwd_anno_list = []
+    for lyr in lyrs:
+        if lyr.name.startswith(prevcwdName + "Anno"):
+            prev_cwd_anno_list.append(lyr.name)
+    if len(prev_cwd_anno_list) > 1:
+        AddMsgAndPrint("\tThe map contains more than one Site Previous CLU CWD Annotation layer.",2)
+        AddMsgAndPrint("\tPlease remove any EXTRA Site Previous CLU CWD Annotation layers and run this tool again. Exiting...",2)
+        exit()
     
-    su_anno_list = []
+    cwd_anno_list = []
     for lyr in lyrs:
-        if lyr.name.startswith(suName + "Anno"):
-            su_anno_list.append(lyr.name)
-    if len(su_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one SU Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA SU Annotation layers and run this tool again. Exiting...",2)
+        if lyr.name.startswith(cwdName + "Anno"):
+            cwd_anno_list.append(lyr.name)
+    if len(cwd_anno_list) > 1:
+        AddMsgAndPrint("\tThe map contains more than one CWD Annotation layer.",2)
+        AddMsgAndPrint("\tPlease remove any EXTRA CWD Annotation layers and run this tool again. Exiting...",2)
         exit()
 
-    rop_anno_list = []
+    clucwd_anno_list = []
     for lyr in lyrs:
-        if lyr.name.startswith(ropName + "Anno"):
-            rop_anno_list.append(lyr.name)
-    if len(rop_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one ROPs Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA ROPs Annotation layers and run this tool again. Exiting...",2)
+        if lyr.name.startswith(clucwdName + "Anno"):
+            clucwd_anno_list.append(lyr.name)
+    if len(clucwd_anno_list) > 1:
+        AddMsgAndPrint("\tThe map contains more than one CLU CWD Annotation layer.",2)
+        AddMsgAndPrint("\tPlease remove any EXTRA CLU CWD Annotation layers and run this tool again. Exiting...",2)
         exit()
+
+    prev_cwd_anno_lyr = ''
+    if len(prev_cwd_anno_list) == 1:
+        prev_cwd_anno_lyr = m.listLayers(prev_cwd_anno_list[0])
         
-    rp_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(rpName + "Anno"):
-            rp_anno_list.append(lyr.name)
-    if len(rp_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one Representative Points Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA Representative Points Annotation layers and run this tool again. Exiting...",2)
-        exit()
-        
-    dl_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(drainName + "Anno"):
-            dl_anno_list.append(lyr.name)
-    if len(dl_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one Drainage Lines Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA Drainage Lines Annotation layers and run this tool again. Exiting...",2)
-        exit()
-        
-    su_anno_lyr = ''
-    if len(su_anno_list) == 1:
-        su_anno_lyr = m.listLayers(su_anno_list[0])
+    cwd_anno_lyr = ''
+    if len(cwd_anno_list) == 1:
+        cwd_anno_lyr = m.listLayers(cwd_anno_list[0])
 
-    rop_anno_lyr = ''
-    if len(rop_anno_list) == 1:
-        rop_anno_lyr = m.listLayers(rop_anno_list[0])
-
-    rp_anno_lyr = ''
-    if len(rp_anno_list) == 1:
-        rp_anno_lyr = m.listLayers(rp_anno_list[0])
-
-    dl_anno_lyr = ''
-    if len(dl_anno_list) == 1:
-        dl_anno_lyr = m.listLayers(dl_anno_list[0])
+    clucwd_anno_lyr = ''
+    if len(clucwd_anno_list) == 1:
+        clucwd_anno_lyr = m.listLayers(clucwd_anno_list[0])
 
 
     #### Start exporting maps
-    AddMsgAndPrint("\nCreating the Base Map PDF file...",0)
+    #####################################################################################################
+    ################################# PREVIOUS  DETERMINATION MAP START #################################
+    #####################################################################################################
+    AddMsgAndPrint("\nCreating the Previous Determinations Map PDF file...",0)
+
+    # Zoom to specified extent if applicable
+    if zoomType == "Zoom to a layer":
+        mf = dm_lyt.listElements('MAPFRAME_ELEMENT', "Map Frame")[0]
+        lyr = m.listLayers(zoomLyr)[0]
+        ext = mf.getLayerExtent(lyr)
+        cam = mf.camera
+        cam.setExtent(ext)
+        cam.scale *= 1.25
+        del lyr
 
     # Set required layers and corresponding annotation or labels to be visible
-    su_lyr.visible = True
-    if arcpy.Exists(su_anno_lyr):
-        su_anno_lyr.visible = True
-        su_lyr.showLabels = False
-    else:
-        su_lyr.showLabels = True
-        
-    rop_lyr.visible = True
-    if arcpy.Exists(rop_anno_lyr):
-        rop_anno_lyr.visible = True
-        rop_lyr.showLabels = False
-    else:
-        rop_lyr.showLabels = True
+    prev_cwd_lyr.visible = True
+    cwd_lyr.visible = False
+    clucwd_lyr.visible = False
     
-    if includeRP:
-        rp_lyr.visible = True
-        if arcpy.Exists(rp_anno_lyr):
-            rp_anno_lyr.visible = True
-            rp_lyr.showLabels = False
-        else:
-            rp_lyr.showLabels = True
+    if arcpy.Exists(prev_cwd_anno_lyr):
+        prev_cwd_anno_lyr.visible = True
+        prev_cwd_lyr.showLabels = False
+    else:
+        prev_cwd_lyr.showLabels = True
         
-    if includeDL:
-        dl_lyr.visible = True
-        if arcpy.Exists(dl_anno_lyr):
-            dl_anno_lyr.visible = True
-            dl_lyr.showLabels = False
-        else:
-            dl_lyr.showLabels = True
+    if arcpy.Exists(cwd_anno_lyr):
+        cwd_anno_lyr.visible = False
+        
+    if arcpy.Exists(clucwd_anno_lyr):
+        clucwd_anno_lyr.visible = False
 
-    # Set the plss inpoint layer to be not visible, if it was used
+
+    # Set the plss input layer to not be visible, if it was used
     if plssPoint:
         try:
             plss_lyr.visible = False
@@ -640,24 +571,49 @@ try:
             pass
             
     # Export the map
-    AddMsgAndPrint("\tExporting the Base Map to PDF...",0)
-    bm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
-    AddMsgAndPrint("\tBase Map file exported!",0)
-    
+    AddMsgAndPrint("\tExporting the Previous Determinations Map to PDF...",0)
+    dm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+    AddMsgAndPrint("\tPrevious Determinations Map file exported!",0)
+
 
     #### MAINTENANCE
     # Look for and delete anything else that may remain in the installed SCRATCH.gdb
     startWorkspace = arcpy.env.workspace
     arcpy.env.workspace = scratchGDB
-    dss = []
-    for ds in arcpy.ListDatasets('*'):
-        dss.append(os.path.join(scratchGDB, ds))
-    for ds in dss:
-        if arcpy.Exists(ds):
+
+    # Feature Classes
+    fcs = []
+    for fc in arcpy.ListFeatureClasses('*'):
+        fcs.append(os.path.join(scratchGDB, fc))
+    for fc in fcs:
+        if arcpy.Exists(fc):
             try:
-                arcpy.Delete_management(ds)
+                arcpy.Delete_management(fc)
             except:
                 pass
+
+    # Rasters
+    rasters = []
+    for ras in arcpy.ListRasters('*'):
+        rasters.append(os.path.join(scratchGDB, ras))
+    for ras in rasters:
+        if arcpy.Exists(ras):
+            try:
+                arcpy.Delete_management(ras)
+            except:
+                pass
+
+    # Tables
+    tables = []
+    for tbl in arcpy.ListTables('*'):
+        tables.append(os.path.join(scratchGDB, tbl))
+    for tbl in tables:
+        if arcpy.Exists(tbl):
+            try:
+                arcpy.Delete_management(tbl)
+            except:
+                pass
+    
     arcpy.env.workspace = startWorkspace
     del startWorkspace
     
@@ -670,7 +626,7 @@ try:
     except:
         pass
     
-    AddMsgAndPrint("\nThe Base Map has been created and exported! Exiting...",0)
+    AddMsgAndPrint("\nThe Previous Determinations Map has been created and exported! Exiting...",0)
 
 except SystemExit:
     pass
