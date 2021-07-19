@@ -35,22 +35,23 @@ tool_exec <- function(in_params, out_params)
   CLU_CWD_026_Excel_Path <- in_params$CLU_CWD_026_Excel_Path
   CLU_CWD_028_Excel_Path <- in_params$CLU_CWD_028_Excel_Path
   Create_028 <- in_params$Create_028
+  Path_to_the_install_directory <- in_params$Path_to_the_install_directory
 
 #out_params is output_file + file name 
   Wetlands_Folder_Path <- out_params$Wetlands_Folder_Path
-
+  
   # Generate customer letter
   arc.progress_label('Creating customer letter...')
   arc.progress_pos(20)
   
-  rmarkdown::render("C:/GIS_Tools/NRCS_Wetland_Tools_Pro/SUPPORT/Templates/WC_CustomerLetter.Rmd",
+  rmarkdown::render(file.path(Path_to_the_install_directory, "Templates","WC_CustomerLetter.Rmd"),
                     output_file = "WC_Letter", output_dir = Wetlands_Folder_Path)
 
   # Generate CPA026
   arc.progress_label('Creating CPA-026 report...')
   arc.progress_pos(40)
   
-  rmarkdown::render("C:/GIS_Tools/NRCS_Wetland_Tools_Pro/SUPPORT/Templates/NRCS-CPA-026-WC-Form.Rmd",
+  rmarkdown::render(file.path(Path_to_the_install_directory, "Templates","NRCS-CPA-026-WC-Form.Rmd"),
                     output_file = "NRCS-CPA-026-WC-Form", output_dir = Wetlands_Folder_Path)
   
   # Generate CPA028
@@ -58,8 +59,8 @@ tool_exec <- function(in_params, out_params)
   arc.progress_pos(60)
   
   if(Create_028 == "Yes"){
-  rmarkdown::render("C:/GIS_Tools/NRCS_Wetland_Tools_Pro/SUPPORT/Templates/NRCS-CPA-028-WC-Form.Rmd",
-                    output_file = "NRCS-CPA-028-WC-Form", output_dir = Wetlands_Folder_Path)
+    rmarkdown::render(file.path(Path_to_the_install_directory, "Templates","NRCS-CPA-028-WC-Form.Rmd"),
+                      output_file = "NRCS-CPA-028-WC-Form", output_dir = Wetlands_Folder_Path)
   }
   
   arc.progress_label('Wait for documents to open in MS-Word')

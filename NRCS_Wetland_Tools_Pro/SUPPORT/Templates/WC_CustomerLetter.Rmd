@@ -11,7 +11,8 @@ output:
 
 admin <- read.xlsx(Admin_Excel_Path, sheetIndex = 1, sheetName = "Admin_Table")
 
-NRCS_FSA <- read.xlsx("C:/GIS_Tools/NRCS_Wetland_Tools_Pro/SUPPORT/Templates/NRCS_Address.xlsx", sheetIndex = 1, sheetName = "NRCS_Address")
+NRCS_FSA <- read.xlsx(file.path(Path_to_the_install_directory, "Templates","NRCS_Address.xlsx"), sheetIndex = 1, sheetName = "NRCS_Address")
+
 colnames(NRCS_FSA)[colnames(NRCS_FSA) == 'NRCSCounty'] <- 'admin_county_name'
 
 df <- merge(admin, NRCS_FSA, by='admin_county_name')

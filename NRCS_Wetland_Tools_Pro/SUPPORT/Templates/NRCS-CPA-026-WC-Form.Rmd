@@ -13,7 +13,7 @@ output:
 
 admin <- read.xlsx(Admin_Excel_Path, sheetIndex = 1, sheetName = "Admin_Table")
 
-NRCS_FSA <- read.xlsx("C:/GIS_Tools/NRCS_Wetland_Tools_Pro/SUPPORT/Templates/NRCS_Address.xlsx", sheetIndex = 1, sheetName = "NRCS_Address")
+NRCS_FSA <- read.xlsx(file.path(Path_to_the_install_directory, "Templates","NRCS_Address.xlsx"), sheetIndex = 1, sheetName = "NRCS_Address")
 
 colnames(NRCS_FSA)[colnames(NRCS_FSA) == 'NRCSCounty'] <- 'admin_county_name'
 
@@ -135,7 +135,7 @@ sid
 # Definition of Wetland Labels and Uses  
 
 ```{r wetdef026, echo=FALSE}
-wetdef <- read.csv("C:/GIS_Tools/NRCS_Wetland_Tools_Pro/SUPPORT/Templates/WetlandDefinition.csv", header = TRUE, sep = ",")
+wetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","WetlandDefinition.csv"), header = TRUE, sep = ",")
 deftable <- flextable(wetdef)
 deftable <- bold(deftable, part = "header")
 deftable <- fontsize(deftable, part = "header", size = 11)
