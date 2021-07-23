@@ -22,6 +22,9 @@
 ## -Combined the Topology validation and the Attribute validation tools.
 ## -Gaps validation removed
 ##
+## rev. 07/23/2021
+## -Blocked out topology check because they were causing post-script editing problems.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -185,33 +188,33 @@ try:
         exit()
 
         
-    #### Remove the topology from the Pro maps, if present
-    AddMsgAndPrint("\nRemoving topology from project maps, if present...",0)
-    
-    # Set starting layers to be removed
-    mapLayersToRemove = [cwdTopoName]
-    
-    # Remove the layers in the list
-    try:
-        for maps in aprx.listMaps():
-            for lyr in maps.listLayers():
-                if lyr.name in mapLayersToRemove:
-                    maps.removeLayer(lyr)
-    except:
-        pass
-
-
-    #### Remove existing CWD topology related layers from the geodatabase
-    AddMsgAndPrint("\nRemoving topology from project database, if present...",0)
-
-    # Remove topology first, if it exists
-    toposToRemove = [cwdTopo]
-    for topo in toposToRemove:
-        if arcpy.Exists(topo):
-            try:
-                arcpy.Delete_management(topo)
-            except:
-                pass
+##    #### Remove the topology from the Pro maps, if present
+##    AddMsgAndPrint("\nRemoving topology from project maps, if present...",0)
+##    
+##    # Set starting layers to be removed
+##    mapLayersToRemove = [cwdTopoName]
+##    
+##    # Remove the layers in the list
+##    try:
+##        for maps in aprx.listMaps():
+##            for lyr in maps.listLayers():
+##                if lyr.name in mapLayersToRemove:
+##                    maps.removeLayer(lyr)
+##    except:
+##        pass
+##
+##
+##    #### Remove existing CWD topology related layers from the geodatabase
+##    AddMsgAndPrint("\nRemoving topology from project database, if present...",0)
+##
+##    # Remove topology first, if it exists
+##    toposToRemove = [cwdTopo]
+##    for topo in toposToRemove:
+##        if arcpy.Exists(topo):
+##            try:
+##                arcpy.Delete_management(topo)
+##            except:
+##                pass
 
 
     #### Backup the input CWD layer
@@ -222,32 +225,32 @@ try:
     arcpy.CopyFeatures_management(projectCWD, cwdBackup)
 
 
-    #### Topology review 1 (check for overlaps within the SU layer)
-    AddMsgAndPrint("\nChecking for overlaps within the CWD layer...",0)
-
-    # Create and validate the topology for Must Not Overlap
-    cluster = 0.001
-    arcpy.CreateTopology_management(wcFD, cwdTopoName, cluster)
-    arcpy.AddFeatureClassToTopology_management(cwdTopo, projectCWD, 1, 1)
-    arcpy.AddRuleToTopology_management(cwdTopo, "Must Not Overlap (Area)", projectCWD)
-    arcpy.ValidateTopology_management(cwdTopo)
-
-    # Export the errors and check for results
-    arcpy.ExportTopologyErrors_management(cwdTopo, wcFD, "CWD_Errors")
-    arcpy.Delete_management(linesTopoFC)
-    arcpy.Delete_management(pointsTopoFC)
-    result = int(arcpy.GetCount_management(polysTopoFC).getOutput(0))
-    if result > 0:
-        AddMsgAndPrint("\tOverlaps found! Generating error layer for the map...",2)
-        arcpy.Delete_management(polysTopoFC)
-        arcpy.SetParameterAsText(1, cwdTopo)
-        #re_add_layers()
-    
-        AddMsgAndPrint("\tPlease review and correct overlaps and then re-run this tool. Exiting...",2)
-        exit()
-    else:
-        AddMsgAndPrint("\tNo overlaps found! Continuing...",0)
-        arcpy.Delete_management(polysTopoFC)
+##    #### Topology review 1 (check for overlaps within the SU layer)
+##    AddMsgAndPrint("\nChecking for overlaps within the CWD layer...",0)
+##
+##    # Create and validate the topology for Must Not Overlap
+##    cluster = 0.001
+##    arcpy.CreateTopology_management(wcFD, cwdTopoName, cluster)
+##    arcpy.AddFeatureClassToTopology_management(cwdTopo, projectCWD, 1, 1)
+##    arcpy.AddRuleToTopology_management(cwdTopo, "Must Not Overlap (Area)", projectCWD)
+##    arcpy.ValidateTopology_management(cwdTopo)
+##
+##    # Export the errors and check for results
+##    arcpy.ExportTopologyErrors_management(cwdTopo, wcFD, "CWD_Errors")
+##    arcpy.Delete_management(linesTopoFC)
+##    arcpy.Delete_management(pointsTopoFC)
+##    result = int(arcpy.GetCount_management(polysTopoFC).getOutput(0))
+##    if result > 0:
+##        AddMsgAndPrint("\tOverlaps found! Generating error layer for the map...",2)
+##        arcpy.Delete_management(polysTopoFC)
+##        arcpy.SetParameterAsText(1, cwdTopo)
+##        #re_add_layers()
+##    
+##        AddMsgAndPrint("\tPlease review and correct overlaps and then re-run this tool. Exiting...",2)
+##        exit()
+##    else:
+##        AddMsgAndPrint("\tNo overlaps found! Continuing...",0)
+##        arcpy.Delete_management(polysTopoFC)
 
 
     #### Refresh administrative info for the request on the CWD layer
@@ -508,6 +511,19 @@ try:
     
     #### Success
     AddMsgAndPrint("\nAll checks passed!\n",0)
+
+
+##    #### Remove existing CWD topology related layers from the geodatabase
+##    AddMsgAndPrint("\nRemoving topology from project database, if present...",0)
+##
+##    # Remove topology first, if it exists
+##    toposToRemove = [cwdTopo]
+##    for topo in toposToRemove:
+##        if arcpy.Exists(topo):
+##            try:
+##                arcpy.Delete_management(topo)
+##            except:
+##                pass
 
     
     #### Compact FGDB

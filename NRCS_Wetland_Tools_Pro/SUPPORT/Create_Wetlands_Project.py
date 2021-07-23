@@ -156,7 +156,7 @@ mapSR = m.spatialReference
 if mapSR.type != "Projected":
     arcpy.AddError("\nThe Determinations map is not set to a Projected coordinate sytsem.")
     arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
-    arcpy.AddError("\nThese systems are found in the Determination map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
+    arcpy.AddError("\nThese systems are found in the Determinations Map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
     arcpy.AddError("\nAfter applying a coordinate system, save your template and try this tool again.")
     arcpy.AddError("\nExiting...")
     exit()
@@ -164,7 +164,7 @@ if mapSR.type != "Projected":
 if "1984" not in mapSR.name:
     arcpy.AddError("\nThe Determinations map is not using a projected coordinate system tied to WGS 1984.")
     arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
-    arcpy.AddError("\nThese systems are found in the Determination map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
+    arcpy.AddError("\nThese systems are found in the Determinations Map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
     arcpy.AddError("\nAfter applying a coordinate system, save your template and try this tool again.")
     arcpy.AddError("\nExiting...")
     exit()
@@ -172,7 +172,7 @@ if "1984" not in mapSR.name:
 if "WGS" not in mapSR.name:
     arcpy.AddError("\nThe Determinations map is not using coordinate system tied to WGS 1984.")
     arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
-    arcpy.AddError("\nThese systems are found in the Determination map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
+    arcpy.AddError("\nThese systems are found in the Determinations Map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
     arcpy.AddError("\nAfter applying a coordinate system, save your template and try this tool again.")
     arcpy.AddError("\nExiting...")
     exit()
@@ -181,7 +181,7 @@ if "WGS" not in mapSR.name:
 if "UTM" not in mapSR.name:
     arcpy.AddError("\nThe Determinations map is not using a UTM coordinate system.")
     arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
-    arcpy.AddError("\nThese systems are found in the Determination map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
+    arcpy.AddError("\nThese systems are found in the Determinations Map Properties under: Coordinate Systems -> Projected Coordinate System -> UTM -> WGS 1984.")
     arcpy.AddError("\nAfter applying a coordinate system, save your template and try this tool again.")
     arcpy.AddError("\nExiting...")
     exit()

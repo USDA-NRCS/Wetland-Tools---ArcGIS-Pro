@@ -1,24 +1,25 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.4.0",
-  "build" : 19948,
+  "version" : "2.6.0",
+  "build" : 24783,
   "layers" : [
-    "CIMPATH=determinations/local_depths_in001_t0000309_2020_03.xml"
+    "CIMPATH=Determinations/b4d3affda1ae4dc7b5a124ff48fb06ca.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMRasterLayer",
-      "name" : "Local_Depths_in001_t0000309_2020_03",
-      "uRI" : "CIMPATH=determinations/local_depths_in001_t0000309_2020_03.xml",
+      "name" : "Site_Depth_Grid",
+      "uRI" : "CIMPATH=Determinations/b4d3affda1ae4dc7b5a124ff48fb06ca.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
       "useSourceMetadata" : true,
-      "description" : "Local_Depths_in001_t0000309_2020_03",
+      "description" : "Site_Depth_Grid",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "d75ec4041c77439f82243b268f0b0706"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
       "visibility" : false,
@@ -30,9 +31,9 @@
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "dataConnection" : {
         "type" : "CIMStandardDataConnection",
-        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in001_t0000309_2020_03\\in001_t0000309_2020_03_BaseData.gdb",
+        "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in001_t0000309_2021_05\\in001_t0000309_2021_05_BaseData.gdb",
         "workspaceFactory" : "FileGDB",
-        "dataset" : "Local_Depths_in001_t0000309_2020_03",
+        "dataset" : "Site_Depth_Grid",
         "datasetType" : "esriDTRasterDataset"
       },
       "colorizer" : {
@@ -217,25 +218,6 @@
       }
     }
   ],
-  "elevationSurfaces" : [
-    {
-      "type" : "CIMMapElevationSurface",
-      "elevationMode" : "BaseGlobeSurface",
-      "name" : "Ground",
-      "verticalExaggeration" : 1,
-      "mapElevationID" : "d75ec4041c77439f82243b268f0b0706",
-      "color" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          255,
-          255,
-          255,
-          0
-        ]
-      },
-      "surfaceTINShadingMode" : "Smooth",
-      "visibility" : true,
-      "expanded" : true
-    }
-  ]
+  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+  "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
 }

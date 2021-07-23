@@ -153,6 +153,14 @@ except:
     arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
+# Test for soil map layout (to update SSURGO Date)
+try:
+    soil_lyt = aprx.listLayouts("Soil Map")[0]
+except:
+    arcpy.AddError("\nCould not find soil map layout.")
+    arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
+    exit()
+
 
 #### Main procedures
 try:
@@ -292,6 +300,24 @@ try:
         AddMsgAndPrint("\nLaunching Soil Data Access download module...",0)
         getSSURGO_WCT_ArcGISpro.start(projectAOI, propertyList, basedataGDB_path)
 
+    rundate = datetime.date.today().strftime('%m/%d/%Y')
+
+    # Update SSURGO date on Soil Map Layout
+    elm_list = []
+    for elm in soil_lyt.listElements():
+        elm_list.append(elm.name)
+
+    if "SSURGO Date" not in elm_list:
+        AddMsgAndPrint("\n" + soil_lyt.name + " layout does not contain the 'SSURGO Date' layout element.",2)
+        AddMsgAndPrint("\n Project needs to be started from an installed and configured template or soil layout needs to be imported. Exiting...",2)
+        exit()
+    else:
+        for elm in soil_lyt.listElements():
+            if elm.name == "SSURGO Date":
+                sdate_elm = elm
+
+        sdate_elm.text = "SSURGO Date: " + rundate
+        
 
     #### Call Elevation processing
     if bElevation:
