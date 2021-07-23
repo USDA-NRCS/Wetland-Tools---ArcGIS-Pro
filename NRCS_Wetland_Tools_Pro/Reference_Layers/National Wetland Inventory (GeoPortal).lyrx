@@ -3,14 +3,14 @@
   "version" : "2.6.0",
   "build" : 24783,
   "layers" : [
-    "CIMPATH=Determinations/483b0efe6c6b47a6959f4cf1916c761c.xml"
+    "CIMPATH=Determinations/6107e19943974d92946ae6e37cf48c49.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
       "name" : "All Wetland Types",
-      "uRI" : "CIMPATH=Determinations/0035e224d0e44cafb8a8c6fdd5359402.xml",
-      "sourceURI" : "e73d7f1542ea4386a47ce23028efb4ff",
+      "uRI" : "CIMPATH=Determinations/f801be70dca6425a83a26b5693e7b118.xml",
+      "sourceURI" : "a081c453354e4df29d5c1f70a4c6f3d3",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
@@ -20,10 +20,11 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "minScale" : 150000,
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -37,7 +38,7 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "URL=https://gis.sc.egov.usda.gov/data/rest/services/wetlands/national_wetland_inventory/featureserver",
+          "workspaceConnectionString" : "URL=https://gis.sc.egov.usda.gov/data/rest/services/wetlands/national_wetland_inventory/FeatureServer",
           "workspaceFactory" : "FeatureService",
           "dataset" : "0",
           "datasetType" : "esriDTFeatureClass"
@@ -49,144 +50,108 @@
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Estuarine and Marine Deepwater",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Estuarine and Marine Deepwater",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Estuarine and Marine Deepwater"
             ]
           }
         },
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Estuarine and Marine Wetland",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Estuarine and Marine Wetland",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Estuarine and Marine Wetland"
             ]
           }
         },
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Freshwater Emergent Wetland",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Freshwater Emergent Wetland",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Freshwater Emergent Wetland"
             ]
           }
         },
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Freshwater Forested/Shrub Wetland",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Freshwater Forested/Shrub Wetland",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Freshwater Forested/Shrub Wetland"
             ]
           }
         },
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Freshwater Pond",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Freshwater Pond",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Freshwater Pond"
             ]
           }
         },
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Lake",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Lake",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Lake"
             ]
           }
         },
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Other",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Other",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Other"
             ]
           }
         },
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Palustrine Forested/Scrub",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Palustrine Forested/Scrub",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Palustrine Forested/Scrub"
             ]
           }
         },
         {
           "type" : "CIMFeatureTemplate",
           "name" : "Riverine",
-          "toolProgID" : "{8F79967B-66A0-4a1c-B884-F44BC7E26921}",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
-              "ACRES",
-              null,
-              "WETLAND_TYPE",
-              "Riverine",
-              "ATTRIBUTE",
-              null
+              "wetland_type",
+              "Riverine"
             ]
           }
         }
@@ -198,7 +163,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "$feature.WETLAND_TYPE",
+          "expression" : "$feature.ATTRIBUTE",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -383,9 +348,9 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        255,
-                        255,
-                        255,
+                        0,
+                        0,
+                        0,
                         100
                       ]
                     }
@@ -405,7 +370,6 @@
           "iD" : -1
         }
       ],
-      "labelVisibility" : true,
       "renderer" : {
         "type" : "CIMUniqueValueRenderer",
         "defaultLabel" : "<all other values>",
@@ -954,21 +918,20 @@
     },
     {
       "type" : "CIMGroupLayer",
-      "name" : "National Wetland Inventory (GeoPortal)",
-      "uRI" : "CIMPATH=Determinations/483b0efe6c6b47a6959f4cf1916c761c.xml",
-      "sourceURI" : "e73d7f1542ea4386a47ce23028efb4ff",
+      "name" : "USFWS National Wetland Inventory",
+      "uRI" : "CIMPATH=Determinations/6107e19943974d92946ae6e37cf48c49.xml",
+      "sourceURI" : "a081c453354e4df29d5c1f70a4c6f3d3",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
       "useSourceMetadata" : true,
-      "description" : "National Wetland Inventory",
+      "description" : "national_wetland_inventory",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
       },
       "layerType" : "Operational",
       "showLegends" : true,
-      "transparency" : 33,
       "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
@@ -977,7 +940,7 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "layers" : [
-        "CIMPATH=Determinations/0035e224d0e44cafb8a8c6fdd5359402.xml"
+        "CIMPATH=Determinations/f801be70dca6425a83a26b5693e7b118.xml"
       ]
     }
   ],

@@ -5,7 +5,7 @@
   "binaryReferences" : [
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/15c93610f735babeb8c92c16c6097196.xml",
+      "uRI" : "CIMPATH=Metadata/3e77759a69c83953b679479adb8af6c9.xml",
       "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20201029</CreaDate><CreaTime>08403300</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><scaleRange><minScale>150000000</minScale><maxScale>5000</maxScale></scaleRange></Esri><dataIdInfo><idCitation><resTitle>Layout</resTitle></idCitation></dataIdInfo><mdHrLv><ScopeCd value=\"005\"></ScopeCd></mdHrLv><mdDateSt Sync=\"TRUE\">20210723</mdDateSt></metadata>\r\n"
     },
     {
@@ -262,12 +262,12 @@
   ],
   "layoutDefinition" : {
     "type" : "CIMLayout",
-    "name" : "Base Map",
-    "uRI" : "CIMPATH=layout/layout.xml",
+    "name" : "Previous Determination Map",
+    "uRI" : "CIMPATH=layout/determination_map1.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant"
     },
-    "metadataURI" : "CIMPATH=Metadata/15c93610f735babeb8c92c16c6097196.xml",
+    "metadataURI" : "CIMPATH=Metadata/3e77759a69c83953b679479adb8af6c9.xml",
     "useSourceMetadata" : true,
     "elements" : [
       {
@@ -638,8 +638,8 @@
         "name" : "Scale Text",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 6.44202345652413122,
-          "y" : 0.92222000000000004
+          "x" : 6.44200000000000017,
+          "y" : 0.92220000000000002
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -710,24 +710,24 @@
             "rings" : [
               [
                 [
-                  7.86524276299086278,
-                  0.75457549926757816
+                  7.8652215881347658,
+                  0.75455549926757814
                 ],
                 [
-                  6.44202345652413122,
-                  0.75457549926757816
+                  6.44200000000000017,
+                  0.75455549926757814
                 ],
                 [
-                  6.44202345652413122,
-                  0.92222000000000004
+                  6.44200000000000017,
+                  0.92220000000000002
                 ],
                 [
-                  7.86524276299086278,
-                  0.92222000000000004
+                  7.8652215881347658,
+                  0.92220000000000002
                 ],
                 [
-                  7.86524276299086278,
-                  0.75457549926757816
+                  7.8652215881347658,
+                  0.75455549926757814
                 ]
               ]
             ]
@@ -786,32 +786,32 @@
         "name" : "North Arrow",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 7.14350000000000041,
-          "y" : 1.1734
+          "x" : 7.14309999999999956,
+          "y" : 1.173
         },
         "lockedAspectRatio" : true,
         "frame" : {
           "rings" : [
             [
               [
-                7.04207085835238544,
-                0.96286374282490916
+                7.04188103208398264,
+                0.96289999999999965
               ],
               [
-                7.04207085835238544,
-                1.3830981178249091
+                7.04188103208398264,
+                1.3819885416666664
               ],
               [
-                7.24420627501905212,
-                1.3830981178249091
+                7.24346957375064893,
+                1.3819885416666664
               ],
               [
-                7.24420627501905212,
-                0.96286374282490916
+                7.24346957375064893,
+                0.96289999999999965
               ],
               [
-                7.04207085835238544,
-                0.96286374282490916
+                7.04188103208398264,
+                0.96289999999999965
               ]
             ]
           ]
@@ -874,7 +874,7 @@
                 },
                 "anchorPointUnits" : "Absolute",
                 "dominantSizeAxis3D" : "Y",
-                "size" : 43.73643034624596,
+                "size" : 43.645803050941069,
                 "billboardMode3D" : "FaceNearPlane",
                 "characterIndex" : 175,
                 "fontFamilyName" : "ESRI North",
@@ -913,176 +913,13 @@
       },
       {
         "type" : "CIMGraphicElement",
-        "anchor" : "TopRightCorner",
-        "locked" : true,
-        "name" : "Statement",
-        "visible" : true,
-        "rotationCenter" : {
-          "x" : 8.25,
-          "y" : 2.46369999999999978
-        },
-        "graphic" : {
-          "type" : "CIMParagraphTextGraphic",
-          "symbol" : {
-            "type" : "CIMSymbolReference",
-            "symbol" : {
-              "type" : "CIMTextSymbol",
-              "blockProgression" : "TTB",
-              "depth3D" : 1,
-              "extrapolateBaselines" : true,
-              "fontEffects" : "Normal",
-              "fontEncoding" : "Unicode",
-              "fontFamilyName" : "Tahoma",
-              "fontStyleName" : "Regular",
-              "fontType" : "Unspecified",
-              "haloSize" : 1,
-              "height" : 9,
-              "hinting" : "Default",
-              "horizontalAlignment" : "Left",
-              "kerning" : true,
-              "letterWidth" : 100,
-              "ligatures" : true,
-              "lineGapType" : "ExtraLeading",
-              "symbol" : {
-                "type" : "CIMPolygonSymbol",
-                "symbolLayers" : [
-                  {
-                    "type" : "CIMSolidFill",
-                    "enable" : true,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        0,
-                        0,
-                        0,
-                        100
-                      ]
-                    }
-                  }
-                ]
-              },
-              "symbol3DProperties" : {
-                "type" : "CIM3DSymbolProperties",
-                "dominantSizeAxis3D" : "Z",
-                "rotationOrder3D" : "YXZ",
-                "scaleZ" : 1,
-                "scaleY" : 1
-              },
-              "textCase" : "Normal",
-              "textDirection" : "LTR",
-              "verticalAlignment" : "Bottom",
-              "verticalGlyphOrientation" : "Right",
-              "wordSpacing" : 100,
-              "billboardMode3D" : "FaceNearPlane"
-            }
-          },
-          "blendingMode" : "Alpha",
-          "attributes" : {
-            "type" : "PropertySet",
-            "propertySetItems" : [
-              "ShowOverflow",
-              true
-            ]
-          },
-          "placement" : "Unspecified",
-          "text" : "This Base Map shows areas that are considered a Wetland (marked as \"Y\") or Not a Wetland (marked as \"N\"), and is used to help make decisions on the wetland/non-wetland labels provided in the certified wetland determination. This is not the certified wetland determination map.",
-          "shape" : {
-            "rings" : [
-              [
-                [
-                  8.25,
-                  1.50613961312027
-                ],
-                [
-                  5.37062841692925375,
-                  1.50613961312027
-                ],
-                [
-                  5.37062841692925375,
-                  2.46369999999999978
-                ],
-                [
-                  8.25,
-                  2.46369999999999978
-                ],
-                [
-                  8.25,
-                  1.50613961312027
-                ]
-              ]
-            ]
-          },
-          "frame" : {
-            "type" : "CIMGraphicFrame",
-            "backgroundSymbol" : {
-              "type" : "CIMSymbolReference",
-              "symbol" : {
-                "type" : "CIMPolygonSymbol",
-                "symbolLayers" : [
-                  {
-                    "type" : "CIMSolidFill",
-                    "enable" : true,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        225,
-                        225,
-                        225,
-                        0
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            "borderSymbol" : {
-              "type" : "CIMSymbolReference",
-              "symbol" : {
-                "type" : "CIMLineSymbol",
-                "symbolLayers" : [
-                  {
-                    "type" : "CIMSolidStroke",
-                    "enable" : true,
-                    "capStyle" : "Round",
-                    "joinStyle" : "Round",
-                    "lineStyle3D" : "Strip",
-                    "miterLimit" : 10,
-                    "width" : 1,
-                    "color" : {
-                      "type" : "CIMRGBColor",
-                      "values" : [
-                        0,
-                        0,
-                        0,
-                        0
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            "shadowSymbol" : {
-              "type" : "CIMSymbolReference",
-              "symbol" : {
-                "type" : "CIMPolygonSymbol"
-              }
-            },
-            "shadowOffsetX" : 10,
-            "shadowOffsetY" : -10
-          },
-          "columnCount" : 1,
-          "columnGap" : 5
-        }
-      },
-      {
-        "type" : "CIMGraphicElement",
         "anchor" : "TopLeftCorner",
         "locked" : true,
         "name" : "EOO Text",
         "visible" : true,
         "rotationCenter" : {
           "x" : 0.25,
-          "y" : 0.32758331298828125
+          "y" : 0.32758522033691406
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -1153,24 +990,24 @@
             "rings" : [
               [
                 [
-                  2.95811778122320668,
-                  0.17241668701171875
+                  2.9581146240234375,
+                  0.17241859436035156
                 ],
                 [
                   0.25,
-                  0.17241668701171875
+                  0.17241859436035156
                 ],
                 [
                   0.25,
-                  0.32758331298828125
+                  0.32758522033691406
                 ],
                 [
-                  2.95811778122320668,
-                  0.32758331298828125
+                  2.9581146240234375,
+                  0.32758522033691406
                 ],
                 [
-                  2.95811778122320668,
-                  0.17241668701171875
+                  2.9581146240234375,
+                  0.17241859436035156
                 ]
               ]
             ]
@@ -1243,11 +1080,11 @@
                 2.4636597938144309
               ],
               [
-                5.31219512195121979,
+                6.0297698862101301,
                 2.4636597938144309
               ],
               [
-                5.31219512195121979,
+                6.0297698862101301,
                 0.76792408622305786
               ],
               [
@@ -1264,6 +1101,37 @@
             "symbol" : {
               "type" : "CIMPolygonSymbol",
               "symbolLayers" : [
+                {
+                  "type" : "CIMSolidStroke",
+                  "effects" : [
+                    {
+                      "type" : "CIMGeometricEffectOffset",
+                      "method" : "Rounded",
+                      "offset" : 0,
+                      "option" : "Fast"
+                    },
+                    {
+                      "type" : "CIMGeometricEffectDashes",
+                      "lineDashEnding" : "NoConstraint",
+                      "controlPointEnding" : "NoConstraint"
+                    }
+                  ],
+                  "enable" : true,
+                  "capStyle" : "Round",
+                  "joinStyle" : "Round",
+                  "lineStyle3D" : "Strip",
+                  "miterLimit" : 10,
+                  "width" : 0,
+                  "color" : {
+                    "type" : "CIMRGBColor",
+                    "values" : [
+                      0,
+                      0,
+                      0,
+                      0
+                    ]
+                  }
+                },
                 {
                   "type" : "CIMSolidFill",
                   "enable" : true,
@@ -1387,23 +1255,7 @@
         "excludedLayers" : [
           "CIMPATH=determinations/graphics_layer.xml",
           "CIMPATH=determinations/indiana_2018_naip_60cm__map_.xml",
-          "CIMPATH=map/common_land_unit_map_service.xml",
-          "CIMPATH=map/rops.xml",
-          "CIMPATH=map/rops.xml",
-          "CIMPATH=map/drainage_lines2.xml",
-          "CIMPATH=map/drainage_lines2.xml",
-          "CIMPATH=determinations/extent.xml",
-          "CIMPATH=determinations/extent.xml",
-          "CIMPATH=map/sampling_units.xml",
-          "CIMPATH=map/sampling_units.xml",
-          "CIMPATH=map/sampling_units.xml",
-          "CIMPATH=determinations/highres_m_w_in091_2018_ecw.xml",
-          "CIMPATH=map/drainage_lines2.xml",
-          "CIMPATH=map/sampling_units.xml",
-          "CIMPATH=Determinations/176a5b02b06a4cd1847575229406a264.xml",
-          "CIMPATH=map/rops.xml",
-          "CIMPATH=determinations/extent.xml",
-          "CIMPATH=Determinations/d724b2992a95465eadbbc2c28d2b1056.xml"
+          "CIMPATH=map/common_land_unit_map_service.xml"
         ]
       },
       {
@@ -1412,8 +1264,8 @@
         "name" : "Map Frame",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 0.25000280531001451,
-          "y" : 9.5
+          "x" : 0.25000190734863281,
+          "y" : 9.50000190734863281
         },
         "customProperties" : [
           {
@@ -1426,24 +1278,24 @@
           "rings" : [
             [
               [
-                8.25000280531001451,
-                2.5
+                8.25000190734863281,
+                2.50000190734863281
               ],
               [
-                0.25000280531001451,
-                2.5
+                0.25000190734863281,
+                2.50000190734863281
               ],
               [
-                0.25000280531001451,
-                9.5
+                0.25000190734863281,
+                9.50000190734863281
               ],
               [
-                8.25000280531001451,
-                9.5
+                8.25000190734863281,
+                9.50000190734863281
               ],
               [
-                8.25000280531001451,
-                2.5
+                8.25000190734863281,
+                2.50000190734863281
               ]
             ]
           ]
@@ -1505,8 +1357,8 @@
             "type" : "CIMViewCamera",
             "pitch" : -90,
             "scale" : 7920,
-            "x" : -85.009402310179681,
-            "y" : 40.806851892967877,
+            "x" : -85.009485243669289,
+            "y" : 40.806504558046512,
             "z" : "NaN",
             "viewportHeight" : 1408.1788163576332,
             "viewportWidth" : 1609.3472186944377
@@ -1596,8 +1448,8 @@
         "name" : "Customer",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 0.24999999999999845,
-          "y" : 9.90579999999999927
+          "x" : 0.25000190734863281,
+          "y" : 9.90580177307128906
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -1668,24 +1520,24 @@
             "rings" : [
               [
                 [
-                  3.99720790378006763,
-                  9.55239999999999867
+                  3.99720954895019531,
+                  9.55240058898925781
                 ],
                 [
-                  0.24999999999999845,
-                  9.55239999999999867
+                  0.25000190734863281,
+                  9.55240058898925781
                 ],
                 [
-                  0.24999999999999845,
-                  9.90579999999999927
+                  0.25000190734863281,
+                  9.90580177307128906
                 ],
                 [
-                  3.99720790378006763,
-                  9.90579999999999927
+                  3.99720954895019531,
+                  9.90580177307128906
                 ],
                 [
-                  3.99720790378006763,
-                  9.55239999999999867
+                  3.99720954895019531,
+                  9.55240058898925781
                 ]
               ]
             ]
@@ -1744,8 +1596,8 @@
         "name" : "AdminCo",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 0.25000280531001456,
-          "y" : 10.1169483886718741
+          "x" : 0.25000190734863281,
+          "y" : 10.1169490814208984
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -1816,24 +1668,24 @@
             "rings" : [
               [
                 [
-                  3.997210446911577,
-                  9.94025161132812407
+                  3.99720954895019531,
+                  9.94025230407714844
                 ],
                 [
-                  0.25000280531001456,
-                  9.94025161132812407
+                  0.25000190734863281,
+                  9.94025230407714844
                 ],
                 [
-                  0.25000280531001456,
-                  10.1169483886718741
+                  0.25000190734863281,
+                  10.1169490814208984
                 ],
                 [
-                  3.997210446911577,
-                  10.1169483886718741
+                  3.99720954895019531,
+                  10.1169490814208984
                 ],
                 [
-                  3.997210446911577,
-                  9.94025161132812407
+                  3.99720954895019531,
+                  9.94025230407714844
                 ]
               ]
             ]
@@ -1892,8 +1744,8 @@
         "name" : "GeoCo",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 0.25000280531001501,
-          "y" : 10.3279573729909426
+          "x" : 0.25000190734863281,
+          "y" : 10.3279590606689453
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -1964,24 +1816,24 @@
             "rings" : [
               [
                 [
-                  3.99720790378006763,
-                  10.1512605956471926
+                  3.99720954895019531,
+                  10.1512622833251953
                 ],
                 [
-                  0.25000280531001501,
-                  10.1512605956471926
+                  0.25000190734863281,
+                  10.1512622833251953
                 ],
                 [
-                  0.25000280531001501,
-                  10.3279573729909426
+                  0.25000190734863281,
+                  10.3279590606689453
                 ],
                 [
-                  3.99720790378006763,
-                  10.3279573729909426
+                  3.99720954895019531,
+                  10.3279590606689453
                 ],
                 [
-                  3.99720790378006763,
-                  10.1512605956471926
+                  3.99720954895019531,
+                  10.1512622833251953
                 ]
               ]
             ]
@@ -2040,8 +1892,8 @@
         "name" : "Tract",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 0.24999999999999939,
-          "y" : 10.5389695799662615
+          "x" : 0.25000190734863281,
+          "y" : 10.5389690399169922
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -2112,24 +1964,24 @@
             "rings" : [
               [
                 [
-                  1.60137176513671808,
-                  10.3622695799662612
+                  1.60137367248535156,
+                  10.3622722625732422
                 ],
                 [
-                  0.24999999999999939,
-                  10.3622695799662612
+                  0.25000190734863281,
+                  10.3622722625732422
                 ],
                 [
-                  0.24999999999999939,
-                  10.5389695799662615
+                  0.25000190734863281,
+                  10.5389690399169922
                 ],
                 [
-                  1.60137176513671808,
-                  10.5389695799662615
+                  1.60137367248535156,
+                  10.5389690399169922
                 ],
                 [
-                  1.60137176513671808,
-                  10.3622695799662612
+                  1.60137367248535156,
+                  10.3622722625732422
                 ]
               ]
             ]
@@ -2188,8 +2040,8 @@
         "name" : "Farm",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 0.24999999999999956,
-          "y" : 10.7499999999999964
+          "x" : 0.25000190734863281,
+          "y" : 10.7500019073486328
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -2260,24 +2112,24 @@
             "rings" : [
               [
                 [
-                  1.60137457044673415,
-                  10.57328178694158
+                  1.60137367248535156,
+                  10.5732822418212891
                 ],
                 [
-                  0.24999999999999956,
-                  10.57328178694158
+                  0.25000190734863281,
+                  10.5732822418212891
                 ],
                 [
-                  0.24999999999999956,
-                  10.7499999999999964
+                  0.25000190734863281,
+                  10.7500019073486328
                 ],
                 [
-                  1.60137457044673415,
-                  10.7499999999999964
+                  1.60137367248535156,
+                  10.7500019073486328
                 ],
                 [
-                  1.60137457044673415,
-                  10.57328178694158
+                  1.60137367248535156,
+                  10.5732822418212891
                 ]
               ]
             ]
@@ -2337,7 +2189,7 @@
         "visible" : true,
         "rotationCenter" : {
           "x" : 4.25,
-          "y" : 10.74029209621993
+          "y" : 10.7403011322021484
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -2403,29 +2255,29 @@
             ]
           },
           "placement" : "Unspecified",
-          "text" : "Base Map",
+          "text" : "Previous Determinations",
           "shape" : {
             "rings" : [
               [
                 [
                   6.1897000000000002,
-                  10.40629209621993
+                  10.4062786102294922
                 ],
                 [
                   2.3102999999999998,
-                  10.40629209621993
+                  10.4062786102294922
                 ],
                 [
                   2.3102999999999998,
-                  10.74029209621993
+                  10.7403011322021484
                 ],
                 [
                   6.1897000000000002,
-                  10.74029209621993
+                  10.7403011322021484
                 ],
                 [
                   6.1897000000000002,
-                  10.40629209621993
+                  10.4062786102294922
                 ]
               ]
             ]
@@ -2708,11 +2560,11 @@
                   9.99243718872070374
                 ],
                 [
-                  6.11919403076171875,
+                  6.11920000000000019,
                   9.99243718872070374
                 ],
                 [
-                  6.11919403076171875,
+                  6.11920000000000019,
                   10.1476000000000006
                 ],
                 [
@@ -2814,12 +2666,10 @@
       "showMargin" : true
     },
     "dateExported" : {
-      "type" : "TimeInstant",
-      "start" : 1605003018642
+      "type" : "TimeInstant"
     },
     "datePrinted" : {
-      "type" : "TimeInstant",
-      "start" : 1605715491800
+      "type" : "TimeInstant"
     },
     "colorModel" : "RGB",
     "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
