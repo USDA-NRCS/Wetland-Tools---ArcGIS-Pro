@@ -133,7 +133,6 @@ try:
     arcpy.AddMessage("Reading inputs...\n")
     sourceFolder = arcpy.GetParameterAsText(0)
 
-
     #### Define Variables
     # Project paths
     userWorkspace = sourceFolder
@@ -143,7 +142,7 @@ try:
         arcpy.AddError("The specified folder does appear to be a determinations project folder.")
         arcpy.AddError("We recommend trying a different folder or starting from scratch on a new project. Exiting...")
         exit()
-    wcGDB_path = wetDir + os.sep + projecctName + "_WC.gdb"
+    wcGDB_path = wetDir + os.sep + projectName + "_WC.gdb"
     if not arcpy.Exists(wcGDB_path):
         arcpy.AddError("The specified folder does contain a wetlands database.")
         arcpy.AddError("We recommend re-running Create Wetlands Project, Create Base Map Layers, or Create CWD Layers. Exiting...")
@@ -153,6 +152,8 @@ try:
         arcpy.AddError("The specified folder does contain a wetlands database with a correct dataset. Exiting...")
         arcpy.AddError("We recommend re-running Create Wetlands Project, Create Base Map Layers, or Create CWD Layers. Exiting...")
         exit()
+
+
     
     # Possible Project Business Layers that have rules
     suName = "Site_Sampling_Units"
@@ -226,23 +227,10 @@ try:
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
-
-    #### First try to repair the rules
-    AddMsgAndPrint("\Refreshing attribute rules...",0)
-    
-    ## Syntax: repairRules(projectFC, rule_names, rule_table)
-    repairRules(projectSU, rule_names, rule_table)
-    repairRules(projectROP, rule_names, rule_table)
-    repairRules(projectREF, rule_names, rule_table)
-    repairRules(projectLines, rule_names, rule_table)
-    repairRules(projectCWD, rule_names, rule_table)
-    repairRules(projectPJW, rule_names, rule_table)
-
-
-    #### Now Remove each layer if it exists in the map
+    #### Remove each layer if it exists in the map
     AddMsgAndPrint("\Remove old layers from the map...",0)
     # Starting list of layer names
-    mapLayersToRemove = [suName, ropName, refName, drainNaem, cwdName, pjwName]
+    mapLayersToRemove = [suName, ropName, refName, drainName, cwdName, pjwName]
 
     # Find annotation to remove as well and add it to the list
     annoStrings = [suAnnoString, ropAnnoString, refAnnoString, drainAnnoString, cwdAnnoString]
@@ -254,6 +242,34 @@ try:
     AddMsgAndPrint("\Remove old layers from the map...",0)
     removeLayers(mapLayersToRemove)
     del mapLayersToRemove
+
+##    #### First try to repair the rules
+##    AddMsgAndPrint("\Refreshing attribute rules...",0)
+##    
+##    ## Syntax: repairRules(projectFC, rule_names, rule_table)
+##    repairRules(projectSU, rules_su_names, rules_su)
+##    repairRules(projectROP, rules_rop_names, rules_rops)
+##    repairRules(projectREF, rules_ref_names, rules_refs)
+##    repairRules(projectLines, rules_line_names, rules_lines)
+##    repairRules(projectCWD, rules_cwd_names, rules_cwd)
+##    repairRules(projectPJW, rules_pjw_names, rules_pjw)
+
+
+##    #### Remove each layer if it exists in the map
+##    AddMsgAndPrint("\Remove old layers from the map...",0)
+##    # Starting list of layer names
+##    mapLayersToRemove = [suName, ropName, refName, drainName, cwdName, pjwName]
+##
+##    # Find annotation to remove as well and add it to the list
+##    annoStrings = [suAnnoString, ropAnnoString, refAnnoString, drainAnnoString, cwdAnnoString]
+##    for aString in annoStrings:
+##        for lyr in m.listLayers(aString):
+##            mapLayersToRemove.append(lyr.name)
+##
+##    # Remove the layers
+##    AddMsgAndPrint("\Remove old layers from the map...",0)
+##    removeLayers(mapLayersToRemove)
+##    del mapLayersToRemove
 
 
     #### Now add back the layers to the map if the corresponding feature class exists.
@@ -278,7 +294,7 @@ try:
         addLayer(m, pjwLyr, wcGDB_path, pjwName)
 
     # Adjust the visibility of the newly added layers to turn them all off to reduce clutter
-    off_names = [suName, ropName, refName, drainNaem, cwdName, pjwName]
+    off_names = [suName, ropName, refName, drainName, cwdName, pjwName]
     for lyr in m.listLayers():
         for name in off_names:
             if name in lyr.name:
