@@ -10,6 +10,21 @@
 # phone: 608.662.4422 ext. 216
 #
 # Created:     02/27/2020
+# Originallly created for the NRCS Wetland Tools.  This tool can be called via an ArcGIS Pro
+# tool or can be called from another script.
+#
+# ==========================================================================================
+# Modified 7/8/2021
+# Modified the where_clause that is sent to the CLU REST API to use county_ansi_code field
+# instead of admin_county field for Alaska only.
+
+# ==========================================================================================
+# Modified 7/30/2021
+# - Updated getCLUgeometry function to distinguish between an error when submitting a request
+#   to the clu REST API vs. returning no geometry associated with a specific tract.
+#   If any condition is true, the cluFC will also be deleted.
+# - Updated messaging on projecting.  If a transformation method is needed then the message
+#   will be a warning otherwise a simple message will be printed.
 
 
 # ==============================================================================================================================
@@ -535,8 +550,14 @@ def getCLUgeometryByTractQuery(sqlQuery,fc,RESTurl):
         # ['objectIdFieldName', 'globalIdFieldName', 'geometryType', 'spatialReference', 'fields', 'features']
         geometry = submitFSquery(RESTurl,params)
 
+        # Error from sumbitFSquery function
         if not geometry:
-           return False
+            return False
+
+        # make sure the request returned geometry; otherwise return False
+        if not len(geometry['features']):
+            AddMsgAndPrint("\nThere were no CLU fields associated with tract Number " + str(tractNumber),1)
+            return False
 
         # Insert Geometry
         with arcpy.da.InsertCursor(fc, [fld for fld in fields]) as cur:
@@ -690,7 +711,7 @@ def start(state,county,trctNmbr,outSR,outWS,addCLUtoSoftware=False):
         """ ---------------------------------------------- ArcGIS Portal Information ---------------------------"""
         nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
         portalToken = getPortalTokenInfo(nrcsPortal)
-        #portalToken = {'token': '5PkSO0ZZcNVv7eEzXz8MTZBxgZbenP71uyMNnYXOefTqYs8rh0TJFGk7VKyxozK1vHOhKmpy2Z2M6mr-pngEbKjBxgIVeQmSnlfANwGXfEe5aOZjgQOU2UfLHEuGEIn1R0d0HshCP_LDtwn1-JPhbnsevrLY2a-LxTQ6D4QwCXanJECA7c8szW_zv30MxX6aordbhxHnugDD1pzCkPKRXkEoHR7r-dQxuaFSczD1jLFyDNB-7vdakAzhLc2xHPidLGt0PNileXzIecb2SA8PLQ..', 'referer': 'http://www.esri.com/AGO/8ED471D4-0B17-4ABC-BAB9-A9433506FD1C', 'expires': 1584646706}
+        #portalToken = {'token': 'CaQsxS5eSCBOnMVy9FA0JcKM1lFix1rf5pAdJe9RJLjlv9UVbW3uS92x9WCi0S6LmpO3EMaZkwQ1-hbZgF_wGBX_UHVZbVPComH5hhRgBDjubjXe6zPFpG-FlwQ490epn3ebKEG55FSbhihK0c2ueS0xzPaPHMA79IUGOpaeGsADPS0zNId4ofPeUI6KAwAoQu3H6ibePO5YLHgM0oVeAQv1poNf1_moeNPH3ZHU5uMuCTy8DvLGLMwuNnWw65wCYX7oBDQjoP9g8zc7cqVYmw..', 'referer': 'http://www.esri.com/AGO/780B38ED-ECB9-40FF-B734-3A7A6402C884', 'expires': 1627658762}
 
         if not portalToken:
            AddMsgAndPrint("Could not generate Portal Token. Exiting!",2)
@@ -739,20 +760,31 @@ def start(state,county,trctNmbr,outSR,outWS,addCLUtoSoftware=False):
         else:
             whereClause = "ADMIN_STATE = " + str(adminState) + " AND ADMIN_COUNTY = " + str(adminCounty) + " AND TRACT_NUMBER = " + str(tractNumber)
 
-        AddMsgAndPrint("Querying GeoPortal for CLU fields where: " + whereClause)
-        if not getCLUgeometryByTractQuery(whereClause,cluFC,cluRESTurl):
-            AddMsgAndPrint("\tFailed to query by tract",2)
+        AddMsgAndPrint("Querying USDA-NRCS GeoPortal for CLU fields where: " + whereClause)
 
+        # Send geometry request to cluREST API
+        if not getCLUgeometryByTractQuery(whereClause,cluFC,cluRESTurl):
+
+            try:
+                arcpy.Delete_management(cluFC)
+            except:
+                pass
+
+            # Script executed directly from ArcGIS Pro
             if addCLUtoSoftware:
+                AddMsgAndPrint("Exiting",1)
                 exit()
+
+            # Script executed from another script
             else:
                 return False
 
+        # Report # of fields assembled
         numOfCLUs = int(arcpy.GetCount_management(cluFC)[0])
         if numOfCLUs > 1:
-            AddMsgAndPrint("\nThere are " + splitThousands(numOfCLUs) + " CLU fields part of Tract Number " + str(tractNumber))
+            AddMsgAndPrint("\nThere are " + splitThousands(numOfCLUs) + " CLU fields associated with tract number " + str(tractNumber))
         else:
-            AddMsgAndPrint("\nThere is " + splitThousands(numOfCLUs) + " CLU field part of Tract Number " + str(tractNumber))
+            AddMsgAndPrint("\nThere is " + splitThousands(numOfCLUs) + " CLU field associated with tract number " + str(tractNumber))
 
         """ ---------------------------------------------- Project CLU ---------------------------------------------------------------"""
         # Project cluFC to user-defined spatial reference or the spatial
@@ -764,8 +796,10 @@ def start(state,county,trctNmbr,outSR,outWS,addCLUtoSoftware=False):
         geoTransformation = arcpy.ListTransformations(fromSR,toSR)
         if len(geoTransformation):
             geoTransformation = geoTransformation[0]
+            msg = 1
         else:
             geoTransformation = None
+            msg = 0
 
         projected_CLU = cluFC + "_prj"
         arcpy.Project_management(cluFC,projected_CLU,toSR,geoTransformation)
@@ -774,11 +808,11 @@ def start(state,county,trctNmbr,outSR,outWS,addCLUtoSoftware=False):
         arcpy.Rename_management(projected_CLU,projected_CLU[0:-4])
         cluFC = projected_CLU[0:-4]
 
-        AddMsgAndPrint(" ",1)
-        AddMsgAndPrint("\nProjecting CLU Feature class",1)
-        AddMsgAndPrint("FROM: " + str(fromSR.name),1)
-        AddMsgAndPrint("TO: " + str(toSR.name),1)
-        AddMsgAndPrint("Geographic Transformation used: " + str(geoTransformation),1)
+        AddMsgAndPrint(" ",msg)
+        AddMsgAndPrint("\nProjecting CLU Feature class",msg)
+        AddMsgAndPrint("FROM: " + str(fromSR.name),msg)
+        AddMsgAndPrint("TO: " + str(toSR.name),msg)
+        AddMsgAndPrint("Geographic Transformation used: " + str(geoTransformation),msg)
 
         # Add final CLU layer to either ArcPro or ArcMap
         if addCLUtoSoftware:
@@ -833,6 +867,13 @@ if __name__ == '__main__':
         outSpatialRef = arcpy.GetParameterAsText(3)
         outputWS = arcpy.GetParameterAsText(4)
         addToSoftware = True
+
+##        adminState = "55"
+##        adminCounty = "025"
+##        tractNumber = "336499"
+##        outSpatialRef = "GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400 -400 1000000000;-100000 10000;-100000 10000;8.98315284119521E-09;0.001;0.001;IsHighPrecision"
+##        outputWS = r'E:\Temp\scratch.gdb'
+##        addToSoftware = False
 
         start(adminState,adminCounty,tractNumber,outSpatialRef,outputWS,addToSoftware)
 

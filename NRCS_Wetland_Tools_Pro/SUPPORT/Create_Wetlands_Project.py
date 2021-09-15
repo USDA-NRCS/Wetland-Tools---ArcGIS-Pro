@@ -127,6 +127,7 @@ reload(extract_CLU_by_Tract)
 
 #### Inputs
 arcpy.AddMessage("Reading inputs...\n")
+arcpy.SetProgressorLabel("Reading inputs...")
 projectType = arcpy.GetParameterAsText(0)
 existingFolder = arcpy.GetParameterAsText(1)
 #sourceLUT = arcpy.GetParameterAsText(2)
@@ -142,6 +143,7 @@ specific_sr = arcpy.GetParameterAsText(12)
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Test for Pro project.
 try:
@@ -351,8 +353,10 @@ try:
 
     # Check if C:\Determinations exists, else create it
     arcpy.AddMessage("\nChecking project directories...")
+    arcpy.SetProgressorLabel("Checking project directories...")
     if not os.path.exists(workspacePath):
         try:
+            arcpy.SetProgressorLabel("Creating Determinations folder...")
             os.mkdir(workspacePath)
             arcpy.AddMessage("\nThe Determinations folder did not exist on the C: drive and has been created.")
         except:
@@ -362,6 +366,7 @@ try:
     # Check if C:\Determinations\projectFolder exists, else create it
     if not os.path.exists(projectFolder):
         try:
+            arcpy.SetProgressorLabel("Creating project folder...")
             os.mkdir(projectFolder)
             arcpy.AddMessage("\nThe project folder has been created within Determinations.")
         except:
@@ -375,9 +380,11 @@ try:
 
 
     #### Continue creating sub-directories
+    arcpy.SetProgressorLabel("Creating project contents...")
     # Check if the Wetlands folder exists within the projectFolder, else create it
     if not os.path.exists(wetlandsFolder):
         try:
+            arcpy.SetProgressorLabel("Creating wetlands folder...")
             os.mkdir(wetlandsFolder)
             AddMsgAndPrint("\nThe Wetlands folder has been created within " + projectFolder + ".",0)
         except:
@@ -434,19 +441,23 @@ try:
     # BaseData
     if not arcpy.Exists(basedataGDB_path):
         AddMsgAndPrint("\nCreating Base Data geodatabase...",0)
+        arcpy.SetProgressorLabel("Creating Base Data geodatabase...")
         arcpy.CreateFileGDB_management(projectFolder, basedataGDB_name, "10.0")
 
     if not arcpy.Exists(basedataFD):
         AddMsgAndPrint("\nCreating Base Data feature dataset...",0)
+        arcpy.SetProgressorLabel("Creating Base Date feature dataset...")
         arcpy.CreateFeatureDataset_management(basedataGDB_path, "Layers", outSpatialRef)
 
     # Wetlands
     if not arcpy.Exists(wcGDB_path):
         AddMsgAndPrint("\nCreating Wetlands geodatabase...",0)
+        arcpy.SetProgressorLabel("Creating Wetlands geodatabase...")
         arcpy.CreateFileGDB_management(wetlandsFolder, wcGDB_name, "10.0")
 
     if not arcpy.Exists(wcFD):
         AddMsgAndPrint("\nCreating Wetlands feature dataset...",0)
+        arcpy.SetProgressorLabel("Creating Wetlands feature dataset...")
         arcpy.CreateFeatureDataset_management(wcGDB_path, "WC_Data", outSpatialRef)
         
 ##    # HEL
@@ -461,6 +472,7 @@ try:
 
     #### Add or validate the attribute domains for the geodatabases
     AddMsgAndPrint("\nChecking attribute domains of wetlands geodatabase...",0)
+    arcpy.SetProgressorLabel("Checking attribute domains of wetlands geodatabase...")
 
     # Wetlands Domains
     descGDB = arcpy.Describe(wcGDB_path)
@@ -532,6 +544,7 @@ try:
 
     #### Remove the existing projectCLU layer from the Map
     AddMsgAndPrint("\nRemoving CLU layer from project maps, if present...\n",0)
+    arcpy.SetProgressorLabel("Removing CLU layer from project maps, if present...")
     mapLayersToRemove = [cluOut, DAOIOut]
     try:
         for maps in aprx.listMaps():
@@ -544,7 +557,8 @@ try:
     
     #### If overwrite was selected, delete everything and start over
     if owFlag == True:
-        AddMsgAndPrint("\nOverwrite selected. Deleting all existing project data...",0)
+        AddMsgAndPrint("\nOverwrite selected. Deleting existing project data...",0)
+        arcpy.SetProgressorLabel("Overwrite selected. Deleting existing project data...")
         if arcpy.Exists(basedataFD):
             ws = arcpy.env.workspace
             arcpy.env.workspace = basedataGDB_path
@@ -564,7 +578,8 @@ try:
     #### Download the CLU
     # If the CLU doesn't exist, download it
     if not arcpy.Exists(projectCLU):
-        AddMsgAndPrint("\nDownloading latest CLU data for input tract number...",0)
+        AddMsgAndPrint("\nDownloading latest CLU data...",0)
+        arcpy.SetProgressorLabel("Downloading latest CLU data...")
         # Download CLU
         cluTempPath = extract_CLU_by_Tract.start(adminState, adminCounty, tractNumber, outSpatialRef, basedataGDB_path)
 
@@ -644,6 +659,7 @@ try:
     # If the Tract layer doesn't exist, create it
     if not arcpy.Exists(projectTract):
         AddMsgAndPrint("\nCreating Tract data...",0)
+        arcpy.SetProgressorLabel("Creating Tract data...")
 
         dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number']
         arcpy.Dissolve_management(projectCLU, projectTract, dis_fields, "", "MULTI_PART", "")
@@ -662,9 +678,11 @@ try:
     #### Create the Site Define AOI layer as a copy of the CLU layer
     if not arcpy.Exists(projectDAOI):
         AddMsgAndPrint("\nCreating the Site Define AOI layer...",0)
+        arcpy.SetProgressorLabel("Creating the Site Define AOI layer...")
         arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, DAOIname)
     if owFlag == True:
-        AddMsgAndPrint("\nCLU overwrite was selected. Resetting the Site Define AOI layer to match...",0)
+        AddMsgAndPrint("\nCLU overwrite was selected. Resetting the Site Define AOI layer...",0)
+        arcpy.SetProgressorLabel("CLU overwrite was selected. Resetting the Site Define AOI layer...")
         arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, DAOIname)
 
 
@@ -680,7 +698,8 @@ try:
     
     #### Compact FGDB
     try:
-        AddMsgAndPrint("\nCompacting File Geodatabase..." ,0)
+        AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
 ##        arcpy.Compact_management(helGDB_path)

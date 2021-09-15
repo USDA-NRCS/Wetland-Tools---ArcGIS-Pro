@@ -262,7 +262,7 @@ def createSU():
 
 
     #### Import attribute rules
-    arcpy.ImportAttributeRules_management(projectSU, rules_su)
+#    arcpy.ImportAttributeRules_management(projectSU, rules_su)
 
 ## ===============================================================================================================
 def createROP():
@@ -298,7 +298,7 @@ def createROP():
     removeFCs(datasetsToRemove, wildcard, wkspace)
     del datasetsToRemove, wildcard, wkspace
 
-    arcpy.Compact_management(wcGDB_path)
+    #arcpy.Compact_management(wcGDB_path)
     
             
     #### Create the ROPs Layer
@@ -315,7 +315,7 @@ def createROP():
 
 
     #### Import Attribute Rules
-    arcpy.ImportAttributeRules_management(projectROP, rules_rops)
+##    arcpy.ImportAttributeRules_management(projectROP, rules_rops)
     
 ## ===============================================================================================================
 def createREF():
@@ -359,13 +359,15 @@ def createREF():
 
 
     #### Assign domains to the Reference Points layer
+    AddMsgAndPrint("\nAssigning Domains to the Reference Points layer...\n",0)
     arcpy.AssignDomainToField_management(projectREF, "hydro", "Yes No")
     arcpy.AssignDomainToField_management(projectREF, "veg", "Yes No")
     arcpy.AssignDomainToField_management(projectREF, "soil", "Yes No")
 
 
     #### Import attribute rules
-    arcpy.ImportAttributeRules_management(projectREF, rules_refs)
+##    AddMsgAndPrint("\nImporting Attribute Rules to the Reference Points layer...\n",0)
+##    arcpy.ImportAttributeRules_management(projectREF, rules_refs)
     
 ## ===============================================================================================================
 def createDRAIN():
@@ -414,7 +416,7 @@ def createDRAIN():
 
 
     #### Import attribute rules
-    arcpy.ImportAttributeRules_management(projectLines, rules_lines)
+##    arcpy.ImportAttributeRules_management(projectLines, rules_lines)
 
 ## ===============================================================================================================
 #### Import system modules
@@ -430,6 +432,7 @@ reload(extract_CLU_by_Tract)
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -455,6 +458,7 @@ if not portalToken:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
+    arcpy.SetProgressorLabel("Reading inputs...")
     sourceExtent = arcpy.GetParameterAsText(0)
     keepFields = arcpy.GetParameterAsText(1)
     resetSU = arcpy.GetParameterAsText(2)
@@ -477,6 +481,7 @@ try:
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
+    arcpy.SetProgressorLabel("Verifying inputs...")
     # If Extent layer has features selected, clear the selections so that all features from it are processed.
     clear_lyr = m.listLayers(sourceExtent)[0]
     arcpy.SelectLayerByAttribute_management(clear_lyr, "CLEAR_SELECTION")
@@ -504,6 +509,7 @@ try:
 
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
+    arcpy.SetProgressorLabel("Setting variables...")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
     templateSU = supportGDB + os.sep + "master_sampling_units"
@@ -608,6 +614,7 @@ try:
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
+    arcpy.SetProgressorLabel("Commence logging...")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
@@ -615,6 +622,7 @@ try:
     #### If project wetlands geodatabase and feature dataset do not exist, create them.
     # Get the spatial reference from the Define AOI feature class and use it, if needed
     AddMsgAndPrint("\nChecking project integrity...",0)
+    arcpy.SetProgressorLabel("Checking project integrity...")
     desc = arcpy.Describe(sourceExtent)
     sr = desc.SpatialReference
     
@@ -633,6 +641,7 @@ try:
 
     # Add or validate the attribute domains for the wetlands geodatabase
     AddMsgAndPrint("\tChecking attribute domains...",0)
+    arcpy.SetProgressorLabel("Checking attribute domains...")
     descGDB = arcpy.Describe(wcGDB_path)
     domains = descGDB.domains
 
@@ -674,35 +683,60 @@ try:
     
     #### Create or Reset the Sampling Units layer
     if not arcpy.Exists(projectSU):
+        arcpy.SetProgressorLabel("Creating Sampling Units layer...")
         createSU()
+        AddMsgAndPrint("\nImporting Attribute Rules to the Sampling Units layer...\n",0)
+        arcpy.ImportAttributeRules_management(projectSU, rules_su)
     if resetSU == "Yes":
         createSU()
+        arcpy.SetProgressorLabel("Creating Sampling Units layer...")
+        AddMsgAndPrint("\nImporting Attribute Rules to the Sampling Units layer...\n",0)
+        arcpy.ImportAttributeRules_management(projectSU, rules_su)
 
 
     #### Create or Reset the ROPs Layer
     if not arcpy.Exists(projectROP):
+        arcpy.SetProgressorLabel("Creating ROPs layer...")
         createROP()
+        AddMsgAndPrint("\nImporting Attribute Rules to the ROPs layer...\n",0)
+        arcpy.ImportAttributeRules_management(projectROP, rules_rops)
     if resetROPs == "Yes":
+        arcpy.SetProgressorLabel("Creating ROPs layer...")
         createROP()
+        AddMsgAndPrint("\nImporting Attribute Rules to the ROPs layer...\n",0)
+        arcpy.ImportAttributeRules_management(projectROP, rules_rops)
 
 
     #### Create or Reset the Reference Points Layer
     if not arcpy.Exists(projectREF):
+        arcpy.SetProgressorLabel("Creating Reference Points layer...")
         createREF()
+        AddMsgAndPrint("\nImporting Attribute Rules to the Reference Points layer...\n",0)
+        arcpy.ImportAttributeRules_management(projectREF, rules_refs)
     if resetREF == "Yes":
+        arcpy.SetProgressorLabel("Creating Reference Points layer...")
         createREF()
+        AddMsgAndPrint("\nImporting Attribute Rules to the Reference Points layer...\n",0)
+        arcpy.ImportAttributeRules_management(projectREF, rules_refs)
 
 
     #### Create or Reset the Drainage Lines Layer
     if not arcpy.Exists(projectLines):
+        arcpy.SetProgressorLabel("Creating Drainage Lines layer...")
         createDRAIN()
+        AddMsgAndPrint("\nImporting Attribute Rules to the Drainage Lines layer...\n",0)
+        arcpy.ImportAttributeRules_management(projectLines, rules_lines)
     if resetDrains == "Yes":
+        arcpy.SetProgressorLabel("Creating Drainage Lines layer...")
         createDRAIN()
+        AddMsgAndPrint("\nImporting Attribute Rules to the Drainage Lines layer...\n",0)
+        arcpy.ImportAttributeRules_management(projectLines, rules_lines)
 
 
     #### Clean up Temporary Datasets
     # Temporary datasets specifically from this tool
-    AddMsgAndPrint("\nCleaning up temporary data...",0)
+    AddMsgAndPrint("\nCleaning up temp data...",0)
+    arcpy.SetProgressorLabel("Cleaning up temp data...")
     deleteTempLayers(tempLayers)
 
     # Look for and delete anything else that may remain in the installed SCRATCH.gdb
@@ -749,6 +783,7 @@ try:
     #### Add to map
     # Use starting reference layer files from the tool installation to add layers with automatic placement
     AddMsgAndPrint("\nAdding layers to the map...",0)
+    arcpy.SetProgressorLabel("Adding layers to the map...")
     
     lyr_list = m.listLayers()
     lyr_name_list = []
@@ -805,6 +840,7 @@ try:
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases...",0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         AddMsgAndPrint("\tSuccessful",0)

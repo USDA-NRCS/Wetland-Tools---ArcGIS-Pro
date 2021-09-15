@@ -236,12 +236,14 @@ def createCWD():
                 workspace = scratchGDB
                 edit = arcpy.da.Editor(workspace)
                 edit.startEditing(False,False)
+                edit.startOperation()
                 fields = ['job_id']
                 cursor = arcpy.da.UpdateCursor(suRevDissolve, fields)
                 for row in cursor:
                     row[0] = cur_id
                     cursor.updateRow(row)
                 del cursor, fields
+                edit.stopOperation()
                 edit.stopEditing(True)
                 del workspace, edit
                 
@@ -268,6 +270,7 @@ def createCWD():
                 workspace = scratchGDB
                 edit = arcpy.da.Editor(workspace)
                 edit.startEditing(False,False)
+                edit.startOperation()
                 fields = ['job_id','eval_status']
                 cursor = arcpy.da.UpdateCursor(projectExtent, fields)
                 for row in cursor:
@@ -276,6 +279,7 @@ def createCWD():
                         row[1] = "Revision"
                     cursor.updateRow(row)
                 del cursor, fields
+                edit.stopOperation()
                 edit.stopEditing(True)
                 del workspace, edit
 
@@ -292,6 +296,7 @@ def createCWD():
             workspace = scratchGDB
             edit = arcpy.da.Editor(workspace)
             edit.startEditing(False,False)
+            edit.startOperation()
             fields = ['eval_status']
             cursor = arcpy.da.UpdateCursor(SU_Clip_New, fields)
             for row in cursor:
@@ -299,6 +304,7 @@ def createCWD():
                     row[0] = "New Request"
                 cursor.updateRow(row)
             del cursor, fields
+            edit.stopOperation()
             edit.stopEditing(True)
             del workspace, edit
 
@@ -316,6 +322,7 @@ def createCWD():
         workspace = scratchGDB
         edit = arcpy.da.Editor(workspace)
         edit.startEditing(False,False)
+        edit.startOperation()
         fields = ['eval_status']
         cursor = arcpy.da.UpdateCursor(SU_Clip_New, fields)
         for row in cursor:
@@ -323,6 +330,7 @@ def createCWD():
                 row[0] = "New Request"
             cursor.updateRow(row)
         del cursor, fields
+        edit.stopOperation()
         edit.stopEditing(True)
         del workspace, edit
         
@@ -344,6 +352,7 @@ def createCWD():
     workspace = wcGDB_path
     edit = arcpy.da.Editor(workspace)
     edit.startEditing(False,False)
+    edit.startOperation()
     fields = ['job_id']
     cursor = arcpy.da.UpdateCursor(projectCWD, fields)
     for row in cursor:
@@ -382,11 +391,12 @@ def createCWD():
                 row[6] = None
             cursor.updateRow(row)
         del cursor, fields
+    edit.stopOperation
     edit.stopEditing(True)
     del workspace, edit
 
     #### Import attribute rules
-    arcpy.ImportAttributeRules_management(projectCWD, rules_cwd)
+##    arcpy.ImportAttributeRules_management(projectCWD, rules_cwd)
     
 
 ## ===============================================================================================================
@@ -424,7 +434,7 @@ def createPJW():
     arcpy.CreateFeatureclass_management(wcFD, pjwName, "POINT", templatePJW)
     
     #### Import attribute rules to various layers in the project.
-    arcpy.ImportAttributeRules_management(projectPJW, rules_pjw)
+##    arcpy.ImportAttributeRules_management(projectPJW, rules_pjw)
 
 
 ## ===============================================================================================================
@@ -647,17 +657,21 @@ try:
     #### Create or Reset the CWD layer
     if not arcpy.Exists(projectCWD):
         createCWD()
+        arcpy.ImportAttributeRules_management(projectCWD, rules_cwd)
     if resetCWD == "Yes":
         arcpy.Delete_management(projectCWD)
         createCWD()
+        arcpy.ImportAttributeRules_management(projectCWD, rules_cwd)
 
 
     #### Create or Reset the PJW Layer
     if not arcpy.Exists(projectPJW):
         createPJW()
+        arcpy.ImportAttributeRules_management(projectPJW, rules_pjw)
     if resetPJW == "Yes":
         arcpy.Delete_management(projectPJW)
         createPJW()
+        arcpy.ImportAttributeRules_management(projectPJW, rules_pjw)
 
 
     #### Clean up Temporary Datasets

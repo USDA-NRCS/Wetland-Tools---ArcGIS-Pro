@@ -19,12 +19,12 @@
       "description" : "master_cwd",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
+        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
       },
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -282,9 +282,9 @@
         },
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\SUPPORT.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in001_t0000309_2021_08\\Wetlands\\in001_t0000309_2021_08_WC.gdb",
           "workspaceFactory" : "FileGDB",
-          "dataset" : "master_cwd",
+          "dataset" : "Site_CWD",
           "datasetType" : "esriDTFeatureClass"
         },
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
@@ -305,7 +305,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "if(!IsEmpty($feature.occur_year)) {\r\n    return Text($feature.wetland_label) + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return Text($feature.wetland_label) + Text($feature.occur_year) + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\r\n}",
+          "expression" : "if(IsEmpty($feature.occur_year)) {\r\n    return Text($feature.wetland_label) + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return Text($feature.wetland_label) + Text($feature.occur_year) + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\r\n}",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -597,7 +597,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}",
+      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

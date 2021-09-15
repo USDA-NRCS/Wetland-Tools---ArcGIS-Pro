@@ -120,6 +120,7 @@ reload(extract_CLU_by_Tract)
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -145,6 +146,7 @@ if not portalToken:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
+    arcpy.SetProgressorLabel("Reading inputs...")
     sourceDefine = arcpy.GetParameterAsText(0)
     wholeTract = arcpy.GetParameterAsText(1)
     selectFields = arcpy.GetParameterAsText(2)
@@ -156,6 +158,7 @@ try:
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
+    arcpy.SetProgressorLabel("Verifying inputs...")
     # If whole tract is 'No' and select fields is 'Yes', make sure projectDAOI has features selected, else exit
     if wholeTract == 'No':
         if selectFields == 'Yes':
@@ -174,19 +177,20 @@ try:
         exit()
 
 
-    #### Do not run if an unsaved edits exist in the target workspace
-    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
-    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
-    workspace = basedataGDB_path
-    edit = arcpy.da.Editor(workspace)
-    if edit.isEditing:
-        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
-        exit()
-    del workspace, edit
+##    #### Do not run if an unsaved edits exist in the target workspace
+##    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
+##    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
+##    workspace = basedataGDB_path
+##    edit = arcpy.da.Editor(workspace)
+##    if edit.isEditing:
+##        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
+##        exit()
+##    del workspace, edit
 
 
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
+    arcpy.SetProgressorLabel("Setting variables...")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
     templateExtent = supportGDB + os.sep + "master_extent"
@@ -236,6 +240,7 @@ try:
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
+    arcpy.SetProgressorLabel("Commence logging...")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
@@ -243,19 +248,23 @@ try:
     #### If project wetlands geodatabase and feature dataset does not exist, create them.
     # Get the spatial reference from the Define AOI feature class and use it, if needed
     AddMsgAndPrint("\nChecking project integrity...",0)
+    arcpy.SetProgressorLabel("Checking project integrity...")
     desc = arcpy.Describe(sourceDefine)
     sr = desc.SpatialReference
     
     if not arcpy.Exists(wcGDB_path):
         AddMsgAndPrint("\tCreating Wetlands geodatabase...",0)
+        arcpy.SetProgressorLabel("Creating Wetlands geodatabase...")
         arcpy.CreateFileGDB_management(wetDir, wcGDB_name, "10.0")
 
     if not arcpy.Exists(wcFD):
         AddMsgAndPrint("\tCreating Wetlands feature dataset...",0)
+        arcpy.SetProgressorLabel("Creating Wetlands feature dataset...")
         arcpy.CreateFeatureDataset_management(wcGDB_path, "WC_Data", sr)
 
     # Add or validate the attribute domains for the wetlands geodatabase
     AddMsgAndPrint("\tChecking attribute domains...",0)
+    arcpy.SetProgressorLabel("Checking attribute domains...")
     descGDB = arcpy.Describe(wcGDB_path)
     domains = descGDB.domains
 
@@ -297,6 +306,7 @@ try:
 
     #### Remove existing sampling unit related layers from the Pro maps
     AddMsgAndPrint("\nRemoving layers from project maps, if present...\n",0)
+    arcpy.SetProgressorLabel("Removing layers from project maps, if present...")
     
     # Set starting layers to be removed
     mapLayersToRemove = [extentName]
@@ -313,6 +323,7 @@ try:
 
     #### Remove existing sampling unit related layers from the geodatabase
     AddMsgAndPrint("\nRemoving layers from project database, if present...\n",0)
+    arcpy.SetProgressorLabel("Removing layers from project database, if present...")
     
     # Set starting datasets to remove
     datasetsToRemove = [projectExtent]
@@ -328,6 +339,7 @@ try:
 
     #### Create the Extent Layer
     AddMsgAndPrint("\nCreating extent layer...",0)
+    arcpy.SetProgressorLabel("Creating extent layer...")
 
     # If wholeTract was set to 'Yes', create by copying the projectTract layer.
     # If wholeTract was set to 'No' and selected fields was 'Yes', create via dissolve on the projectDAOI layer (with its selections)
@@ -391,6 +403,7 @@ try:
     #### Check for Existing CWD data on the tract from the statewide layer and create the previous certication layers if found.
     if arcpy.Exists(existing_cwd):
         AddMsgAndPrint("\tChecking for existing CWD data in the Tract...",0)
+        arcpy.SetProgressorLabel("Checking for existing CWD data in the Tract...")
         process_cwd = False
         # Use intersect so that you apply current tract data to the existing CWD in case it changed over time
         arcpy.Intersect_analysis([projectTract, existing_cwd], prevCertMulti, "NO_FID", "#", "INPUT")
@@ -401,6 +414,7 @@ try:
             process_cwd = True
             # Features were found in the area
             AddMsgAndPrint("\tPrevious certifications found within current Tract! Processing...",0)
+            arcpy.SetProgressorLabel("Previous certifications found within current Tract! Processing...")
 
             # Explode features into single part
             arcpy.MultipartToSinglepart_management(prevCertMulti, prevCert)
@@ -444,6 +458,7 @@ try:
 
         else:
             AddMsgAndPrint("\tNo previous certifications found! Continuing...",0)
+            arcpy.SetProgressorLabel("No previous certifications found! Continuing...")
             arcpy.Delete_management(prevCert)
             if arcpy.Exists(prevAdmin):
                 try:
@@ -455,7 +470,8 @@ try:
 
     #### Use the prevAdmin areas to update the request extent if there is overlap between them
     if arcpy.Exists(prevAdmin):
-        AddMsgAndPrint("Checking request extent relative to existing CWDs...",0)
+        AddMsgAndPrint("Checking Request Extent relative to existing CWDs...",0)
+        arcpy.SetProgressorLabel("Checking Request Extent relative to existing CWDs...")
 
         # Clip the prevAdmin layer with the extent (also do a clip to create prevCertSite for future steps while we're at it)
         arcpy.Clip_analysis(prevAdmin, extentTemp2, prevAdminSite)
@@ -465,6 +481,7 @@ try:
         result = int(arcpy.GetCount_management(prevAdminSite).getOutput(0))
         if result > 0:
             AddMsgAndPrint("Existing CWDs found within Request Extent! Integrating CWD extents to the Request Extent...",0)
+            arcpy.SetProgressorLabel("Existing CWDs found within Request Extent! Integrating CWD extents to the Request Extent...")
             # Previous CWDs overlap the Request Extent. Erase the prevAdmin from the new extent and use Append combine them
             arcpy.Erase_analysis(extentTemp2, prevAdminSite, extentTemp3)
             arcpy.Append_management(prevAdminSite, extentTemp3, "NO_TEST")
@@ -472,6 +489,7 @@ try:
         else:
             # Previous CWDs do not overlap the Request Extent.
             AddMsgAndPrint("Existing CWDs not found within Request Extent! Using original Request Extent...",0)
+            arcpy.SetProgressorLabel("Existing CWDs not found within Request Extent! Using original Request Extent...")
             arcpy.FeatureClassToFeatureClass_conversion(extentTemp2, basedataFD, extentName)
     else:
         # There are no previous CWDs. Just use the newly defined extent.
@@ -510,6 +528,7 @@ try:
     #### Add to map
     # Use starting reference layer files for the tool installation to add layer with automatic placement
     AddMsgAndPrint("\nAdding layers to the map...",0)
+    arcpy.SetProgressorLabel("Adding layers to the map...")
 
     lyr_list = m.listLayers()
     lyr_name_list = []
@@ -561,6 +580,7 @@ try:
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         AddMsgAndPrint("\tSuccessful",0)

@@ -387,6 +387,9 @@ try:
     stats_fields = [['acres', 'SUM']]
     arcpy.Statistics_analysis(cluCWD, cluCWD026, stats_fields, case_fields)
 
+    # Update the extent characteristics of the Site_CLU_CWD layer
+    arcpy.RecalculateFeatureClassExtent_management(cluCWD)
+    
 
     #### Export Excel Tables to get ready for forms and letters tool.
     AddMsgAndPrint("\nExporting Excel tables...\n",0)

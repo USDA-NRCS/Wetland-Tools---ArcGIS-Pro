@@ -38,9 +38,11 @@
 #   Prior to this update, the 'map' object that was being referenced came from the first attempt
 #   at determining whether the 'SSURGO Layer' group layer existed.  That 'map' object is now deleted.
 
+# ==========================================================================================
+# Updated  9/3/2021 - Adolfo Diaz
+# - Added survey area version and survey area version date to the SSURGO_Mapunits layer
+
 #-------------------------------------------------------------------------------
-
-
 
 # ==============================================================================================================================
 def AddMsgAndPrint(msg, severity=0):
@@ -148,13 +150,33 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
     ~DeclareIdGeomTable(@intersectedPolygonGeometries)~
     ~GetClippedMapunits(@aoi,polygon,geo,@intersectedPolygonGeometries)~
 
-    SELECT L.areasymbol, M.musym, M.muname, id AS mukey, S.spatialversion, CONVERT(varchar(10), [S].[spatialverest], 126) AS spatialdate, T.tabularversion,
+    SELECT L.areasymbol, M.musym, M.muname, id AS mukey, S.spatialversion,
+    CONVERT(varchar(10), [S].[spatialverest], 126) AS spatialdate, T.tabularversion,
     CONVERT(varchar(10), [T].[tabularverest], 126) AS tabulardate, geom
     FROM @intersectedPolygonGeometries
     INNER JOIN mapunit M ON id = M.mukey
     INNER JOIN legend L ON M.lkey = L.lkey
     INNER JOIN saspatialver AS S ON L.areasymbol = S.areasymbol
     INNER JOIN satabularver AS T ON L.areasymbol = T.areasymbol"""
+
+    """ -------------------- Query with saversion, spatialver, tabularver -----------------
+        ~DeclareGeometry(@aoi)~
+    select @aoi = geometry::STPolyFromText('POLYGON (( -93.557235688 44.189167781,-93.557235688 44.19613589,-93.547238902 44.19613589,-93.547238902 44.189167781,-93.557235688 44.189167781,-93.557235688 44.189167781))', 4326)
+    ~DeclareIdGeomTable(@intersectedPolygonGeometries)~
+    ~GetClippedMapunits(@aoi,polygon,geo,@intersectedPolygonGeometries)~
+
+    SELECT L.areasymbol, M.musym, M.muname, id AS mukey,
+    SA.saversion, CONVERT(varchar(10), [SA].[saverest], 126) AS surveyareadate,
+    S.spatialversion, CONVERT(varchar(10), [S].[spatialverest], 126) AS spatialdate,
+    T.tabularversion, CONVERT(varchar(10), [T].[tabularverest], 126) AS tabulardate, geom
+
+    FROM @intersectedPolygonGeometries
+    INNER JOIN mapunit M ON id = M.mukey
+    INNER JOIN legend L ON M.lkey = L.lkey
+    INNER JOIN sacatalog AS SA ON L.areasymbol = SA.areasymbol
+    INNER JOIN saspatialver AS S ON L.areasymbol = S.areasymbol
+    INNER JOIN satabularver AS T ON L.areasymbol = T.areasymbol"""
+
 
     try:
         # Determine output SSURGO layer depending on output Workspace
@@ -219,11 +241,15 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
         ~DeclareIdGeomTable(@intersectedPolygonGeometries)~
         ~GetClippedMapunits(@aoi,polygon,geo,@intersectedPolygonGeometries)~
 
-        SELECT L.areasymbol, M.musym, M.muname, id AS mukey, S.spatialversion, CONVERT(varchar(10), [S].[spatialverest], 126) AS spatialdate, T.tabularversion,
-        CONVERT(varchar(10), [T].[tabularverest], 126) AS tabulardate, geom
+        SELECT L.areasymbol, M.musym, M.muname, id AS mukey,
+        SA.saversion, CONVERT(varchar(10), [SA].[saverest], 126) AS surveyareadate,
+        S.spatialversion, CONVERT(varchar(10), [S].[spatialverest], 126) AS spatialdate,
+        T.tabularversion, CONVERT(varchar(10), [T].[tabularverest], 126) AS tabulardate, geom
+
         FROM @intersectedPolygonGeometries
         INNER JOIN mapunit M ON id = M.mukey
         INNER JOIN legend L ON M.lkey = L.lkey
+        INNER JOIN sacatalog AS SA ON L.areasymbol = SA.areasymbol
         INNER JOIN saspatialver AS S ON L.areasymbol = S.areasymbol
         INNER JOIN satabularver AS T ON L.areasymbol = T.areasymbol"""
 
@@ -285,13 +311,15 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
                 musym = rec[1]
                 muname = rec[2]
                 mukey = rec[3]
-                spatialVer = rec[4]
-                spatialDate = rec[5]
-                tabularVer = rec[6]
-                tabularDate = rec[7]
-                polygon = rec[8]
+                surveyAreaVer = rec[4]
+                surveyAreaDate = rec[5]
+                spatialVer = rec[6]
+                spatialDate = rec[7]
+                tabularVer = rec[8]
+                tabularDate = rec[9]
+                polygon = rec[10]
 
-                value = areasym,musym,muname,mukey,spatialVer,spatialDate,tabularVer,tabularDate,polygon
+                value = areasym,musym,muname,mukey,surveyAreaVer,surveyAreaDate,spatialVer,spatialDate,tabularVer,tabularDate,polygon
                 rows.insertRow(value)
 
             AddMsgAndPrint("\nSuccessfully Created SSURGO Layer from Soil Data Access")

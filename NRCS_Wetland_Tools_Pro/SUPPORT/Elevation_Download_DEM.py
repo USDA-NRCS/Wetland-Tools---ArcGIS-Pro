@@ -144,7 +144,6 @@ try:
         arcpy.AddError("\nSelected Site CLU layer is not from a Determinations project folder. Exiting...")
         exit()
 
-    
 
     #### Variables
     userWorkspace = os.path.dirname(basedataGDB_path)

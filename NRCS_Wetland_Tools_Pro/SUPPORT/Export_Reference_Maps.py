@@ -87,7 +87,7 @@ def logBasicSettings():
     f.write("\tSSURGO Drainage Class DCD Map: " + str(drain_map) + "\n")
     f.write("\tSSURGO Ecological Classification Map: " + str(eco_map) + "\n")
     f.write("\tSSURGO Flooding Frequency Map: " + str(flood_map) + "\n")
-    f.write("\tSSURGO Hydric Condition DCD Map: " + str(hydricCon_map) + "\n")
+##    f.write("\tSSURGO Hydric Condition DCD Map: " + str(hydricCon_map) + "\n")
     f.write("\tSSURGO Hydric Rating Map: " + str(hydricRat_map) + "\n")
     f.write("\tSSURGO Hydrologic Soil Group DCD Map: " + str(hydrologic_map) + "\n")
     f.write("\tSSURGO Ponding Frequency Class Map: " + str(ponding_map) + "\n")
@@ -334,7 +334,8 @@ def visibility_off(layer_list):
 ## ================================================================================================================
 #### Import system modules
 import arcpy, sys, os, traceback, re
-arcpy.AddMessage("Importing Python modules...\n")
+arcpy.AddMessage("Performing imports...\n")
+arcpy.SetProgressorLabel("Performing imports...")
 import urllib, json, time
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError as httpErrors
@@ -344,6 +345,7 @@ parseQueryString = urllib.parse.parse_qsl
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -361,6 +363,7 @@ except:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
+    arcpy.SetProgressorLabel("Reading inputs...")
     sourceCLU = arcpy.GetParameterAsText(0)
     zoomType = arcpy.GetParameterAsText(1)
     zoomLyr = arcpy.GetParameterAsText(2)
@@ -416,10 +419,10 @@ try:
     else:
         flood_map = False
 
-    if "'SSURGO Hydric Condition DCD'" in mapList:
-        hydricCon_map = True
-    else:
-        hydricCon_map = False
+##    if "'SSURGO Hydric Condition DCD'" in mapList:
+##        hydricCon_map = True
+##    else:
+##        hydricCon_map = False
 
     if "'SSURGO Hydric Rating'" in mapList:
         hydricRat_map = True
@@ -444,6 +447,7 @@ try:
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
+    arcpy.SetProgressorLabel("Verifying inputs...")
     sourceCLU_path = arcpy.Describe(sourceCLU).CatalogPath
     if sourceCLU_path.find('.gdb') > 0 and sourceCLU_path.find('Determinations') > 0 and sourceCLU_path.find('Site_CLU') > 0:
         basedataGDB_path = sourceCLU_path[:sourceCLU_path.find('.gdb')+4]
@@ -454,6 +458,8 @@ try:
 
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
+    arcpy.SetProgressorLabel("Setting variables...")
+    
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
 
@@ -483,30 +489,32 @@ try:
     pondingName = "Ponding Frequency Class"
     hydrologicName = "Hydrologic Soil Group - Dom. Cond."
     hydricRatName = "Hydric Rating"
-    hydricConName = "Hydric Condition - Dom. Cond."
+##    hydricConName = "Hydric Condition - Dom. Cond."
     floodName = "Flooding Frequency"
     drainName = "Drainage Class Dom. Cond."
 
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
+    arcpy.SetProgressorLabel("Commence logging...")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
 
-    #### Do not run if any unsaved edits exist in the target workspace
-    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
-    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
-    workspace = wcGDB_path
-    edit = arcpy.da.Editor(workspace)
-    if edit.isEditing:
-        arcpy.AddError("\nThere are unsaved data edits in this project. Please Save or Discard Edits and then run this tool again. Exiting...")
-        exit()
-    del workspace, edit
+##    #### Do not run if any unsaved edits exist in the target workspace
+##    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
+##    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
+##    workspace = wcGDB_path
+##    edit = arcpy.da.Editor(workspace)
+##    if edit.isEditing:
+##        arcpy.AddError("\nThere are unsaved data edits in this project. Please Save or Discard Edits and then run this tool again. Exiting...")
+##        exit()
+##    del workspace, edit
 
     
     #### Setup output PDF file name(s)
     AddMsgAndPrint("\nManaging output file names...",0)
+    arcpy.SetProgressorLabel("Managing output file names...")
     outPDF = wetDir + os.sep + "Reference_Maps_" + projectName + ".pdf"
     sitePDF = wetDir + os.sep + "Site_" + projectName + ".pdf"
     ctrPDF = wetDir + os.sep + "Contours_" + projectName + ".pdf"
@@ -518,7 +526,7 @@ try:
     drainPDF = wetDir + os.sep + "Drainage_Class_" + projectName + ".pdf"
     ecoPDF = wetDir + os.sep + "Ecological_Classification_" + projectName + ".pdf"
     floodPDF = wetDir + os.sep + "Flooding_Frequency_" + projectName + ".pdf"
-    hydricConPDF = wetDir + os.sep + "Hydric_Condition_" + projectName + ".pdf"
+##    hydricConPDF = wetDir + os.sep + "Hydric_Condition_" + projectName + ".pdf"
     hydricRatPDF = wetDir + os.sep + "Hydric_Rating_" + projectName + ".pdf"
     hydrologicPDF = wetDir + os.sep + "Hydrologic_Groups_" + projectName + ".pdf"
     pondingPDF = wetDir + os.sep + "Ponding_" + projectName + ".pdf"
@@ -539,7 +547,7 @@ try:
                 drainPDF = wetDir + os.sep + "Drainage_Class_" + projectName + "_" + str(count) + ".pdf"
                 ecoPDF = wetDir + os.sep + "Ecological_Classification_" + projectName + "_" + str(count) + ".pdf"
                 floodPDF = wetDir + os.sep + "Flooding_Frequency_" + projectName + "_" + str(count) + ".pdf"
-                hydricConPDF = wetDir + os.sep + "Hydric_Condition_" + projectName + "_" + str(count) + ".pdf"
+##                hydricConPDF = wetDir + os.sep + "Hydric_Condition_" + projectName + "_" + str(count) + ".pdf"
                 hydricRatPDF = wetDir + os.sep + "Hydric_Rating_" + projectName + "_" + str(count) + ".pdf"
                 hydrologicPDF = wetDir + os.sep + "Hydrologic_Groups_" + projectName + "_" + str(count) + ".pdf"
                 pondingPDF = wetDir + os.sep + "Ponding_" + projectName + "_" + str(count) + ".pdf"
@@ -558,7 +566,7 @@ try:
             pass
         
         PDFlist = [sitePDF, ctrPDF, demPDF, depthPDF, slopePDF, nwiPDF, soilPDF, drainPDF, ecoPDF,
-                   floodPDF, hydricConPDF, hydricRatPDF, hydrologicPDF, pondingPDF, wtrtblPDF]
+                   floodPDF, hydricRatPDF, hydrologicPDF, pondingPDF, wtrtblPDF]
         for item in PDFlist:
             try:
                 os.remove(item)
@@ -583,6 +591,7 @@ try:
         
     if showLocation:
         AddMsgAndPrint("\nShow location selected. Processing reference location...",0)
+        arcpy.SetProgressorLabel("Processing reference location...")
         plss_text = getPLSS(plssPoint)
         if plss_text != '':
             AddMsgAndPrint("\nThe PLSS query was successful and a location text box will be shown on the output map(s).",0)
@@ -597,6 +606,7 @@ try:
     #### Harvest project based data from the project table to use on the layout
     if arcpy.Exists(projectTable):
         AddMsgAndPrint("\nCollecting header information from project table...",0)
+        arcpy.SetProgressorLabel("Collecting map header info...")
         rows = arcpy.SearchCursor(projectTable) 
         for row in rows:
             adm_Co_Name = row.getValue("admin_county_name")
@@ -618,6 +628,7 @@ try:
 
     #### Set up layout elements
     AddMsgAndPrint("\nUpdating layout elements...",0)
+    arcpy.SetProgressorLabel("Updating layout elements...")
     # Get various layouts
     try:
         lm_lyt = aprx.listLayouts("Location Map")[0]
@@ -652,6 +663,7 @@ try:
 
     #### Create map layer objects for visibility and movement control
     AddMsgAndPrint("\nPreparing map layers for display...",0)
+    arcpy.SetProgressorLabel("Preparing map layers...")
 
     clu_lyr = m.listLayers(cluName)[0]
     try:
@@ -706,10 +718,10 @@ try:
         hydricRat_lyr = m.listLayers(hydricRatName)[0]
     except:
         hydricRat_lyr = ''
-    try:
-        hydricCon_lyr = m.listLayers(hydricConName)[0]
-    except:
-        hydricCon_lyr = ''
+##    try:
+##        hydricCon_lyr = m.listLayers(hydricConName)[0]
+##    except:
+##        hydricCon_lyr = ''
     try:
         flood_lyr = m.listLayers(floodName)[0]
     except:
@@ -730,7 +742,7 @@ try:
                 
     # Turn off visibility of operational layers to start, except CLU
     lyr_list = [ctr_lyr, dem_lyr, slp_lyr, hill_lyr, depth_lyr, nwi_lyr, sgroup_lyr, mu_lyr,
-                eco_lyr, wtrtbl_lyr, ponding_lyr, hydrologic_lyr, hydricRat_lyr, hydricCon_lyr,
+                eco_lyr, wtrtbl_lyr, ponding_lyr, hydrologic_lyr, hydricRat_lyr,
                 flood_lyr, drain_lyr]
 
     visibility_off(lyr_list)
@@ -755,6 +767,7 @@ try:
     ########################################## SITE MAP START ###########################################
     #####################################################################################################
     AddMsgAndPrint("\nCreating the Site Map PDF file...",0)
+    arcpy.SetProgressorLabel("Creating Site Map...")
 
     # Zoom to specified extent if applicable (perform for the site map as the basis for all other maps)
     if zoomType == "Zoom to a layer":
@@ -783,6 +796,7 @@ try:
             
     # Export the map
     AddMsgAndPrint("\tExporting the Site Map to PDF...",0)
+    arcpy.SetProgressorLabel("Exporting Site Map...")
     lm_lyt.exportToPDF(sitePDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
     AddMsgAndPrint("\tBase Map file exported!",0)
 
@@ -795,6 +809,7 @@ try:
     #####################################################################################################
     if ctr_map:
         AddMsgAndPrint("\nCreating the Contour Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Contour Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if ctr_lyr != '':
@@ -814,6 +829,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Contour Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Contour Map...")
             elev_lyt.exportToPDF(ctrPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tBase Map file exported!",0)
 
@@ -829,9 +845,10 @@ try:
     #####################################################################################################
     if dem_map:
         AddMsgAndPrint("\nCreating the DEM Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating DEM Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
-        if ctr_lyr != '' and dem_lyr != '' and hill_lyr != '':
+        if dem_lyr != '' and hill_lyr != '':
             if update_elev_zoom == False:
                 # Set zoom and visiblility
                 if zoomType == "Zoom to a layer":
@@ -840,8 +857,6 @@ try:
                     setZoom(elev_lyt, ext)
                 update_elev_zoom = True
 
-            ctr_lyr.visible = True
-            ctr_lyr.showLabels = True
             dem_lyr.visible = True
             hill_lyr.visible = True
 
@@ -850,6 +865,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the DEM Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting DEM Map...")
             elev_lyt.exportToPDF(demPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tDEM Map file exported!",0)
 
@@ -857,7 +873,7 @@ try:
             visibility_off(lyr_list)
 
         else:
-            AddMsgAndPrint("\nContour, DEM, and/or Hillshade layer(s) not in map. Cannot create DEM Map. Continuing to next map...",1)
+            AddMsgAndPrint("\nDEM, and/or Hillshade layer(s) not in map. Cannot create DEM Map. Continuing to next map...",1)
 
 
     #####################################################################################################
@@ -865,6 +881,7 @@ try:
     #####################################################################################################
     if slope_map:
         AddMsgAndPrint("\nCreating the Slope Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Slope Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if slp_lyr != '' and hill_lyr != '':
@@ -884,6 +901,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Slope Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Slope Map...")
             elev_lyt.exportToPDF(slopePDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tSlope Map file exported!",0)
 
@@ -899,6 +917,7 @@ try:
     #####################################################################################################
     if depth_map:
         AddMsgAndPrint("\nCreating the Depth Grid Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Depth Grid Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if depth_lyr != '':
@@ -917,6 +936,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Depth Grid Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Depth Grid Map...")
             elev_lyt.exportToPDF(depthPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tDepth Grid Map file exported!",0)
 
@@ -932,6 +952,7 @@ try:
     #####################################################################################################
     if nwi_map:
         AddMsgAndPrint("\nCreating the NWI Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating NWI Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if nwi_lyr != '':
@@ -945,6 +966,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the NWI Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting NWI Map...")
             nwi_lyt.exportToPDF(nwiPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tNWI Map file exported!",0)
 
@@ -960,6 +982,7 @@ try:
     #####################################################################################################
     if mu_map:
         AddMsgAndPrint("\nCreating the Soil Map Units PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Soil Map Units Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '':
@@ -980,6 +1003,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Soil Map Units to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Soil Map Units Map...")
             soil_lyt.exportToPDF(soilPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tSoil Map Units file exported!",0)
 
@@ -995,6 +1019,7 @@ try:
     #####################################################################################################
     if drain_map:
         AddMsgAndPrint("\nCreating the Drainage Class Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Drainage Class Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '' and drain_lyr != '':
@@ -1017,6 +1042,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Drainage Class Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Drainage Class Map...")
             soil_lyt.exportToPDF(drainPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tDrainage Class Map file exported!",0)
 
@@ -1032,6 +1058,7 @@ try:
     #####################################################################################################
     if eco_map:
         AddMsgAndPrint("\nCreating the Ecological Classification Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Ecological Classification Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '' and eco_lyr != '':
@@ -1054,6 +1081,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Ecological Classification Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Ecological Classification Map...")
             soil_lyt.exportToPDF(ecoPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tEcological Classification Map file exported!",0)
 
@@ -1069,6 +1097,7 @@ try:
     #####################################################################################################
     if flood_map:
         AddMsgAndPrint("\nCreating the Flooding Frequency Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Flooding Frequency Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '' and flood_lyr != '':
@@ -1091,6 +1120,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Flooding Frequency Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Flooding Frequency Map...")
             soil_lyt.exportToPDF(floodPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tFlooding Frequency Map file exported!",0)
 
@@ -1101,41 +1131,43 @@ try:
             AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Flooding Frequency layer not in map. Cannot create Flooding Frequency Map PDF. Continuing to next map...",1)
 
 
-    #####################################################################################################
-    ################################ HYDRIC CONDITION CLASS MAP START ###################################
-    #####################################################################################################
-    if hydricCon_map:
-        AddMsgAndPrint("\nCreating the Hydric Condition Map PDF file...",0)
-
-        # Proceed if operational layer(s) actually exist(s) in the map
-        if sgroup_lyr != '' and mu_lyr != '' and hydricCon_lyr != '':
-            if update_soil_zoom == False:
-                # Set zoom and visiblility
-                if zoomType == "Zoom to a layer":
-                    setZoom(soil_lyt, ext, "Yes")
-                else:
-                    setZoom(soil_lyt, ext)
-                update_soil_zoom = True
-                
-            sgroup_lyr.visible = True
-            mu_lyr.visible = True
-            mu_lyr.showLabels = True
-            hydricCon_lyr.visible = True
-            hydricCon_lyr.showLabels = False
-
-            # Update the title
-            soil_title_elm.text = "Hydric Condition"
-
-            # Export the map
-            AddMsgAndPrint("\tExporting the Hydric Condition Map to PDF...",0)
-            soil_lyt.exportToPDF(hydricConPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
-            AddMsgAndPrint("\tHydric Condition Map file exported!",0)
-
-            # Reset visibility
-            visibility_off(lyr_list)
-
-        else:
-            AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Hydric Condition layer not in map. Cannot create Hydric Condition Map PDF. Continuing to next map...",1)
+##    #####################################################################################################
+##    ################################ HYDRIC CONDITION CLASS MAP START ###################################
+##    #####################################################################################################
+##    if hydricCon_map:
+##        AddMsgAndPrint("\nCreating the Hydric Condition Map PDF file...",0)
+##        arcpy.SetProgressorLabel("Creating Hydric Condition Map...")
+##
+##        # Proceed if operational layer(s) actually exist(s) in the map
+##        if sgroup_lyr != '' and mu_lyr != '' and hydricCon_lyr != '':
+##            if update_soil_zoom == False:
+##                # Set zoom and visiblility
+##                if zoomType == "Zoom to a layer":
+##                    setZoom(soil_lyt, ext, "Yes")
+##                else:
+##                    setZoom(soil_lyt, ext)
+##                update_soil_zoom = True
+##                
+##            sgroup_lyr.visible = True
+##            mu_lyr.visible = True
+##            mu_lyr.showLabels = True
+##            hydricCon_lyr.visible = True
+##            hydricCon_lyr.showLabels = False
+##
+##            # Update the title
+##            soil_title_elm.text = "Hydric Condition"
+##
+##            # Export the map
+##            AddMsgAndPrint("\tExporting the Hydric Condition Map to PDF...",0)
+##            arcpy.SetProgressorLabel("Exporting Hydric Condition Map...")
+##            soil_lyt.exportToPDF(hydricConPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+##            AddMsgAndPrint("\tHydric Condition Map file exported!",0)
+##
+##            # Reset visibility
+##            visibility_off(lyr_list)
+##
+##        else:
+##            AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Hydric Condition layer not in map. Cannot create Hydric Condition Map PDF. Continuing to next map...",1)
 
 
     #####################################################################################################
@@ -1143,6 +1175,7 @@ try:
     #####################################################################################################
     if hydricRat_map:
         AddMsgAndPrint("\nCreating the Hydric Rating Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Hydric Rating Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '' and hydricRat_lyr != '':
@@ -1165,6 +1198,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Hydric Rating Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Hydric Rating Map...")
             soil_lyt.exportToPDF(hydricRatPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tHydric Rating Map file exported!",0)
 
@@ -1180,6 +1214,7 @@ try:
     #####################################################################################################
     if hydrologic_map:
         AddMsgAndPrint("\nCreating the Hydrologic Soil Group Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Hydrologic Soil Group Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '' and hydrologic_lyr != '':
@@ -1202,6 +1237,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Hydrologic Soil Group Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Hydrologic Soil Group Map...")
             soil_lyt.exportToPDF(hydrologicPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tHydrologic Soil Group Map file exported!",0)
 
@@ -1217,6 +1253,7 @@ try:
     #####################################################################################################
     if ponding_map:
         AddMsgAndPrint("\nCreating the Ponding Frequency Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Ponding Frequency Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '' and ponding_lyr != '':
@@ -1239,6 +1276,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Ponding Frequency Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Hydric Frequency Map...)
             soil_lyt.exportToPDF(pondingPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tPonding Frequency Map file exported!",0)
 
@@ -1254,6 +1292,7 @@ try:
     #####################################################################################################
     if wtrtbl_map:
         AddMsgAndPrint("\nCreating the Water Table Depth Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Water Table Depth Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '' and wtrtbl_lyr != '':
@@ -1276,6 +1315,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Water Table Depth Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Water Table Depth Map...")
             soil_lyt.exportToPDF(wtrtblPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tWater Table Depth Map file exported!",0)
 
@@ -1288,6 +1328,7 @@ try:
 
     #### Build the final PDF file
     AddMsgAndPrint("\nCreating final map book PDF file...",0)
+    arcpy.SetProgressorLabel("Creating final map book PDF...")
 
     AddMsgAndPrint("\tAppending site map...",0)
     finalPDF.appendPages(sitePDF)
@@ -1355,12 +1396,12 @@ try:
         except:
             pass
 
-    if hydricCon_map:
-        AddMsgAndPrint("\tAppending Hydric Condition map...",0)
-        try:
-            finalPDF.appendPages(hydricConPDF)
-        except:
-            pass
+##    if hydricCon_map:
+##        AddMsgAndPrint("\tAppending Hydric Condition map...",0)
+##        try:
+##            finalPDF.appendPages(hydricConPDF)
+##        except:
+##            pass
 
     if hydricRat_map:
         AddMsgAndPrint("\tAppending Hydric Rating map...",0)
@@ -1395,7 +1436,8 @@ try:
     
         
     #### MAINTENANCE
-    AddMsgAndPrint("\tRunning tool cleanup...",0)
+    AddMsgAndPrint("\tRunning cleanup...",0)
+    arcpy.SetProgressorLabel("Running cleanup...")
     # Delete the individual maps if they aren't being kept separately
     if multiLayouts == False:
         AddMsgAndPrint("\tDeleting temporary PDF maps...",0)
@@ -1457,6 +1499,7 @@ try:
     # Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         AddMsgAndPrint("\tSuccessful",0)

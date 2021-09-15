@@ -16,7 +16,20 @@
 ## ===============================================================================================================
 ##
 ## rev. 11/10/2020
-## Start revisions of Create Reference Data ArcMap tool to National Wetlands Tool in ArcGIS Pro.
+## -Start revisions of Create Reference Data ArcMap tool to National Wetlands Tool in ArcGIS Pro.
+##
+## rev. 08/24/2021
+## -Updated to integrate DEM processing from Create Reference Data as part of a tool split of soils and elevation
+## -Integrated the previous updates from Create Reference Data:
+##
+##      rev. 03/03/2021
+##      -Adjust extent within which to generate reference data layers based on user specified input parameter for full
+##      tract or request extent.
+##
+##      rev. 06/11/2021
+##      -Fixed bug that was copying and processing entire input DEM when only one input DEM was specified.
+##      -Update method to add Slope and Depth Grid to map so they load with the correct legend.
+## 
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -69,6 +82,7 @@ def logBasicSettings():
     f.write("Date Executed: " + time.ctime() + "\n")
     f.write("User Parameters:\n")
     f.write("\tWorkspace: " + userWorkspace + "\n")
+    f.write("\tSelected Extent: " + dataExtent + "\n")
     f.write("\tInput DEMs: " + str(inputDEMs) + "\n")
     if len (zUnits) > 0:
         f.write("\tElevation Z-units: " + zUnits + "\n")
@@ -105,9 +119,14 @@ else:
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
+
+# Set environments
+arcpy.env.resamplingMethod = "BILINEAR"
+arcpy.env.pyramid = "PYRAMIDS -1 BILINEAR DEFAULT 75 NO_SKIP"
 
 # Test for Pro project.
 try:
@@ -122,24 +141,22 @@ except:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
+    arcpy.SetProgressorLabel("Reading inputs...")
     sourceCLU = arcpy.GetParameterAsText(0)                     # User selected project CLU
-    inputDEMs = arcpy.GetParameterAsText(1).split(";")          # user selected input DEMs
+    dataExtent = arcpy.GetParameterAsText(1)
+    demFormat = arcpy.GetParameterAsText(2)
+    inputDEMs = arcpy.GetParameterAsText(3).split(";")          # user selected input DEMs
     DEMcount = len(inputDEMs)
-    zUnits = arcpy.GetParameterAsText(2)                        # elevation z units of input DEM
-    interval = arcpy.GetParameterAsText(3)                      # user defined contour interval (string)
-    demSR = arcpy.GetParameterAsText(4)
-    cluSR = arcpy.GetParameterAsText(5)
-    transform = arcpy.GetParameterAsText(6)
+    sourceService = arcpy.GetParameterAsText(4)
+    sourceCellsize = arcpy.GetParameterAsText(5)
+    zUnits = arcpy.GetParameterAsText(6)                        # elevation z units of input DEM
+    interval = arcpy.GetParameterAsText(7)                      # user defined contour interval (string)
+    demSR = arcpy.GetParameterAsText(8)
+    cluSR = arcpy.GetParameterAsText(9)
+    transform = arcpy.GetParameterAsText(10)
 
-
-    #### Manage spatial references
-    arcpy.env.outputCoordinateSystem = cluSR
-    if transform != '':
-        arcpy.env.geographicTransformations = transform
-    else:
-        arcpy.env.geographicTransformations = "WGS_1984_(ITRF00)_To_NAD_1983"
-    arcpy.env.resamplingMethod = "BILINEAR"
-    arcpy.env.pyramid = "PYRAMIDS -1 BILINEAR DEFAULT 75 NO_SKIP"
+    slpLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Slope_Pct.lyrx").listLayers()[0]
+    dgLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Local_Depths.lyrx").listLayers()[0]
 
                 
     #### Set base path
@@ -164,6 +181,7 @@ try:
 
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
+    arcpy.SetProgressorLabel("Setting variables...")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
 
@@ -177,17 +195,26 @@ try:
     wetDir = userWorkspace + os.sep + "Wetlands"
 
     projectTract = basedataFD + os.sep + "Site_Tract"
-    projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
+    #projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
     projectAOI = basedataFD + os.sep + "Site_AOI"
+    projectAOI_B = basedataFD + os.sep + "project_AOI_B"
     projectExtent = basedataFD + os.sep + "Request_Extent"
-
+    bufferDist = "500 Feet"
+    bufferDistPlus = "550 Feet"
+    
     projectDEM = basedataGDB_path + os.sep + "Site_DEM"
     projectHillshade = basedataGDB_path + os.sep + "Site_Hillshade"
-    projectDepths = basedataGDB_path + os.sep + "Site_Depth_Grid"
-    projectSlope = basedataGDB_path + os.sep + "Site_Slope_Pct"
+    dgName = "Site_Depth_Grid"
+    projectDepths = basedataGDB_path + os.sep + dgName
+    slpName = "Site_Slope_Pct"
+    projectSlope = basedataGDB_path + os.sep + slpName
     projectContours = basedataGDB_path + os.sep + "Site_Contours"
 
+    pcsAOI = scratchGDB + os.sep + "pcsAOI"
+    wgs_AOI = scratchGDB + os.sep + "AOI_WGS84"
+    WGS84_DEM = scratchGDB + os.sep + "WGS84_DEM"
     tempDEM = scratchGDB + os.sep + "tempDEM"
+    tempDEM2 = scratchGDB + os.sep + "tempDEM2"
     DEMagg = scratchGDB + os.sep + "aggDEM"
     DEMsmooth = scratchGDB + os.sep + "DEMsmooth"
     ContoursTemp = scratchGDB + os.sep + "ContoursTemp"
@@ -202,9 +229,11 @@ try:
     depthOut = "Site_Depth_Grid"
     slopeOut = "Site_Slope_Pct"
     hillshadeOut = "Site_Hillshade"
-
+    
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [tempDEM, DEMagg, DEMsmooth, ContoursTemp, extendedContours, Temp_DEMbase, Fill_DEMaoi, FilMinus]
+    tempLayers = [pcsAOI, wgs_AOI, WGS84_DEM, tempDEM, tempDEM2, DEMagg, DEMsmooth, ContoursTemp, extendedContours, Temp_DEMbase, Fill_DEMaoi, FilMinus]
+    arcpy.AddMessage("Deleting Temp layers...")
+    arcpy.SetProgressorLabel("Deleting Temp layers...")
     deleteTempLayers(tempLayers)
 
 
@@ -214,8 +243,22 @@ try:
     logBasicSettings()
     
 
+    #### Create the projectAOI and projectAOI_B layers based on the choice selected by user input
+    AddMsgAndPrint("\nBuffering selected extent...",0)
+    arcpy.SetProgressorLabel("Buffering selected extent...")
+    if dataExtent == "Request Extent":
+        # Use the request extent to create buffers for use in data extraction
+        arcpy.Buffer_analysis(projectExtent, projectAOI, bufferDist, "FULL", "", "ALL", "")
+        arcpy.Buffer_analysis(projectExtent, projectAOI_B, bufferDistPlus, "FULL", "", "ALL", "")
+    else:
+        # Use the tract boundary to create the buffers for use in data extraction
+        arcpy.Buffer_analysis(projectTract, projectAOI, bufferDist, "FULL", "", "ALL", "")
+        arcpy.Buffer_analysis(projectTract, projectAOI_B, bufferDistPlus, "FULL", "", "ALL", "")
+
+
     #### Remove existing project DEM related layers from the Pro maps
     AddMsgAndPrint("\nRemoving layers from project maps, if present...\n",0)
+    arcpy.SetProgressorLabel("Removing layers from project maps, if present...")
     
     # Set starting layers to be removed
     mapLayersToRemove = [contoursOut, demOut, depthOut, slopeOut, hillshadeOut]
@@ -232,6 +275,7 @@ try:
 
     #### Remove existing DEM related layers from the geodatabase
     AddMsgAndPrint("\nRemoving layers from project database, if present...\n",0)
+    arcpy.SetProgressorLabel("Removing layers from project database, if present...")
 
     # Set starting datasets to remove
     datasetsToRemove = [projectDEM, projectHillshade, projectDepths, projectSlope, projectContours]
@@ -246,70 +290,139 @@ try:
 
 
     #### Process the input DEMs
-    AddMsgAndPrint("\nProcessing the DEM...",0)
-    # Clip out the DEMs that were entered
-    x = 0
-    DEMlist = []
-    while x < DEMcount:
-        raster = inputDEMs[x].replace("'", "")
-        desc = arcpy.Describe(raster)
-        sr = desc.SpatialReference
-        units = sr.LinearUnitName
-        if units == "Meter":
-            units = "Meters"
-        elif units == "Foot":
-            units = "Feet"
-        elif units == "Foot_US":
-            units = "Feet"
-        else:
-            AddMsgAndPrint("\nHorizontal units of one or more input DEMs do not appear to be feet or meters! Exiting...",2)
+    AddMsgAndPrint("\nProcessing the input DEM(s)...",0)
+    arcpy.SetProgressorLabel("Processing the input DEM(s)...")
+
+    # Get the type of the input DEM
+    #firstDEMpath = arcpy.da.Describe(inputDEMs[0].replace("'", ""))
+##    firstDEM = inputDEMs[0].replace("'", "")
+##    try:
+##        firstDesc = arcpy.da.Describe(firstDEM)
+##        firstFormat = firstDesc['format']
+##    except:
+##        firstDesc = arcpy.Describe(firstDEM)
+##        firstFormat = firstDesc.format
+
+    # Extract and process the DEM if it's an image service
+    if demFormat == "NRCS Image Service":
+        if sourceCellsize == '':
+            AddMsgAndPrint("\nAn output DEM cell size was not specified. Exiting...",2)
             exit()
-        outClip = tempDEM + "_" + str(x)
-        try:
-            #arcpy.Clip_management(raster, "", outClip, projectAOI, "", "ClippingGeometry")
-            extractedDEM = arcpy.sa.ExtractByMask(raster, projectAOI)
-            extractedDEM.save(outClip)
-        except:
-            AddMsgAndPrint("\nOne or more input DEMs may have a problem! Please verify that the input DEMs cover the tract area and try to run again. Exiting...",2)
-            sys.exit()
-        if x == 0:
-            mosaicInputs = "" + str(outClip) + ""
         else:
-            mosaicInputs = mosaicInputs + ";" + str(outClip)
-        DEMlist.append(str(outClip))
-        x += 1
+            AddMsgAndPrint("\nProjecting AOI to WGS 84 Geographic...",0)
+            arcpy.SetProgressorLabel("Projecting AOI to WGS 84 Geographic...")
+            wgs_CS = arcpy.SpatialReference(4326)
+            arcpy.Project_management(projectAOI_B, wgs_AOI, wgs_CS)
+            
+            AddMsgAndPrint("\nDownloading DEM data...",0)
+            arcpy.SetProgressorLabel("Downloading DEM data...")
+            aoi_ext = arcpy.Describe(wgs_AOI).extent
+            xMin = aoi_ext.XMin
+            yMin = aoi_ext.YMin
+            xMax = aoi_ext.XMax
+            yMax = aoi_ext.YMax
+            clip_ext = str(xMin) + " " + str(yMin) + " " + str(xMax) + " " + str(yMax)
+            arcpy.Clip_management(sourceService, clip_ext, WGS84_DEM, "", "", "", "NO_MAINTAIN_EXTENT")
 
-    cellsize = 0
-    # Determine largest cell size
-    for raster in DEMlist:
-        desc = arcpy.Describe(raster)
-        sr = desc.SpatialReference
-        cellwidth = desc.MeanCellWidth
-        if cellwidth > cellsize:
-            cellsize = cellwidth
-##        #Exit if any DEM is greater than 5m cell size
-##        if units == "Meters":
-##            if cellsize > 3:
-##                AddMsgAndPrint("\nOne or more input DEMs has a cell size greater than 3 meters or 9.84252 feet! Please verify input DEM data and try again. Exiting...",2)
-##                exit()
-##        if units == "Feet":
-##            if cellsize > 9.84252:
-##                AddMsgAndPrint("\nOne or more input DEMs has a cell size greater than 3 meters or 9.84252 feet! Please verify input DEM data and try again. Exiting...",2)
-##                exit()
+            AddMsgAndPrint("\nProjecting downloaded DEM...",0)
+            arcpy.SetProgressorLabel("Projecting downloaded DEM...")
+            arcpy.ProjectRaster_management(WGS84_DEM, tempDEM, cluSR, "BILINEAR", sourceCellsize)
 
-    # Merge the DEMs
-    if DEMcount > 1:
-        arcpy.MosaicToNewRaster_management(mosaicInputs, scratchGDB, "tempDEM", "#", "32_BIT_FLOAT", cellsize, "1", "MEAN", "#")
-
-    # Else just convert the one input DEM to become the tempDEM
+    # Else, extract the local file DEMs
     else:
-        firstDEM = scratchGDB + os.sep + "tempDEM_0"
-        arcpy.CopyRaster_management(firstDEM, tempDEM)
+        # Manage spatial references
+        arcpy.env.outputCoordinateSystem = cluSR
+        if transform != '':
+            arcpy.env.geographicTransformations = transform
+        else:
+            arcpy.env.geographicTransformations = "WGS_1984_(ITRF00)_To_NAD_1983"
+        
+        # Clip out the DEMs that were entered
+        AddMsgAndPrint("\tExtracting input DEM(s)...",0)
+        arcpy.SetProgressorLabel("Extracting input DEM(s)...")
+        x = 0
+        DEMlist = []
+        while x < DEMcount:
+            raster = inputDEMs[x].replace("'", "")
+            desc = arcpy.Describe(raster)
+            raster_path = desc.CatalogPath
+            sr = desc.SpatialReference
+            units = sr.LinearUnitName
+            if units == "Meter":
+                units = "Meters"
+            elif units == "Foot":
+                units = "Feet"
+            elif units == "Foot_US":
+                units = "Feet"
+            else:
+                AddMsgAndPrint("\nHorizontal units of one or more input DEMs do not appear to be feet or meters! Exiting...",2)
+                exit()
+            outClip = tempDEM + "_" + str(x)
+            try:
+                #arcpy.Clip_management(raster, "", outClip, projectAOI, "", "ClippingGeometry")
+    ##            if matchSR == False:
+    ##                extractedDEM = arcpy.sa.ExtractByMask(raster_path, pcsAOI)
+    ##            else:
+    ##                extractedDEM = arcpy.sa.ExtractByMask(raster_path, projectAOI_B)
+                extractedDEM = arcpy.sa.ExtractByMask(raster_path, projectAOI_B)
+                extractedDEM.save(outClip)
+            except:
+                AddMsgAndPrint("\nOne or more input DEMs may have a problem! Please verify that the input DEMs cover the tract area and try to run again. Exiting...",2)
+                sys.exit()
+            if x == 0:
+                mosaicInputs = "" + str(outClip) + ""
+            else:
+                mosaicInputs = mosaicInputs + ";" + str(outClip)
+            DEMlist.append(str(outClip))
+            x += 1
+            del sr
 
-    # Delete clippedDEM files
-    for raster in DEMlist:
-        arcpy.Delete_management(raster)
+        cellsize = 0
+        # Determine largest cell size
+        for raster in DEMlist:
+            desc = arcpy.Describe(raster)
+            sr = desc.SpatialReference
+            cellwidth = desc.MeanCellWidth
+            if cellwidth > cellsize:
+                cellsize = cellwidth
+    ##        #Exit if any DEM is greater than 5m cell size
+    ##        if units == "Meters":
+    ##            if cellsize > 3:
+    ##                AddMsgAndPrint("\nOne or more input DEMs has a cell size greater than 3 meters or 9.84252 feet! Please verify input DEM data and try again. Exiting...",2)
+    ##                exit()
+    ##        if units == "Feet":
+    ##            if cellsize > 9.84252:
+    ##                AddMsgAndPrint("\nOne or more input DEMs has a cell size greater than 3 meters or 9.84252 feet! Please verify input DEM data and try again. Exiting...",2)
+    ##                exit()
+            del sr
 
+        # Merge the DEMs
+        if DEMcount > 1:
+            AddMsgAndPrint("\nMerging multiple input DEM(s)...",0)
+            arcpy.SetProgressorLabel("Merging multiple input DEM(s)...")
+            arcpy.MosaicToNewRaster_management(mosaicInputs, scratchGDB, "tempDEM", "#", "32_BIT_FLOAT", cellsize, "1", "MEAN", "#")
+
+        # Else just convert the one input DEM to become the tempDEM
+        else:
+            AddMsgAndPrint("\nOnly one input DEM detected. Carrying extract forward for final DEM processing...",0)
+            #firstDEM = scratchGDB + os.sep + "tempDEM_0"
+            firstDEM = DEMlist[0]
+            arcpy.CopyRaster_management(firstDEM, tempDEM)
+
+        # Delete clippedDEM files
+        AddMsgAndPrint("\nDeleting temp DEM file(s)...",0)
+        arcpy.SetProgressorLabel("Deleting temp DEM file(s)...")
+        for raster in DEMlist:
+            arcpy.Delete_management(raster)
+
+    ##        # Convert the input DEM to the target PCS, if necessary
+    ##        if matchSR == False:
+    ##            AddMsgAndPrint("\nProjecting new DEM back to local determination's coordinate system...",0)
+    ##            arcpy.ProjectRaster_management(tempDEM2, tempDEM, cluSR, "BILINEAR", "", transform)
+    ##        else:
+    ##            AddMsgAndPrint("\nCopying temporary DEM for further processing...",0)
+    ##            arcpy.CopyRaster_management(tempDEM2, tempDEM)
+        
     # Gather info on the final temp DEM
     desc = arcpy.Describe(tempDEM)
     sr = desc.SpatialReference
@@ -342,15 +455,19 @@ try:
         exit()
 
     # Clip out the DEM with extended buffer for temp processing and standard buffer for final DEM display
-    arcpy.Clip_management(tempDEM, "", projectDEM, projectTractB, "", "ClippingGeometry")
+    AddMsgAndPrint("\nClipping project DEM to buffered extent...",0)
+    arcpy.SetProgressorLabel("Clipping project DEM to buffered extent...")
+    arcpy.Clip_management(tempDEM, "", projectDEM, projectAOI, "", "ClippingGeometry")
 
     # Create a temporary smoothed DEM to use for creating a slope layer and a contours layer
     AddMsgAndPrint("\tCreating a 3-meter pixel resolution version of the DEM for use in contours and slopes...",0)
+    arcpy.SetProgressorLabel("Creating 3-meter resolution DEM...")
     arcpy.ProjectRaster_management(tempDEM, DEMagg, cluSR, "BILINEAR", "3", "#", "#", "#")
     
     #outAggreg = arcpy.sa.Aggregate(tempDEM, smoothing, "MEAN", "TRUNCATE", "DATA")
     #outAggreg.save(DEMagg)
-
+    AddMsgAndPrint("\tSmoothing the DEM with Focal Statistics...",0)
+    arcpy.SetProgressorLabel("Smoothing DEM with Focal Stats...")
     outFocalStats = arcpy.sa.FocalStatistics(DEMagg, "RECTANGLE 3 3 CELL", "MEAN", "DATA")
     outFocalStats.save(DEMsmooth)
     AddMsgAndPrint("\tSuccessful",0)
@@ -358,8 +475,9 @@ try:
     # Create Slope Layer
     # Use Zfactor to get accurate slope creation. Do not assume this Zfactor with contour processing later
     AddMsgAndPrint("\nCreating Slope...",0)
+    arcpy.SetProgressorLabel("Creating Slope...")
     outSlope = arcpy.sa.Slope(DEMsmooth, "PERCENT_RISE", Zfactor)
-    arcpy.Clip_management(outSlope, "", projectSlope, projectTractB, "", "ClippingGeometry")
+    arcpy.Clip_management(outSlope, "", projectSlope, projectAOI, "", "ClippingGeometry")
     AddMsgAndPrint("\tSuccessful",0)
 
 
@@ -378,6 +496,7 @@ try:
 
     # Create Contours
     AddMsgAndPrint("\nCreating " + str(interval) + " foot Contours from DEM using a Z-factor of " + str(cZfactor) + "...",0)
+    arcpy.SetProgressorLabel("Creating contours...")
     arcpy.sa.Contour(DEMsmooth, ContoursTemp, interval, "", cZfactor)
     arcpy.AddField_management(ContoursTemp, "Index", "DOUBLE", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
 
@@ -410,7 +529,7 @@ try:
     # Clear selection and write all contours to final feature class via a clip
     arcpy.SelectLayerByAttribute_management("ContourLYR","CLEAR_SELECTION","")
     arcpy.CopyFeatures_management("ContourLYR", extendedContours)
-    arcpy.Clip_analysis(extendedContours, projectTractB, projectContours)
+    arcpy.Clip_analysis(extendedContours, projectAOI, projectContours)
 
     # Delete unwanted "ID" remnant field
     if len(arcpy.ListFields(projectContours,"Id")) > 0:
@@ -426,11 +545,13 @@ try:
 
     #### Create Hillshade and Depth Grid
     AddMsgAndPrint("\nCreating Hillshade...",0)
+    arcpy.SetProgressorLabel("Creating Hillshade...")
     outHillshade = arcpy.sa.Hillshade(projectDEM, "315", "45", "#", Zfactor)
     outHillshade.save(projectHillshade)
     AddMsgAndPrint("\tSuccessful",0)
 
-    AddMsgAndPrint("\nCreating Local Depths...",0)
+    AddMsgAndPrint("\nCreating Depth Grid...",0)
+    arcpy.SetProgressorLabel("Creating Depth Grid...")
     fill = False
     try:
         # Fills sinks in projectDEM to remove small imperfections in the data.
@@ -456,25 +577,65 @@ try:
 
     #### Delete temp data
     AddMsgAndPrint("\nDeleting temp data..." ,0)
+    arcpy.SetProgressorLabel("Deleting temp data...")
     deleteTempLayers(tempLayers)
-    
+
+
+    #### Add layers to Pro Map
+    AddMsgAndPrint("\nAdding layers to map...",0)
+    arcpy.SetProgressorLabel("Adding layers to map...")
+    lyr_list = m.listLayers()
+    lyr_name_list = []
+    for lyr in lyr_list:
+        lyr_name_list.append(lyr.name)
+
+    arcpy.SetParameterAsText(11, projectContours)
+
+    if dgName not in lyr_name_list:
+        dgLyr_cp = dgLyr.connectionProperties
+        dgLyr_cp['connection_info']['database'] = basedataGDB_path
+        dgLyr_cp['dataset'] = dgName
+        dgLyr.updateConnectionProperties(dgLyr.connectionProperties, dgLyr_cp)
+        m.addLayer(dgLyr)
+
+    #arcpy.SetParameterAsText(12, projectSlope)
+    arcpy.SetParameterAsText(13, projectDEM)
+    arcpy.SetParameterAsText(14, projectHillshade)
+    #arcpy.SetParameterAsText(15, projectDepths)
+
+    if slpName not in lyr_name_list:
+        slpLyr_cp = slpLyr.connectionProperties
+        slpLyr_cp['connection_info']['database'] = basedataGDB_path
+        slpLyr_cp['dataset'] = slpName
+        slpLyr.updateConnectionProperties(slpLyr.connectionProperties, slpLyr_cp)
+        m.addLayer(slpLyr)
+
+
+    #### Clean up
+    # Look for and delete anything else that may remain in the installed SCRATCH.gdb
+    startWorkspace = arcpy.env.workspace
+    arcpy.env.workspace = scratchGDB
+    dss = []
+    for ds in arcpy.ListDatasets('*'):
+        dss.append(os.path.join(scratchGDB, ds))
+    for ds in dss:
+        if arcpy.Exists(ds):
+            try:
+                arcpy.Delete_management(ds)
+            except:
+                pass
+    arcpy.env.workspace = startWorkspace
+    del startWorkspace
+
     
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabase..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabase...")
         arcpy.Compact_management(basedataGDB_path)
         AddMsgAndPrint("\tSuccessful",0)
     except:
         pass
-
-
-    #### Add layers to Pro Map
-    AddMsgAndPrint("\nAdding Layers to Map...",0)
-    arcpy.SetParameterAsText(7, projectContours)
-    arcpy.SetParameterAsText(8, projectSlope)
-    arcpy.SetParameterAsText(9, projectDEM)
-    arcpy.SetParameterAsText(10, projectHillshade)
-    arcpy.SetParameterAsText(11, projectDepths)
 
 
 except SystemExit:

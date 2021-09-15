@@ -146,6 +146,7 @@ except:
 
 #### Main procedures
 try:
+    arcpy.SetProgressorLabel("Reading inputs...")
     #### --------------------------------------------- Input Parameters
     sourceCLU = arcpy.GetParameterAsText(0)         # User selected CLU file from the project
     client = arcpy.GetParameterAsText(1)            # Client Name
@@ -169,18 +170,19 @@ try:
         exit()
 
 
-    #### Do not run if an unsaved edits exist in the target workspace
-    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
-    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
-    workspace = basedataGDB_path
-    edit = arcpy.da.Editor(workspace)
-    if edit.isEditing:
-        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
-        exit()
-    del workspace, edit
+##    #### Do not run if an unsaved edits exist in the target workspace
+##    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
+##    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
+##    workspace = basedataGDB_path
+##    edit = arcpy.da.Editor(workspace)
+##    if edit.isEditing:
+##        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
+##        exit()
+##    del workspace, edit
 
 
     #### Define Variables
+    arcpy.SetProgressorLabel("Setting variables...")
     basedataGDB_name = os.path.basename(basedataGDB_path)
     userWorkspace = os.path.dirname(basedataGDB_path)
     projectName = os.path.basename(userWorkspace).replace(" ", "_")
@@ -208,11 +210,13 @@ try:
 
 
     #### Set up log file path and start logging
+    arcpy.SetProgressorLabel("Starting log file...")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
 
     #### Get Job ID from input CLU
+    arcpy.SetProgressorLabel("Recording project Job ID...")
     fields = ['job_id']
     with arcpy.da.SearchCursor(projectCLU, fields) as cursor:
         for row in cursor:
@@ -225,9 +229,11 @@ try:
     # Determine if the job's admin table does not exist, else create the table.
     if not arcpy.Exists(projectTable):
         AddMsgAndPrint("\nCreating administrative table...",0)
+        arcpy.SetProgressorLabel("Creating administrative table...")
         arcpy.CreateTable_management(basedataGDB_path, tableName, templateTable)
 
     # Get count of the records in the table.
+    arcpy.SetProgressorLabel("Updating project table...")
     recordsCount = int(arcpy.GetCount_management(projectTable).getOutput(0))
 
     # If record count is greater than 1, delete all rows
@@ -248,7 +254,8 @@ try:
 
     #### Update entries to the row in the table. This tool always overwrites
     # Use a search cursor to get the tract location info from the CLU layer
-    AddMsgAndPrint("\nImporting tract data from the Project CLU layer...",0)
+    AddMsgAndPrint("\nImporting tract data from the CLU...",0)
+    arcpy.SetProgressorLabel("Importing tract data from the CLU...")
     field_names = ['admin_state','admin_state_name','admin_county','admin_county_name',
                    'state_code','state_name','county_code','county_name','farm_number','tract_number']
     with arcpy.da.SearchCursor(sourceCLU, field_names) as cursor:
@@ -268,6 +275,7 @@ try:
 
     # Use an update cursor to update all values in the admin table at once. Always overwrite.
     AddMsgAndPrint("\nUpdating the administrative table...",0)
+    arcpy.SetProgressorLabel("Updating the administrative table...")
     field_names = ['admin_state','admin_state_name','admin_county','admin_county_name',
                    'state_code','state_name','county_code','county_name','farm_number','tract_number',
                    'client','deter_staff','dig_staff','request_date','request_type','street','street_2','city',
@@ -307,6 +315,7 @@ try:
     #### Create a text file output version of the admin table for consumption by external data collection forms
     # Set a file name and export to the user workspace folder for the project
     AddMsgAndPrint("\nExporting administrative text file...",0)
+    arcpy.SetProgressorLabel("Exporting administrative text file...")
     textTable = "Admin_Info_" + projectName + ".txt"
     if arcpy.Exists(textTable):
         arcpy.Delete_management(textTable)
@@ -314,12 +323,17 @@ try:
 
 
     #### Update template map layouts in the project
-    AddMsgAndPrint("\nUpdating map layouts with project information...",0)
+    AddMsgAndPrint("\nUpdating map layouts...",0)
+    arcpy.SetProgressorLabel("Updating map layouts...")
     
     # Define the layouts
     LM_layout = getLayout("Location Map")
     BM_layout = getLayout("Base Map")
     DM_layout = getLayout("Determination Map")
+    EM_layout = getLayout("Elevation Map")
+    NM_layout = getLayout("NWI Map")
+    PM_layout = getLayout("Previous Determination Map")
+    SM_layout = getLayout("Soil Map")
     
     # call function to update the text on the various layouts
     if LM_layout:
@@ -328,20 +342,31 @@ try:
         updateLayoutText(BM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
     if DM_layout:
         updateLayoutText(DM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
+    if EM_layout:
+        updateLayoutText(EM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
+    if NM_layout:
+        updateLayoutText(NM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
+    if PM_layout:
+        updateLayoutText(PM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
+    if SM_layout:
+        updateLayoutText(SM_layout, farmNumber, tractNumber, countyName, adminCountyName, client)
 
 
     #### If project wetlands geodatabase and feature dataset do not exist, create them.
     # Get the spatial reference from the Define AOI feature class and use it, if needed
     AddMsgAndPrint("\nChecking project integrity...",0)
+    arcpy.SetProgressorLabel("Checking project integrity...")
     desc = arcpy.Describe(sourceCLU)
     sr = desc.SpatialReference
     
     if not arcpy.Exists(wcGDB_path):
         AddMsgAndPrint("\tCreating Wetlands geodatabase...",0)
+        arcpy.SetProgressorLabel("Creating Wetlands geodatabase...")
         arcpy.CreateFileGDB_management(wetDir, wcGDB_name, "10.0")
 
     if not arcpy.Exists(wcFD):
         AddMsgAndPrint("\tCreating Wetlands feature dataset...",0)
+        arcpy.SetProgressorLabel("Creating Wetlands feature dataset...")
         arcpy.CreateFeatureDataset_management(wcGDB_path, "WC_Data", sr)
 
     # Copy the administrative table into the wetlands database for use with the attribute rules during digitizing
@@ -370,6 +395,7 @@ try:
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabase..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabase...")
         arcpy.Compact_management(basedataGDB_path)
         AddMsgAndPrint("\tDone!",0)
     except:

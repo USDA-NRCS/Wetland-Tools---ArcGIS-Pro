@@ -1,0 +1,126 @@
+{
+  "type" : "CIMLayerDocument",
+  "version" : "2.7.0",
+  "build" : 26828,
+  "layers" : [
+    "CIMPATH=determinations/wetlands.xml"
+  ],
+  "layerDefinitions" : [
+    {
+      "type" : "CIMDynamicServiceLayer",
+      "name" : "USFWS NWI Map Service",
+      "uRI" : "CIMPATH=determinations/wetlands.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "metadataURI" : "CIMPATH=Metadata/62925a2e3da3b7572f0a8d7318c697e7.xml",
+      "useSourceMetadata" : true,
+      "description" : "Wetlands",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
+      },
+      "layerType" : "Operational",
+      "minScale" : 112076270.45185184,
+      "showLegends" : true,
+      "transparency" : 40,
+      "visibility" : false,
+      "displayCacheType" : "None",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "serviceConnection" : {
+        "type" : "CIMAGSServiceConnection",
+        "objectName" : "Wetlands",
+        "objectType" : "MapServer",
+        "url" : "https://www.fws.gov/wetlandsmapservice/rest/services/Wetlands/MapServer",
+        "serverConnection" : {
+          "type" : "CIMProjectServerConnection",
+          "anonymous" : true,
+          "hideUserProperty" : true,
+          "url" : "https://www.fws.gov/wetlandsmapservice/services",
+          "connectionMode" : "Consumer",
+          "serverType" : "AGS",
+          "useDefaultStagingFolder" : true
+        }
+      },
+      "subLayers" : [
+        {
+          "type" : "CIMDynamicServiceSubLayer",
+          "minScale" : 250000,
+          "name" : "Wetlands",
+          "showLegends" : true,
+          "subLayerID" : "0",
+          "visibility" : true,
+          "serviceLayerID" : -1,
+          "timeOffsetUnits" : "esriTimeUnitsUnknown",
+          "showPopups" : true
+        },
+        {
+          "type" : "CIMDynamicServiceSubLayer",
+          "maxScale" : 112076270.45185184,
+          "minScale" : 112076270.45185184,
+          "name" : "Wetlands Project Metadata",
+          "showLegends" : true,
+          "subLayerID" : "1",
+          "visibility" : true,
+          "serviceLayerID" : -1,
+          "timeOffsetUnits" : "esriTimeUnitsUnknown",
+          "showPopups" : true
+        }
+      ],
+      "transparentColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          254,
+          254,
+          254,
+          100
+        ]
+      },
+      "backgroundColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          254,
+          254,
+          254,
+          100
+        ]
+      },
+      "imageFormat" : "esriImagePNG32"
+    }
+  ],
+  "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/62925a2e3da3b7572f0a8d7318c697e7.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210908</CreaDate><CreaTime>10335200</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>USFWS NWI Map Service</resTitle></idCitation><idAbs>Wetlands</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    }
+  ],
+  "elevationSurfaces" : [
+    {
+      "type" : "CIMMapElevationSurface",
+      "elevationMode" : "BaseGlobeSurface",
+      "name" : "Ground",
+      "verticalExaggeration" : 1,
+      "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}",
+      "color" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          255,
+          255,
+          100
+        ]
+      },
+      "surfaceTINShadingMode" : "Smooth",
+      "visibility" : true,
+      "expanded" : true
+    }
+  ],
+  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+  "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
+}

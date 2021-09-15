@@ -37,6 +37,10 @@
 ## rev. 07/23/2021
 ## -Blocked out topology check because they were causing post-script editing problems.
 ##
+## rev. 09/09/2021
+## -Slight modifications to test edit objects interfering with output schema locks. Confirmed that editing is
+##  required during script runtime to allow attribute rules that use the "Update" option to function properly.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -91,6 +95,19 @@ def logBasicSettings():
     f.close
     del f
 
+#### ===============================================================================================================
+##def deleteRules(projectFC, rule_names):
+##    # Removes a feature class's rules and imports them again
+##
+##    #### Remove rules
+##    if arcpy.Exists(projectFC):
+##        try:
+##            arcpy.DeleteAttributeRule_management(projectFC, rule_names)
+##            return True
+##        except:
+##            arcpy.AddWarning("Layer may already have no rules or there was a problem deleting the rules. Continuing...")
+##            return False
+
 ## ===============================================================================================================
 #### Import system modules
 import arcpy, sys, os, traceback, re, shutil, csv
@@ -98,6 +115,7 @@ import arcpy, sys, os, traceback, re, shutil, csv
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -115,6 +133,7 @@ except:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
+    arcpy.SetProgressorLabel("Reading inputs...")
     sourceSU = arcpy.GetParameterAsText(0)
     #suLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(1))
     #suLyr = os.path.join(os.path.dirname(sys.argv[0]), "layer_files" + os.sep + "Sampling_Units.lyrx")
@@ -123,6 +142,7 @@ try:
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
+    arcpy.SetProgressorLabel("Verifying inputs...")
     # If Sampling Units or ROPs layers have features selected, clear the selections so that all features from it are processed.
     try:
         clear_lyr1 = m.listLayers(sourceSU)[0]
@@ -141,19 +161,20 @@ try:
         arcpy.AddError("\nSelected Samplint Units layer is not from a Determinations project folder. Exiting...")
         exit()
 
-    #### Do not run if any unsaved edits exist in the target workspace
-    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
-    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
-    workspace = wcGDB_path
-    edit = arcpy.da.Editor(workspace)
-    if edit.isEditing:
-        arcpy.AddError("\nThere are unsaved data edits in this project. Please Save or Discard Edits and then run this tool again. Exiting...")
-        exit()
-    del workspace, edit
+##    #### Do not run if any unsaved edits exist in the target workspace
+##    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
+##    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
+##    workspace = wcGDB_path
+##    edit = arcpy.da.Editor(workspace)
+##    if edit.isEditing:
+##        arcpy.AddError("\nThere are unsaved data edits in this project. Please Save or Discard Edits and then run this tool again. Exiting...")
+##        exit()
+##    del workspace, edit
 
 
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
+    arcpy.SetProgressorLabel("Setting variables...")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
 
@@ -188,8 +209,24 @@ try:
     yn_domain = domain_base + os.sep + "domain_yn"
     yesno_domain = domain_base + os.sep + "domain_yesno"
 
+##    # Possible Rules Files
+##    rules_su = os.path.join(os.path.dirname(sys.argv[0]), "Rules_SU.csv")
+##    rules_rops = os.path.join(os.path.dirname(sys.argv[0]), "Rules_ROPs.csv")
+##    
+##    # Possible Rules Names
+##    rules_su_names = ['Update Acres', 'Add SU Job ID', 'Add SU Admin State', 'Add SU Admin State Name',
+##                      'Add SU Admin County', 'Add SU Admin County Name', 'Add SU State Code', 'Add SU State Name',
+##                      'Add SU County Code', 'Add SU County Name', 'Add SU Farm Number', 'Add SU Tract Number',
+##                      'Add Request Date', 'Add Request Type', 'Add Eval Status']
+##
+##    rules_rop_names = ['Add ROP Admin State Code', 'Add ROP Admin State Name', 'Add ROP Admin County Code',
+##                       'Add ROP Admin County Name', 'Add ROP Job ID', 'Add ROP State Code', 'Add ROP State Name',
+##                       'Add ROP County Code', 'Add ROP County Name', 'Add ROP Farm Number', 'Add ROP Tract Number']
+
+    
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
+    arcpy.SetProgressorLabel("Commence logging...")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
@@ -200,15 +237,46 @@ try:
         AddMsgAndPrint("\tPlease re-run and select a valid Site Samping Units layer. Exiting...",2)
         exit()
 
-
+    
     #### At least one ROP record must exist
-    AddMsgAndPrint("\nVerifying project layer integrity...",0)
+    AddMsgAndPrint("\nVerifying project integrity...",0)
+    arcpy.SetProgressorLabel("Verifing project integrity...")
     result = int(arcpy.GetCount_management(projectROP).getOutput(0))
     if result < 1:
         AddMsgAndPrint("\tAt least one ROP must exist in the Site ROPs layer!",2)
         AddMsgAndPrint("\tPlease digitize ROPs and then try again. Exiting...",2)
         exit()
 
+    #### Delete attribute rules of SU & ROPs before processing.
+    AddMsgAndPrint("\nDeleting attribute rules...",0)
+    arcpy.SetProgressorLabel("Deleting attribute rules...")
+    # Get a list of layers
+    lyr_list = m.listLayers()
+    
+    # Get SU and ROP layer objects
+    su_lyr = ''
+    for lyr in lyr_list:
+        if lyr.name == suName:
+            su_lyr = lyr
+    
+    rop_lyr = ''
+    for lyr in lyr_list:
+        if lyr.name == ropName:
+            rop_lyr = lyr
+    
+##    # Delete the attribute rules
+##    if su_lyr != '':
+##        su_rule_delete = deleteRules(su_lyr, rules_su_names)
+##        if su_rule_delete == False:
+##            AddMsgAndPrint("\nCould not delete Sampling Unit layer rules. Exiting...",2)
+##            exit()
+##
+##    if rop_lyr != '':
+##        rop_rule_delete = deleteRules(rop_lyr, rules_rop_names)
+##        if rop_rule_delete == False:
+##            AddMsgAndPrint("\nCould not delete ROP layer rules. Exiting...",2)
+##            exit()
+            
         
 ##    #### Remove the topology from the Pro maps, if present
 ##    AddMsgAndPrint("\nRemoving topology from project maps, if present...",0)
@@ -240,28 +308,12 @@ try:
 
 
     #### Backup the input Sampling Units layer
-    AddMsgAndPrint("\nCreating backup of the Sampling Units layer...",0)
+    AddMsgAndPrint("\nBacking up the Sampling Units...",0)
 
     if arcpy.Exists(suBackup):
         arcpy.Delete_management(suBackup)
     arcpy.CopyFeatures_management(projectSU, suBackup)
 
-
-    #### Count the number of ROPs within each SU. If greater than 1, then stop and give an error
-    AddMsgAndPrint("\nChecking number of ROPs per Sampling Unit...",0)
-    if arcpy.Exists(ropCount):
-        arcpy.Delete_management(ropCount)
-    arcpy.analysis.SpatialJoin(projectSU, projectROP, ropCount, "JOIN_ONE_TO_ONE", "KEEP_ALL", "", "COMPLETELY_CONTAINS")
-    cursor = arcpy.da.SearchCursor(ropCount, "Join_Count")
-    for row in cursor:
-        if row[0] > 1:
-            AddMsgAndPrint("\nAt least one Sampling Unit contains more than one ROP. Delete or move the errant ROP(s). Exiting...", 2)
-            arcpy.Delete_management(ropCount)
-            exit()
-        else:
-            AddMsgAndPrint("\nThere is not more than one ROP per Sampling Unit.", 0)
-            arcpy.Delete_management(ropCount)
-    
 
 ##    #### Topology review 1 (check for overlaps within the SU layer)
 ##    AddMsgAndPrint("\nChecking for overlaps within the Sampling Units layer...",0)
@@ -291,8 +343,10 @@ try:
 ##        arcpy.Delete_management(polysTopoFC)
 
 
-    #### Refresh administrative info for the request on the SU and ROP layer
-    AddMsgAndPrint("\nValidating request information...",0)
+    #### Get administrative info for the request on the SU and ROP layer
+    AddMsgAndPrint("\nCollecting request information...",0)
+    arcpy.SetProgressorLabel("Collecting request info...")
+    
     # Get admin attributes from project table for request_date, request_type, deter_staff, dig_staff, and dig_date (current date)
     fields = ['admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','request_date','request_type','job_id']
     cursor = arcpy.da.SearchCursor(projectTable, fields)
@@ -315,43 +369,51 @@ try:
 
     digStaff = str(os.getenv('username').replace("."," ")).title()
     digDate = time.strftime('%m/%d/%Y')
-    
-    expression = "!Shape.Area@acres!"
-    arcpy.CalculateField_management(projectSU, "acres", expression, "PYTHON_9.3")
-    del expression
+
+    AddMsgAndPrint("\nUpdating Sampling Units request info...",0)
+    arcpy.SetProgressorLabel("Updating Sampling Units request info...")
 
     # Update the SU layer, using an edit session. Only update the New Request and Revision features.
     workspace = wcGDB_path
     edit = arcpy.da.Editor(workspace)
     edit.startEditing(False, False)
+    edit.startOperation()
 
-    fields = ['eval_status','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','request_date','request_type','dig_staff','dig_date','job_id']
-    cursor = arcpy.da.UpdateCursor(projectSU, fields)
-    for row in cursor:
-        if row[0] == "New Request" or row[0] == "Revision":
-            row[1] = adState
-            row[2] = adStateName
-            row[3] = adCounty
-            row[4] = adCountyName
-            row[5] = stateCode
-            row[6] = stateName
-            row[7] = countyCode
-            row[8] = countyName
-            row[9] = farmNum
-            row[10] = tractNum
-            row[11] = rDate
-            row[12] = rType
-            row[13] = digStaff
-            row[14] = digDate
-            row[15] = job_id
-        cursor.updateRow(row)
+    fields = ['admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status','request_date','request_type','dig_staff','dig_date','job_id']
+    #clause = "\"eval_status\" IN ('New Request', 'Revision')"
+    with arcpy.da.UpdateCursor(projectSU, fields) as cursor:
+        for row in cursor:
+            if row[10] == "New Request" or row[10] == "Revision":
+                row[0] = adState
+                row[1] = adStateName
+                row[2] = adCounty
+                row[3] = adCountyName
+                row[4] = stateCode
+                row[5] = stateName
+                row[6] = countyCode
+                row[7] = countyName
+                row[8] = farmNum
+                row[9] = tractNum
+                row[11] = rDate
+                row[12] = rType
+                row[13] = digStaff
+                row[14] = digDate
+                row[15] = job_id
+            cursor.updateRow(row)
     del cursor, fields
+    #del clause
 
+    edit.stopOperation()
     edit.stopEditing(True)
     del workspace, edit
 
+    expression = "!Shape.Area@acres!"
+    arcpy.CalculateField_management(projectSU, "acres", expression, "PYTHON_9.3")
+    del expression
+
     # Update ROPs layer
-    AddMsgAndPrint("\tUpdating ROPs...",0)
+    AddMsgAndPrint("\tUpdating ROPs request info...",0)
+    arcpy.SetProgressorLabel("Updating ROPs info...")
     fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number']
     cursor = arcpy.da.UpdateCursor(projectROP, fields)
     for row in cursor:
@@ -371,11 +433,29 @@ try:
 
 
     #### Start attribute checks
-    AddMsgAndPrint("\nValidating request information...",0)
-
     ### Sampling Units Layer
+    AddMsgAndPrint("\nValidating Sampling Units...",0)
+    arcpy.SetProgressorLabel("Validating Sampling Units...")
+
+    ## Count the number of ROPs within each SU. If greater than 1, then stop and give an error
+    AddMsgAndPrint("\tChecking number of ROPs per Sampling Unit...",0)
+    if arcpy.Exists(ropCount):
+        arcpy.Delete_management(ropCount)
+    arcpy.analysis.SpatialJoin(projectSU, projectROP, ropCount, "JOIN_ONE_TO_ONE", "KEEP_ALL", "", "COMPLETELY_CONTAINS")
+    cursor = arcpy.da.SearchCursor(ropCount, "Join_Count")
+    for row in cursor:
+        if row[0] > 1:
+            AddMsgAndPrint("\nAt least one Sampling Unit contains more than one ROP. Delete or move the errant ROP(s). Exiting...", 2)
+            arcpy.Delete_management(ropCount)
+            exit()
+        else:
+            AddMsgAndPrint("\nThere is not more than one ROP per Sampling Unit.", 0)
+            arcpy.Delete_management(ropCount)
+    del cursor
+    
     ## Evaluation Status
     # No null eval_status
+    
     AddMsgAndPrint("\tChecking Evaluation Status...\n",0)
     checklist = []
     fields = ['eval_status']
@@ -386,7 +466,8 @@ try:
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one sampling unit does not have an Evaluation Status set. Please correct and re-run. Exiting...\n",2)
         exit()
-
+    del cursor
+    
     # Eval_Status values must come from the Evaluation Status domain
     eval_list = []
     cursor = arcpy.da.SearchCursor(projectSU, "eval_status")
@@ -418,7 +499,8 @@ try:
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one sampling unit does not have a Sampling Unit Number assigned. Please correct and re-run. Exiting...\n",2)
         exit()
-
+    del cursor
+    
     # No repeated Sampling Unit identifiers
     su_list = []
     fields = ['su_number','su_letter']
@@ -439,7 +521,8 @@ try:
             AddMsgAndPrint("\t" + item,2)
         AddMsgAndPrint("\tPlease correct and re-run. Exiting...\n",2)
         exit()
-
+    del cursor
+    
     ## Associated ROP
     # No null values
     AddMsgAndPrint("\tChecking Sampling Unit Associated ROPs...\n",0)
@@ -458,6 +541,7 @@ try:
         with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
             for row in cursor:
                 AddMsgAndPrint("\t" + str(row[0]) + str(row[1]),2)
+        del cursor
         AddMsgAndPrint("\tPlease correct and re-run. Exiting...\n",2)
         exit()
 
@@ -473,6 +557,7 @@ try:
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one sampling unit does not have Y or N assigned for 3-Factors. Please correct and re-run. Exiting...\n",2)
         exit()
+    del cursor
         
     # Values must come from the YN domain
     yn_list = []
@@ -504,7 +589,7 @@ try:
         AddMsgAndPrint("\tAt least one sampling unit has a choice for 3-Factors listed as U. Please correct to Y or N and re-run. Exiting...\n",2)
         exit()
     del u_list
-    
+    del cursor
         
     ## Determination Method
     # No Null values
@@ -518,7 +603,8 @@ try:
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one sampling unit does not have a Determination Method set. Please correct and re-run. Exiting...\n",2)
         exit()
-
+    del cursor
+    
     # Values must come from the Method domain
     method_list = []
     cursor = arcpy.da.SearchCursor(projectSU, "deter_method")
@@ -550,10 +636,14 @@ try:
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one Sampling Unit does not list a Determination Staff person. Please correct and re-run. Exiting...\n",2)
         exit()
-        
+    del cursor
+    
     ### ROP Layer
     ## ROP Number
     # No Null values
+    AddMsgAndPrint("\nValidating ROPs...",0)
+    arcpy.SetProgressorLabel("Validating ROPs...")
+    
     AddMsgAndPrint("\tChecking ROP Numbers...\n",0)
     checklist = []
     fields = ['rop_number']
@@ -564,7 +654,8 @@ try:
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one ROP does not have a ROP number assigned. Please correct and re-run. Exiting...\n",2)
         exit()
-
+    del cursor
+    
     # No repeated ROP Numbers
     rop_list = []
     fields = ['rop_number']
@@ -577,6 +668,7 @@ try:
     if rop_len != rop_count:
         AddMsgAndPrint("\tOne or more ROP Numbers are duplicated. Please correct and re-run. Exiting...\n",2)
         exit()
+    del cursor
     
     # Values in Associated ROP (in the sampling units layer) must actually exist in the ROP number attributes
     # Use the list of ROP numbers from the previous step
@@ -645,6 +737,7 @@ try:
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         arcpy.Compact_management(scratchGDB)
