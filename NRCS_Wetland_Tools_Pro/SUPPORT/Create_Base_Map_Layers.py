@@ -172,10 +172,10 @@ def createSU():
     # Remove existing sampling unit layers from the geodatabase
     AddMsgAndPrint("\nRemoving Sampling Unit related layers from project database, if present...\n",0)
     datasetsToRemove = [projectSU]
-    toposToRemove = [suTopo]
+##    toposToRemove = [suTopo]
     wildcard = '*Sampling_Units*'
     wkspace = wcGDB_path
-    removeFCs(datasetsToRemove, wildcard, wkspace, toposToRemove)
+    removeFCs(datasetsToRemove, wildcard, wkspace)
     del datasetsToRemove, wildcard, wkspace, toposToRemove
 
     arcpy.Compact_management(wcGDB_path)
@@ -635,9 +635,8 @@ try:
         arcpy.CreateFeatureDataset_management(wcGDB_path, "WC_Data", sr)
 
     # Copy the administrative table into the wetlands database for use with the attribute rules during digitizing
-    if arcpy.Exists(wetDetTable):
-        arcpy.Delete_management(wetDetTable)
-    arcpy.TableToTable_conversion(projectTable, wcGDB_path, wetDetTableName)
+    if not arcpy.Exists(wetDetTable):
+        arcpy.TableToTable_conversion(projectTable, wcGDB_path, wetDetTableName)
 
     # Add or validate the attribute domains for the wetlands geodatabase
     AddMsgAndPrint("\tChecking attribute domains...",0)

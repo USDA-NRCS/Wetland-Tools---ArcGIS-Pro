@@ -86,6 +86,7 @@ import arcpy, sys, os, traceback, re, shutil, csv
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -103,6 +104,7 @@ except:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
+    arcpy.SetProgressorLabel("Reading inputs...")
     sourceCWD = arcpy.GetParameterAsText(0)
     #cwdLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(1))
     #cwdLyr = os.path.join(os.path.dirname(sys.argv[0]), "layer_files" + os.sep + "CWD.lyrx")
@@ -110,6 +112,7 @@ try:
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
+    arcpy.SetProgressorLabel("Verifying inputs...")
     # If CWD or PJW layers have features selected, clear the selections so that all features from it are processed.
     try:
         clear_lyr1 = m.listLayers(sourceCWD)[0]
@@ -128,19 +131,20 @@ try:
         arcpy.AddError("\nSelected CWD layer is not from a Determinations project folder. Exiting...")
         exit()
 
-    #### Do not run if an unsaved edits exist in the target workspace
-    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
-    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
-    workspace = wcGDB_path
-    edit = arcpy.da.Editor(workspace)
-    if edit.isEditing:
-        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
-        exit()
-    del workspace, edit
+##    #### Do not run if an unsaved edits exist in the target workspace
+##    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
+##    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
+##    workspace = wcGDB_path
+##    edit = arcpy.da.Editor(workspace)
+##    if edit.isEditing:
+##        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
+##        exit()
+##    del workspace, edit
 
 
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
+    arcpy.SetProgressorLabel("Setting variables...")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
 
@@ -177,6 +181,7 @@ try:
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
+    arcpy.SetProgressorLabel("Commence logging...")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
@@ -219,6 +224,7 @@ try:
 
     #### Backup the input CWD layer
     AddMsgAndPrint("\nCreating backup of the CWD layer...",0)
+    arcpy.SetProgressorLabel("Backing up CWD data...")
 
     if arcpy.Exists(cwdBackup):
         arcpy.Delete_management(cwdBackup)
@@ -253,8 +259,10 @@ try:
 ##        arcpy.Delete_management(polysTopoFC)
 
 
-    #### Refresh administrative info for the request on the CWD layer
-    AddMsgAndPrint("\nValidating request information...",0)
+    #### Get administrative info for the request on the CWD layer
+    AddMsgAndPrint("\nCollecting request info...",0)
+    arcpy.SetProgressorLabel("Collecting request info...")
+    
     # Get admin attributes from project table for request_date, request_type, deter_staff, dig_staff, and dig_date (current date)
     fields = ['admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','request_date','request_type','job_id']
     cursor = arcpy.da.SearchCursor(projectTable, fields)
@@ -277,30 +285,30 @@ try:
 
     digStaff = str(os.getenv('username').replace("."," ")).title()
     digDate = time.strftime('%m/%d/%Y')
-    
-    expression = "!Shape.Area@acres!"
-    arcpy.CalculateField_management(projectCWD, "acres", expression, "PYTHON_9.3")
-    del expression
+
+    AddMsgAndPrint("\nUpdating CWD request info...",0)
+    arcpy.SetProgressorLabel("Updating CWD request info...")
 
     # Update the CWD layer, using an edit session. Only update the New Request and Revision features.
     workspace = wcGDB_path
     edit = arcpy.da.Editor(workspace)
     edit.startEditing(False, False)
+    edit.startOperation()
 
-    fields = ['eval_status','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','request_date','request_type','dig_staff','dig_date','job_id']
+    fields = ['admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status','request_date','request_type','dig_staff','dig_date','job_id']
     cursor = arcpy.da.UpdateCursor(projectCWD, fields)
     for row in cursor:
-        if row[0] == "New Request" or row[0] == "Revision":
-            row[1] = adState
-            row[2] = adStateName
-            row[3] = adCounty
-            row[4] = adCountyName
-            row[5] = stateCode
-            row[6] = stateName
-            row[7] = countyCode
-            row[8] = countyName
-            row[9] = farmNum
-            row[10] = tractNum
+        if row[10] == "New Request" or row[0] == "Revision":
+            row[0] = adState
+            row[1] = adStateName
+            row[2] = adCounty
+            row[3] = adCountyName
+            row[4] = stateCode
+            row[5] = stateName
+            row[6] = countyCode
+            row[7] = countyName
+            row[8] = farmNum
+            row[9] = tractNum
             row[11] = rDate
             row[12] = rType
             row[13] = digStaff
@@ -309,13 +317,18 @@ try:
         cursor.updateRow(row)
     del cursor, fields
 
+    edit.stopOperation()
     edit.stopEditing(True)
     del workspace, edit
 
-
+    expression = "!Shape.Area@acres!"
+    arcpy.CalculateField_management(projectCWD, "acres", expression, "PYTHON_9.3")
+    del expression
+    
     #### Start attribute checks
-    AddMsgAndPrint("\nValidating request information...",0)
-
+    AddMsgAndPrint("\nValidating CWDs...",0)
+    arcpy.SetProgressorLabel("Validating CWDs...")
+    
     ### CWD Layer
     ## Evaluation Status
     # No null eval_status
@@ -326,6 +339,7 @@ try:
     with arcpy.da.SearchCursor(projectCWD, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one CWD polygon does not have an Evaluation Status set. Please correct and re-run. Exiting...\n",2)
         exit()
@@ -358,6 +372,7 @@ try:
     with arcpy.da.SearchCursor(projectCWD, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one CWD polygon does not have a Wetland Label assigned. Please correct and re-run. Exiting...\n",2)
         exit()
@@ -388,8 +403,9 @@ try:
     with arcpy.da.SearchCursor(projectCWD, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
-        AddMsgAndPrint("\tAt least one CWD polygon labeld with CW+ does not have the Occurrence Year assigned. Please correct and re-run. Exiting...\n",2)
+        AddMsgAndPrint("\tAt least one CWD polygon labeled with CW+ does not have the Occurrence Year assigned. Please correct and re-run. Exiting...\n",2)
         exit()
     del checklist, fields, whereClause
 
@@ -403,6 +419,7 @@ try:
             except:
                AddMsgAndPrint("\nThe Occurrence Year for one or more CW+ polygons in the Site_CWD layer may contain text instead of numbers. Please correct and re-run. Exiting...\n",2)
                exit()
+    del cursor
 
     # Proper date range for occurrence year
     checklist = []
@@ -412,12 +429,12 @@ try:
     with arcpy.da.SearchCursor(projectCWD, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tOne or more CW+ polygons in the Site_CWD layer has the Occurrence Year set prior to 1990 or after the current year. Exiting...\n",2)
         exit()
     del checklist, fields, whereClause, curyear
     
-
     ## 3-Factors
     # No null values
     AddMsgAndPrint("\tChecking CWD 3-Factors...\n",0)
@@ -427,6 +444,7 @@ try:
     with arcpy.da.SearchCursor(projectCWD, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one Site_CWD layer polygon does not have Y or N assigned for 3-Factors. Please correct and re-run. Exiting...\n",2)
         exit()
@@ -457,6 +475,7 @@ try:
     with arcpy.da.SearchCursor(projectCWD, fields, whereClause) as cursor:
         for row in cursor:
             u_list.append(row[0])
+    del cursor
     if len(u_list) > 0:
         AddMsgAndPrint("\tAt least one Site_CWD layer polygon has a choice for 3-Factors listed as U. Please correct to Y or N and re-run. Exiting...\n",2)
         exit()
@@ -472,6 +491,7 @@ try:
     with arcpy.da.SearchCursor(projectCWD, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one Site_CWD layer polygon does not have a Determination Method set. Please correct and re-run. Exiting...\n",2)
         exit()
@@ -504,6 +524,7 @@ try:
     with arcpy.da.SearchCursor(projectCWD, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one Site_CWD layer polygon does not list a Determination Staff person. Please correct and re-run. Exiting...\n",2)
         exit()
@@ -529,6 +550,7 @@ try:
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         arcpy.Compact_management(scratchGDB)

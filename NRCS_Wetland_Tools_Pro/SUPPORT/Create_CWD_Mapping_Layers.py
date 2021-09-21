@@ -19,6 +19,9 @@
 ## rev. 04/05/2021
 ## -Started updated from ArcMap NRCS Compliance Tools and the Validate WC Layer tool.
 ##
+## rev. 09/21/2021
+## -Updated messaging and cursor clean-up in memory
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -140,6 +143,7 @@ reload(extract_CLU_by_Tract)
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -165,11 +169,13 @@ if not portalToken:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
+    arcpy.SetProgressorLabel("Reading inputs...")
     sourceCWD = arcpy.GetParameterAsText(0)
     
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
+    arcpy.SetProgressorLabel("Verifying inputs...")
     # If CWD or PJW layers have features selected, clear the selections so that all features from it are processed.
     try:
         clear_lyr1 = m.listLayers(sourceCWD)[0]
@@ -191,6 +197,7 @@ try:
 
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
+    arcpy.SetProgressorLabel("Setting variables...")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
     templateCWD = supportGDB + os.sep + "master_cwd"
@@ -203,8 +210,6 @@ try:
     userWorkspace = os.path.dirname(wetDir)
     projectName = os.path.basename(userWorkspace).replace(" ", "_")
 
-    arcpy.AddMessage("Debugging...")
-    
     wcGDB_name = os.path.basename(userWorkspace).replace(" ", "_") + "_WC.gdb"
     wcGDB_path = wetDir + os.sep + wcGDB_name
     wcFD_name = "WC_Data"
@@ -276,12 +281,14 @@ try:
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
+    arcpy.SetProgressorLabel("Commence logging...")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
         
     #### Check Project Integrity
     AddMsgAndPrint("\nChecking project integrity...",0)
+    arcpy.SetProgressorLabel("Checking project integrity...")
 
     # If project wetlands geodatabase and feature dataset do not exist, exit.
     if not arcpy.Exists(wcGDB_path):
@@ -311,6 +318,7 @@ try:
     #### Remove existing layers from the map and database to be regenerated
     # Set layers to remove from the map
     AddMsgAndPrint("\nRemoving CLU_CWD related layers from project maps, if present...\n",0)
+    arcpy.SetProgressorLabel("Removing map finishing layers, if present...")
     mapLayersToRemove = [cluCwdName, psc_name]
     clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
     prevAnnoString = "Site_Previous_CLU_CWD" + "Anno*"
@@ -336,6 +344,7 @@ try:
     # Check for a previously certified layer and intersect it with CLUs to get a layer/table suitable for 028 maps and forms
     if arcpy.Exists(prevAdmin):
         AddMsgAndPrint("\nProcessing previously certified areas...\n",0)
+        arcpy.SetProgressorLabel("Processing previous CWD areas...")
         if arcpy.Exists(updatedAdmin):
             # Use the updatedCert to create a previous certifications layer with current clu fields
             if arcpy.Exists(prevCluCertSite):
@@ -360,6 +369,7 @@ try:
 
         # Do summary stats to make an acres table for use with the 028
         AddMsgAndPrint("\nGenerating Previous_CLU_CWD summary tables...\n",0)
+        arcpy.SetProgressorLabel("Generating Previous CWD summary tables...")
         case_fields = ["clu_number", "wetland_label", "occur_year","cert_date"]
         stats_fields = [['acres', 'SUM']]
         arcpy.Statistics_analysis(prevCluCertSite, cluCWD028, stats_fields, case_fields)
@@ -367,6 +377,7 @@ try:
 
     ## Create the CLU CWD layer suitable for 026 maps and forms
     AddMsgAndPrint("\nCreating CLU_CWD Layer...\n",0)
+    arcpy.SetProgressorLabel("Creating CLU CWD layer...")
         
     # Intersect the projectCLU and projectCWD layers
     if arcpy.Exists(cluCWD):
@@ -383,6 +394,7 @@ try:
 
     # Do summary stats to make an acres table for use with the 026
     AddMsgAndPrint("\nGenerating CLU_CWD summary tables...\n",0)
+    arcpy.SetProgressorLabel("Generating CLU CWD summary tables...")
     case_fields = ["clu_number", "wetland_label", "occur_year"]
     stats_fields = [['acres', 'SUM']]
     arcpy.Statistics_analysis(cluCWD, cluCWD026, stats_fields, case_fields)
@@ -392,7 +404,8 @@ try:
     
 
     #### Export Excel Tables to get ready for forms and letters tool.
-    AddMsgAndPrint("\nExporting Excel tables...\n",0)
+    AddMsgAndPrint("\nExporting Excel table(s)...\n",0)
+    arcpy.SetProgressorLabel("Exporting Excel table(s)...")
     if arcpy.Exists(excelAdmin):
         arcpy.Delete_management(excelAdmin)
     arcpy.TableToExcel_conversion(projectTable, excelAdmin)
@@ -410,6 +423,7 @@ try:
     #### Clean up Temporary Datasets
     # Temporary datasets specifically from this tool
     AddMsgAndPrint("\nCleaning up temporary data...",0)
+    arcpy.SetProgressorLabel("Cleaning up temp data...")
     deleteTempLayers(tempLayers)
 
     # Look for and delete anything else that may remain in the installed SCRATCH.gdb
@@ -456,6 +470,7 @@ try:
     #### Add to map
     # Use starting reference layer files from the tool installation to add layers with automatic placement
     AddMsgAndPrint("\nAdding layers to the map...\n",0)
+    arcpy.SetProgressorLabel("Adding layers to the map...")
     arcpy.SetParameterAsText(1, cluCWD)
     if arcpy.Exists(prevCertSite):
         arcpy.SetParameterAsText(2, prevCertSite)
@@ -464,6 +479,7 @@ try:
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         arcpy.Compact_management(scratchGDB)

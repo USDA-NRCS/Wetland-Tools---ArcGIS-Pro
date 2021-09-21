@@ -247,23 +247,23 @@ try:
         AddMsgAndPrint("\tPlease digitize ROPs and then try again. Exiting...",2)
         exit()
 
-    #### Delete attribute rules of SU & ROPs before processing.
-    AddMsgAndPrint("\nDeleting attribute rules...",0)
-    arcpy.SetProgressorLabel("Deleting attribute rules...")
-    # Get a list of layers
-    lyr_list = m.listLayers()
-    
-    # Get SU and ROP layer objects
-    su_lyr = ''
-    for lyr in lyr_list:
-        if lyr.name == suName:
-            su_lyr = lyr
-    
-    rop_lyr = ''
-    for lyr in lyr_list:
-        if lyr.name == ropName:
-            rop_lyr = lyr
-    
+##    #### Delete attribute rules of SU & ROPs before processing.
+##    AddMsgAndPrint("\nDeleting attribute rules...",0)
+##    arcpy.SetProgressorLabel("Deleting attribute rules...")
+##    # Get a list of layers
+##    lyr_list = m.listLayers()
+##    
+##    # Get SU and ROP layer objects
+##    su_lyr = ''
+##    for lyr in lyr_list:
+##        if lyr.name == suName:
+##            su_lyr = lyr
+##    
+##    rop_lyr = ''
+##    for lyr in lyr_list:
+##        if lyr.name == ropName:
+##            rop_lyr = lyr
+##    
 ##    # Delete the attribute rules
 ##    if su_lyr != '':
 ##        su_rule_delete = deleteRules(su_lyr, rules_su_names)
@@ -309,6 +309,7 @@ try:
 
     #### Backup the input Sampling Units layer
     AddMsgAndPrint("\nBacking up the Sampling Units...",0)
+    arcpy.SetProgressorLabel("Backing up SU data...")
 
     if arcpy.Exists(suBackup):
         arcpy.Delete_management(suBackup)
@@ -463,10 +464,10 @@ try:
     with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one sampling unit does not have an Evaluation Status set. Please correct and re-run. Exiting...\n",2)
         exit()
-    del cursor
     
     # Eval_Status values must come from the Evaluation Status domain
     eval_list = []
@@ -496,10 +497,10 @@ try:
     with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one sampling unit does not have a Sampling Unit Number assigned. Please correct and re-run. Exiting...\n",2)
         exit()
-    del cursor
     
     # No repeated Sampling Unit identifiers
     su_list = []
@@ -512,6 +513,7 @@ try:
             su_id = str(row[0]) + row[1]
         if su_id not in su_list:
             su_list.append(su_id)
+    del cursor
     su_len = len(su_list)
     su_count = int(arcpy.GetCount_management(projectSU).getOutput(0))
     if su_len != su_count:
@@ -521,7 +523,6 @@ try:
             AddMsgAndPrint("\t" + item,2)
         AddMsgAndPrint("\tPlease correct and re-run. Exiting...\n",2)
         exit()
-    del cursor
     
     ## Associated ROP
     # No null values
@@ -554,10 +555,10 @@ try:
     with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one sampling unit does not have Y or N assigned for 3-Factors. Please correct and re-run. Exiting...\n",2)
         exit()
-    del cursor
         
     # Values must come from the YN domain
     yn_list = []
@@ -585,11 +586,11 @@ try:
     with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
         for row in cursor:
             u_list.append(row[0])
+    del cursor
     if len(u_list) > 0:
         AddMsgAndPrint("\tAt least one sampling unit has a choice for 3-Factors listed as U. Please correct to Y or N and re-run. Exiting...\n",2)
         exit()
     del u_list
-    del cursor
         
     ## Determination Method
     # No Null values
@@ -600,10 +601,10 @@ try:
     with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one sampling unit does not have a Determination Method set. Please correct and re-run. Exiting...\n",2)
         exit()
-    del cursor
     
     # Values must come from the Method domain
     method_list = []
@@ -633,10 +634,10 @@ try:
     with arcpy.da.SearchCursor(projectSU, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one Sampling Unit does not list a Determination Staff person. Please correct and re-run. Exiting...\n",2)
         exit()
-    del cursor
     
     ### ROP Layer
     ## ROP Number
@@ -651,10 +652,10 @@ try:
     with arcpy.da.SearchCursor(projectROP, fields, whereClause) as cursor:
         for row in cursor:
             checklist.append(row[0])
+    del cursor
     if len(checklist) > 0:
         AddMsgAndPrint("\tAt least one ROP does not have a ROP number assigned. Please correct and re-run. Exiting...\n",2)
         exit()
-    del cursor
     
     # No repeated ROP Numbers
     rop_list = []
@@ -665,10 +666,10 @@ try:
             rop_list.append(row[0])
     rop_len = len(rop_list)
     rop_count = int(arcpy.GetCount_management(projectROP).getOutput(0))
+    del cursor
     if rop_len != rop_count:
         AddMsgAndPrint("\tOne or more ROP Numbers are duplicated. Please correct and re-run. Exiting...\n",2)
         exit()
-    del cursor
     
     # Values in Associated ROP (in the sampling units layer) must actually exist in the ROP number attributes
     # Use the list of ROP numbers from the previous step
