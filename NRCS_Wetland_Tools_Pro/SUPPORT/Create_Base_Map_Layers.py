@@ -176,7 +176,7 @@ def createSU():
     wildcard = '*Sampling_Units*'
     wkspace = wcGDB_path
     removeFCs(datasetsToRemove, wildcard, wkspace)
-    del datasetsToRemove, wildcard, wkspace, toposToRemove
+    del datasetsToRemove, wildcard, wkspace
 
     arcpy.Compact_management(wcGDB_path)
     

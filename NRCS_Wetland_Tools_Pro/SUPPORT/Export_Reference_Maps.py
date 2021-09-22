@@ -1276,7 +1276,7 @@ try:
 
             # Export the map
             AddMsgAndPrint("\tExporting the Ponding Frequency Map to PDF...",0)
-            arcpy.SetProgressorLabel("Exporting Hydric Frequency Map...)
+            arcpy.SetProgressorLabel("Exporting Hydric Frequency Map...")
             soil_lyt.exportToPDF(pondingPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
             AddMsgAndPrint("\tPonding Frequency Map file exported!",0)
 

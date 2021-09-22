@@ -806,7 +806,7 @@ try:
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
-        arcpy.SetProgressorLabel("Compacting FIle Geodatabases...")
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         AddMsgAndPrint("\tSuccessful",0)

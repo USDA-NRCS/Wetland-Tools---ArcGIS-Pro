@@ -303,7 +303,6 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
 ## ================================================================================================================
 #### Import system modules
 import arcpy, sys, os, traceback, re
-arcpy.AddMessage("Importing Python modules...\n")
 import urllib, json, time
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError as httpErrors
@@ -313,6 +312,7 @@ parseQueryString = urllib.parse.parse_qsl
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -330,6 +330,7 @@ except:
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
+    arcpy.SetProgressorLabel("Reading inputs...")
     selectedLayer = arcpy.GetParameterAsText(0)
     sourceCWD = arcpy.GetParameterAsText(1)
     sourceCLUCWD = arcpy.GetParameterAsText(2)
@@ -345,6 +346,7 @@ try:
 
     #### Initial Validations
     arcpy.AddMessage("Verifying inputs...\n")
+    arcpy.SetProgressorLabel("Verifying inputs...")
 
     
     #### Set base path
@@ -382,6 +384,7 @@ try:
 
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
+    arcpy.SetProgressorLabel("Setting variables...")
     supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
 
@@ -408,11 +411,13 @@ try:
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
+    arcpy.SetProgressorLabel("Commence logging...")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
     logBasicSettings()
 
 
     #### Setup output PDF file name(s)
+    arcpy.SetProgressorLabel("Configuring output file names...")
     outPDF = wetDir + os.sep + "Determination_Map_" + projectName + ".pdf"
     # If overwrite existing maps is checked, use standard file name
     if owDetLayout == True:
@@ -447,13 +452,14 @@ try:
         arcpy.AddMessage("The Determination Map PDF file does not exist for this project and will be created.")
 
 
-    #### Retrieve PLSS Text for Determination Map, if applicable
+    #### Retrieve PLSS Text for Determination Map, if applicablearcpy.SetProgressorLabel("")
     # Set starting boolean for location text box. Stays false unless all query criteria to show location are met
     display_dm_location = False
     dm_plss_text = ''
         
     if showLocation:
         AddMsgAndPrint("\nShow location selected for Determination Map. Processing reference location...",0)
+        arcpy.SetProgressorLabel("Retrieving PLSS Location...")
         dm_plss_text = getPLSS(plssPoint)
         if dm_plss_text != '':
             AddMsgAndPrint("\nThe PLSS query was successful and a location text box will be shown on the Determination Map.",0)
@@ -468,6 +474,7 @@ try:
     #### Harvest project based data from the project table to use on the layout
     if arcpy.Exists(projectTable):
         AddMsgAndPrint("\nCollecting header information from project table...",0)
+        
         rows = arcpy.SearchCursor(projectTable) 
         for row in rows:
             adm_Co_Name = row.getValue("admin_county_name")
@@ -488,7 +495,8 @@ try:
 
 
     #### Set up layout elements
-    AddMsgAndPrint("\nUpdating layout elements...",0)
+    AddMsgAndPrint("\nUpdating map headers...",0)
+    arcpy.SetProgressorLabel("Updating map headers...")
     # Get Base Map layout
     try:
         dm_lyt = aprx.listLayouts("Determination Map")[0]
@@ -502,6 +510,7 @@ try:
 
     #### Manage layers as objects for visibility and movement control
     AddMsgAndPrint("\nPreparing map layers for display on the Determination Map layout...",0)
+    arcpy.SetProgressorLabel("Prepping map layers for display...")
     
     cwd_lyr = m.listLayers(cwdName)[0]
     clucwd_lyr = m.listLayers(clucwdName)[0]
@@ -585,6 +594,7 @@ try:
     ###################################### DETERMINATION MAP START ######################################
     #####################################################################################################
     AddMsgAndPrint("\nCreating the Determination Map PDF file...",0)
+    arcpy.SetProgressorLabel("Creating Determination Map...")
 
     # Zoom to specified extent if applicable
     if zoomType == "Zoom to a layer":
@@ -651,6 +661,7 @@ try:
             
     # Export the map
     AddMsgAndPrint("\tExporting the Determination Map to PDF...",0)
+    arcpy.SetProgressorLabel("Exporting Determination Map...")
     dm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
     AddMsgAndPrint("\tDetermination Map file exported!",0)
 
@@ -699,6 +710,7 @@ try:
     # Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
+        arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
         AddMsgAndPrint("\tSuccessful",0)
