@@ -7,7 +7,7 @@ output:
   word_document: 
     reference_docx: WC_Letter_Template.docx
 ---
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, echo=FALSE}
 
 admin <- read.xlsx(Admin_Excel_Path, sheetIndex = 1, sheetName = "Admin_Table")
 
@@ -34,6 +34,7 @@ adminstate <- df[4]
 admincounty <- df[1]
 wcform <- df[16]
 con_name <- df[14]
+rdate <- df[15]
 
 canull <- is.na(df[19])
 cadd <- if (canull == TRUE){
@@ -42,15 +43,12 @@ cadd <- if (canull == TRUE){
   c(caddress1,caddress2)
 }
 
-
-
-knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_chunk$set(echo = FALSE)
 ```
 `r format(Sys.Date(), "%A, %B %d, %Y")`
 
 ##### CERTIFIED MAIL  
 ##### RETURN RECEIPT REQUESTED  
-Natural Resources Conservation Service  
 `r oaddress`  
 `r c(ocity, ostate, ozip)`  
 Phone: `r ophone`  
@@ -60,18 +58,18 @@ Fax: `r ofax`
 `r cadd`    
 `r c(ccity, cstate, czip)`
 
-SUBJECT:  Preliminary Wetland Technical Determination
+SUBJECT:  Wetland Preliminary Technical Determination
 
 TRACT:  `r tract`  
-Administrative County name:   `r c(admincounty, adminstate)`
+Administrative County:   `r c(admincounty, adminstate)`
 
-This is to notify you the Natural Resources Conservation Service (NRCS) has made a preliminary wetland technical determination on the tract listed above.  This determination is part of the conservation provisions of the Food Security Act of 1985, as amended, and was made in response to the completion of form **`r wcform`**.
+This is to notify you the Natural Resources Conservation Service (NRCS) has made a certified wetland determination on the tract listed above.  This preliminary technical determination (PTD) is made in accordance with the wetland conservation provisions of the Food Security Act of 1985, as amended, and was made in response to the completion of form `r wcform` dated on `r format(rdate, format = "%B %d, %Y")`.
 
 
 In order to maintain USDA program eligibility, program participants must not produce an agricultural commodity on wetlands converted after December 23, 1985 and must not convert a wetland after November 28, 1990 for the purpose or to have the effect of making the production of an agricultural commodity possible.
 
 
-The results of the preliminary wetland determination are shown on the enclosed NRCS-CPA-026-WC “Certified Wetland Determination”.  The determination was conducted in accordance with the National Food Security Act Manual, 1987 US Army Corps of Engineers (USACE) Wetland Delineation Manual, corresponding USACE Regional Supplements, and/or State Offsite Methods for Wetland Identification. 
+The results of the PTD are shown on the enclosed NRCS-CPA-026-WC “Certified Wetland Determination” form.  The determination was conducted in accordance with the National Food Security Act Manual, 1987 US Army Corps of Engineers (USACE) Wetland Delineation Manual, corresponding USACE Regional Supplements, and/or State Offsite Methods for Wetland Identification. 
 
 Wetlands are identified through the confirmation of three factors:
 
@@ -84,15 +82,13 @@ Wetlands are identified through the confirmation of three factors:
 ### Presence of Wetland Hydrology:
 #### Wetland hydrology means inundation or saturation by surface or groundwater during a growing season at a frequency and duration sufficient to support a prevalence of hydrophytic vegetation  (7 CFR § 12.31(c)).  
 
-The 2014 Farm Bill connected producer eligibility for Federal crop insurance premium subsidy to compliance with the wetland conservation provisions. Eligibility for most USDA programs is lost for any wetland conversions that have occurred after December 23, 1985. However, only wetland conversions that occur after February 7, 2014 result in ineligibility for Federal crop insurance premium subsidy.  
+The 2014 Farm Bill connected producer eligibility for Federal crop insurance premium subsidy to compliance with the wetland conservation provisions. Eligibility for most USDA programs is lost for any wetland conversions that have occurred after December 23, 1985. However, only wetland conversions that occur after February 7, 2014 result in ineligibility for the Federal crop insurance premium subsidy.  
 
-**If you agree** with this preliminary technical determination, it will become final 30 calendar days after you receive this notification, and no further action is required.
+**If you agree** with this PTD, it will become final 30 calendar days after you receive this notification, and no further action is required.
 
-**If you do not agree** with this preliminary technical determination, you may request a reconsideration field visit or mediation within thirty days of receipt of this letter. Your request should be made in writing to the above office address and should state clearly what you are appealing and why you believe the determination is in error. For further information on the appeals process, please see the attached Appeals Information sheet. If no reconsideration field visit or mediation is requested within thirty days of receipt of this letter, this preliminary technical determination will become a final technical determination with further appeal rights as described in the attached Appeals Information sheet.
+**If you do not agree** with this PTD, you may request a reconsideration field visit or mediation within thirty days of receipt of this letter. Your request should be made in writing to the above office address and should state clearly what you are appealing and why you believe the determination is in error. For further information on the appeals process, please see the attached Appeals Information sheet. If no reconsideration field visit or mediation is requested within thirty days of receipt of this letter, this PTD will become a final technical determination (FTD) with further appeal rights as described in the attached Appeals Information sheet.
 
 This certified wetland determination has been conducted for the purpose of implementing the Wetland Conservation Provisions of the Food Security Act of 1985, as amended. This determination may not be valid for identifying the extent of Clean Water Act jurisdiction for this site. If you intend to conduct any activity that constitutes a discharge of dredged or fill material into wetlands or other waters, you should contact the local district office of the U.S. Army Corps of Engineers prior to starting work.
-
-****STATE TEMPLATE ADDITION - Optional State Program and/or Mitigation Language**** 
 
 If you are the owner of this tract of land and have a tenant, I urge you to discuss this preliminary determination with your tenant. Likewise, if you are the tenant of this tract of land, you are urged to discuss this letter with your landlord.
 
@@ -104,12 +100,96 @@ Sincerely,
 
 Enclosures:  
 NRCS-CPA-026-WC  
-Determination Map   
+Wetland Determination Map   
 Appeals Information  
-Basis for Technical Decision (if applicable)
 
 Cc: 
 Farm Service Agency  
-Affiliated Clients (if applicable)  
-NRCS Field Office (if applicable)
 
+
+\newpage
+# Appeals Information  
+
+This preliminary technical determination (PTD) will become final 30 days after your receipt of this letter, unless you request either of the following options:  
+
+#### 1. You may request a reconsideration field visit for NRCS to review the basis for the PTD with you and gather additional information concerning the certify determination. This request must be in writing and addressed to the Designated Conservationist who made this determination.  
+
+#### 2. Mediation may be used to assist you and NRCS in trying to reach a mutually agreeable resolution or settlement regarding this PTD. Through mediation, the parties have the opportunity to work together with the assistance of the mediator to improve communications, understand the relevant issues, develop and explore alternatives, and reach a mutually satisfactory resolution. In order to request mediation, the request must be in writing and addressed to the Designated Conservationist who made this determination.  
+
+If you choose a reconsideration field visit or mediation, a final technical determination (FTD) will be issued at the conclusion of either process. If reconsideration or mediation is not requested, this certifed determination becomes an FTD 30 days after your receipt of this letter, at which time you may exercise appeal rights to the Farm Service Agency County Committee or the National Appeals Division.  
+
+To appeal an FTD, write to the Farm Service Agency County Committee or the National Appeals Division within 30 days at the appropriate address below.  
+
+```{r infsa, echo=FALSE} 
+nad <- read.xlsx(file.path(Path_to_the_install_directory, "Templates","NAD_Address.xlsx"), sheetIndex = 1, sheetName = "NAD_Address")
+
+colnames(nad)[colnames(nad) == 'STATECD'] <- 'admin_state'
+
+dfnad <- merge(df,nad, by='admin_state' )
+
+fsaco <- paste(dfnad[33], "FSA County Committee")
+fsaadd <- dfnad[38]
+fsacity <- dfnad[39]
+fsast <- dfnad[34]
+fsazip <- dfnad[35]
+fsaloc <- paste(fsacity,", ", fsast, fsazip)
+fsatel <- paste("Telephone:",dfnad[36])
+fsafax <- paste("Fax:",dfnad[37])
+
+nadadd <- dfnad[42]
+nadcity <- dfnad[43]
+nadst <- dfnad[44]
+nadzip <-dfnad[45]
+nadftfnum <- dfnad[46]
+nadtty <- dfnad[48]
+nadfax <- dfnad[49]
+
+Nfsa <- 2  # total number of rows to preallocate--possibly an overestimate
+
+dfsa <- data.frame(txt=rep("", Nfsa), txt=rep("", Nfsa),  # as many cols as you need
+                  stringsAsFactors=FALSE)
+dfsa[1, ] <- list(fsaco, fsatel)
+dfsa[2, ] <- list(fsaadd, fsafax)
+dfsa[3, ] <- list(fsaloc,"")
+
+tfsa <- flextable(as.data.frame(dfsa))
+tfsa <- delete_part(tfsa, part = "header")
+tfsa <- fontsize(tfsa, size = 10)
+tfsa <- font(tfsa, fontname = "Times")
+tfsa <- width(tfsa, width = 3.0)
+tfsa <- border_remove(tfsa)
+tfsa <- align(tfsa, align = "left", part = "body")
+tfsa
+```
+
+Or  
+
+```{r inad, echo=FALSE} 
+nadadd <- dfnad[42]
+nadcity <- dfnad[43]
+nadst <- dfnad[44]
+nadzip <-dfnad[45]
+nadloc <- paste(nadcity, ", ", nadst, nadzip)
+nadftfnum <- paste("Toll Free Phone:", dfnad[46])
+nadtty <- paste("TTY:", dfnad[48])
+nadfax <- paste("Fax:", dfnad[49])
+
+Nnad <- 2  # total number of rows to preallocate--possibly an overestimate
+
+dnad <- data.frame(txt=rep("", Nnad), txt=rep("", Nnad),  # as many cols as you need
+                  stringsAsFactors=FALSE)
+dnad[1, ] <- list("National Appeals Division", nadftfnum)
+dnad[2, ] <- list(nadadd, nadtty)
+dnad[3, ] <- list(nadloc,nadfax)
+
+tnad <- flextable(as.data.frame(dnad))
+tnad <- delete_part(tnad, part = "header")
+tnad <- fontsize(tnad, size = 10)
+tnad <- font(tnad, fontname = "Times")
+tnad <- width(tnad, width = 3.0)
+tnad <- align(tnad, align = "justify", part = "body")
+tnad <- border_remove(tnad)
+tnad
+```
+
+A request for any of the above appeal options must be in writing and should state clearly what you are appealing and why you believe the determination is erroneous.

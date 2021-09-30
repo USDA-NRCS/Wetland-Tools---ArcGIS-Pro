@@ -46,25 +46,49 @@ taddress <- data.frame(x1 = cadd,
                  x4 = czip)
 taddress <- list(taddress)
 
-N <- 4  # total number of rows to preallocate--possibly an overestimate
+N <- 2  # total number of rows to preallocate--possibly an overestimate
 
-df2 <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
+df2a <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
                   stringsAsFactors=FALSE)
-df2[1, ] <- list("1. Name:",cname,"2. Location County:",ocounty)
-df2[2, ] <- list("3. Address:",taddress,"4. Admin. County:",admincounty)
-df2[3, ] <- list("5. Request Form:",wcform,"6. Farm Number:",cfarm)
-df2[4, ] <- list("7. Request Date:",format(ddate),"8. Tract Number:",tract)
+df2a[1, ] <- list("1. Name:",cname,"2. Location County:",ocounty)
+df2a[2, ] <- list("3. Address:",taddress,"4. Admin. County:",admincounty)
 
-cdf <- flextable(as.data.frame(df2))
-cdf <- delete_part(cdf, part = "header")
-cdf <- fontsize(cdf, size = 11)
-cdf <- font(cdf, fontname = "Times")
-cdf <- height(cdf, height = 1.5)
-cdf <- width(cdf, width = 1.8)
-cdf <- align(cdf, align = "left", part = "all")
-cdf <- theme_box(cdf)
-cdf <- bg(cdf, j = c("txt.1", "txt.3"), bg = "light cyan")
-cdf
+cdfa <- flextable(as.data.frame(df2a))
+cdfa <- delete_part(cdfa, part = "header")
+cdfa <- fontsize(cdfa, size = 11)
+cdfa <- font(cdfa, fontname = "Times")
+cdfa <- width(cdfa, j = 1, width = 0.99)
+cdfa <- width(cdfa, j = 2, width = 3.39)
+cdfa <- width(cdfa, j = 3, width = 1)
+cdfa <- width(cdfa, j = 4, width = 2.12)
+cdfa <- height(cdfa, i = 1, height = 0.35)
+cdfa <- height(cdfa, i = 2, height = 0.57)
+cdfa <- theme_box(cdfa)
+cdfa <- bg(cdfa, j = c("txt.1", "txt.3"), bg = "light cyan")
+cdfa <- align(cdfa, align = "left", part = "body")
+cdfa <- valign(cdfa, valign = "top", part = "body")
+cdfa
+
+df2b <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
+                  stringsAsFactors=FALSE)
+df2b[1, ] <- list("5. Request Form:",wcform,"6. Farm Number:",cfarm)
+df2b[2, ] <- list("7. Request Date:",format(ddate, format = "%B %d, %Y"),"8. Tract Number:",tract)
+
+cdfb <- flextable(as.data.frame(df2b))
+cdfb <- delete_part(cdfb, part = "header")
+cdfb <- fontsize(cdfb, size = 11)
+cdfb <- font(cdfb, fontname = "Times")
+cdfb <- width(cdfb, j = 1, width = 1.54)
+cdfb <- width(cdfb, j = 2, width = 2.84)
+cdfb <- width(cdfb, j = 3, width = 1)
+cdfb <- width(cdfb, j = 4, width = 2.12)
+cdfb <- height(cdfb, i = 1, height = 0.35)
+cdfb <- height(cdfb, i = 2, height = 0.57)
+cdfb <- theme_box(cdfb)
+cdfb <- bg(cdfb, j = c("txt.1", "txt.3"), bg = "light cyan")
+cdfb <- align(cdfb, align = "left", part = "body")
+cdfb <- valign(cdfb, valign = "top", part = "body")
+cdfb
 
 ```
 
@@ -74,16 +98,22 @@ This certified wetland determination identifies areas subject to the wetland con
 wctable <- read.xlsx(CLU_CWD_026_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_026")
 wctable <- wctable[ ,c(2,3,4,6)]
 wctable <- wctable[order(as.numeric(wctable$clu_number)),]
-wcdf <- flextable(wctable)
+
+wcdf <- flextable(wctable, col_keys = c("clu_number", "wetland_label", "occur_year", "SUM_acres")) %>%
+  set_header_labels(clu_number = "Field", wetland_label = "Label", occur_year = "Occurrence #year\n(CW+YEAR)", SUM_acres = "Acreage")
 wcdf <- bold(wcdf, part = "header")
 wcdf <- fontsize(wcdf, part = "header", size = 11)
 wcdf <- font(wcdf, part = "header", fontname = "Times")
+wcdf <- align(wcdf, align = "center", part = "header")
 wcdf <- fontsize(wcdf, size = 10)
 wcdf <- font(wcdf, fontname = "Times")
-wcdf <- set_header_labels(wcdf, clu_number = "Field", wetland_label = "Label", occur_year = "Occurrence year\n(CW+YEAR)", SUM_acres = "Acreage")
-wcdf <- align(wcdf, j = c("clu_number", "wetland_label", "occur_year"), align = "center", part = "all")
+wcdf <- align(wcdf, align = "left", part = "body")
+wcdf <- valign(wcdf, valign = "top", part = "all")
 wcdf <- colformat_double(wcdf, j = "SUM_acres", big.mark=",", digits = 2, na_str = "N/A")
-wcdf <- set_table_properties(wcdf, width = 1, layout = "autofit")
+wcdf <- width(wcdf, j = 1, width = 1.97)
+wcdf <- width(wcdf, j = 2, width = 0.83)
+wcdf <- width(wcdf, j = 3, width = 1.53)
+wcdf <- width(wcdf, j = 4, width = 1.75)
 wcdf <- theme_box(wcdf)
 wcdf <- bg(wcdf, bg = "light cyan")
 wcdf
@@ -94,7 +124,10 @@ N3 <- 1  # total number of rows to preallocate--possibly an overestimate
 
 df3 <- data.frame(txt=rep("", N3),  # as many cols as you need
                   stringsAsFactors=FALSE)
-df3[1, ] <- list("")
+
+pjw_sym <- "Areas identified as Potential Jurisdictional Waters (PJW) are not subject to the Food Security Act but are potentially subject to the Clean Water Act. You should contact the U.S. Army Corps of Engineers local district office prior to performing work in areas which may be subject to the Clean Water Act. Areas identified as PJW are for informational purposes only and are not appealable to USDA. Additional areas, not identified by NRCS, might also be subject to the Clean Water Act."
+
+df3[1, ] <- ifelse(PJW_Statement == "Yes", list(pjw_sym), list(" "))
 
 remk <- flextable(as.data.frame(df3))
 remk <- set_header_labels(remk, txt = "9. Remarks")
@@ -103,7 +136,7 @@ remk <- font(remk, fontname = "Times", part = "header")
 remk <- fontsize(remk, size = 11)
 remk <- font(remk, fontname = "Times")
 remk <- height(remk, height = 5)
-remk <- width(remk, width = 7)
+remk <- width(remk, width = 7.5)
 remk <- theme_box(remk)
 remk <- bg(remk, bg = "light cyan")
 remk
@@ -112,9 +145,9 @@ remk
 I certify that the above determinations are sufficient for the purpose of making a determination of eligibility for program benefits and were conducted in accordance with policies and procedures contained in the National Food Security Act Manual.  
 
 ```{r remk, echo=FALSE}
-N4 <- 2  # total number of rows to preallocate--possibly an overestimate
+N4 <- 1  # total number of rows to preallocate--possibly an overestimate
 
-df4 <- data.frame(txt=rep("", N3), txt=rep("", N3),  # as many cols as you need
+df4 <- data.frame(txt=rep("", N4), txt=rep("", N4),  # as many cols as you need
                   stringsAsFactors=FALSE)
 df4[1, ] <- list("", format(Sys.Date(), "%A, %B %d, %Y"))
 
@@ -124,25 +157,28 @@ sid <- fontsize(sid, size = 11, part = "header")
 sid <- font(sid, fontname = "Times", part = "header")
 sid <- fontsize(sid, size = 11)
 sid <- font(sid, fontname = "Times")
-sid <- height(sid, height = 5)
-sid <- width(sid, width = 3.5)
+sid <- height(sid, height = 1.5)
+sid <- width(sid, width = 3.75)
 sid <- theme_box(sid)
 sid <- bg(sid, bg = "light cyan")
 sid
 ```
    
 \newpage
-# Definition of Wetland Labels and Uses  
+# Definitions of Wetland Labels and Uses  
 
 ```{r wetdef026, echo=FALSE}
 wetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","WetlandDefinition.csv"), header = TRUE, sep = ",")
-deftable <- flextable(wetdef)
+deftable <- flextable(wetdef, col_keys = c("dummy", "CriteriaDetermination", "AuthorizedUses", "AuthorizedMaintenance")) %>%
+  compose(j = "dummy", value = as_paragraph(as_b(Label), Name)) %>%
+  set_header_labels(dummy = "Label/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
 deftable <- bold(deftable, part = "header")
-deftable <- fontsize(deftable, part = "header", size = 11)
+deftable <- fontsize(deftable, part = "header", size = 10)
 deftable <- font(deftable, part = "header", fontname = "Times")
-deftable <- fontsize(deftable, size = 10)
+deftable <- fontsize(deftable, size = 9.25)
 deftable <- font(deftable, fontname = "Times")
-deftable <- set_header_labels(deftable, Label_Name = "Label and Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
+deftable <- align(deftable, align = "left", part = "all")
+deftable <- valign(deftable, valign = "top", part = "all")
 deftable <- set_table_properties(deftable, width = 1, layout = "autofit")
 deftable <- theme_box(deftable)
 deftable
@@ -154,10 +190,8 @@ In accordance with Federal civil rights law and U.S. Department of Agriculture (
 
 Persons with disabilities who require alternative means of communication for program information (e.g., Braille, large print, audiotape, American Sign Language, etc.) should contact the responsible Agency or USDA's TARGET Center at (202) 720-2600 (voice and TTY) or contact USDA through the Federal Relay Service at (800) 877-8339. Additionally, program information may be made available in languages other than English.
 
-To file a program discrimination complaint, complete the USDA Program Discrimination Complaint Form, AD-3027, found online at [How to File a Program Discrimination Complaint](https://www.usda.gov/oascr/how-to-file-a-program-discrimination-complaint) and at any USDA office or write a letter addressed to USDA and provide in the letter all of the information requested in the form. To request a copy of the complaint form, call (866) 632-9992. Submit your completed form or letter to USDA by: (1) mail: U.S. Department of Agriculture, Office of the Assistant Secretary for Civil Rights, 1400 Independence Avenue, SW, Washington, D.C. 20250-9410; (2) fax: (202) 690-7442; or (3) email: [program.intake@usda.gov](program.intake@usda.gov).
+To file a program discrimination complaint, complete the USDA Program Discrimination Complaint Form, AD-3027, found online at [How to File a Program Discrimination Complaint](https://www.usda.gov/oascr/how-to-file-a-program-discrimination-complaint) and at any USDA office or write a letter addressed to USDA and provide in the letter all of the information requested in the form. To request a copy of the complaint form, call (866) 632-9992. Submit your completed form or letter to USDA by: (1) mail: U.S. Department of Agriculture, Office of the Assistant Secretary for Civil Rights, 1400 Independence Avenue, SW, Washington, D.C. 20250-9410; (2) fax: (202) 690-7442; or (3) email: [program.intake@usda.gov](mailto:program.intake@usda.gov).
 
 
 
 USDA is an equal opportunity provider, employer, and lender.
-
-

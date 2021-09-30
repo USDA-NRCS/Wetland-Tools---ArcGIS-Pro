@@ -46,25 +46,49 @@ taddress <- data.frame(x1 = cadd,
                  x4 = czip)
 taddress <- list(taddress)
 
-N <- 4  # total number of rows to preallocate--possibly an overestimate
+N <- 2  # total number of rows to preallocate--possibly an overestimate
 
-df2 <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
+df2a <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
                   stringsAsFactors=FALSE)
-df2[1, ] <- list("1. Name:",cname,"2. Location County:",ocounty)
-df2[2, ] <- list("3. Address:",taddress,"4. Admin. County:",admincounty)
-df2[3, ] <- list("5. Request Form:",wcform,"6. Farm Number:",cfarm)
-df2[4, ] <- list("7. Request Date:",format(ddate),"8. Tract Number:",tract)
+df2a[1, ] <- list("1. Name:",cname,"2. Location County:",ocounty)
+df2a[2, ] <- list("3. Address:",taddress,"4. Admin. County:",admincounty)
 
-cdf <- flextable(as.data.frame(df2))
-cdf <- delete_part(cdf, part = "header")
-cdf <- fontsize(cdf, size = 11)
-cdf <- font(cdf, fontname = "Times")
-cdf <- height(cdf, height = 1.5)
-cdf <- width(cdf, width = 1.8)
-cdf <- align(cdf, align = "left", part = "all")
-cdf <- theme_box(cdf)
-cdf <- bg(cdf, j = c("txt.1", "txt.3"), bg = "light cyan")
-cdf
+cdfa <- flextable(as.data.frame(df2a))
+cdfa <- delete_part(cdfa, part = "header")
+cdfa <- fontsize(cdfa, size = 11)
+cdfa <- font(cdfa, fontname = "Times")
+cdfa <- width(cdfa, j = 1, width = 0.99)
+cdfa <- width(cdfa, j = 2, width = 3.39)
+cdfa <- width(cdfa, j = 3, width = 1)
+cdfa <- width(cdfa, j = 4, width = 2.12)
+cdfa <- height(cdfa, i = 1, height = 0.35)
+cdfa <- height(cdfa, i = 2, height = 0.57)
+cdfa <- theme_box(cdfa)
+cdfa <- bg(cdfa, j = c("txt.1", "txt.3"), bg = "light cyan")
+cdfa <- align(cdfa, align = "left", part = "body")
+cdfa <- valign(cdfa, valign = "top", part = "body")
+cdfa
+
+df2b <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
+                  stringsAsFactors=FALSE)
+df2b[1, ] <- list("5. Request Form:",wcform,"6. Farm Number:",cfarm)
+df2b[2, ] <- list("7. Request Date:",format(ddate, format = "%B %d, %Y"),"8. Tract Number:",tract)
+
+cdfb <- flextable(as.data.frame(df2b))
+cdfb <- delete_part(cdfb, part = "header")
+cdfb <- fontsize(cdfb, size = 11)
+cdfb <- font(cdfb, fontname = "Times")
+cdfb <- width(cdfb, j = 1, width = 1.54)
+cdfb <- width(cdfb, j = 2, width = 2.84)
+cdfb <- width(cdfb, j = 3, width = 1)
+cdfb <- width(cdfb, j = 4, width = 2.12)
+cdfb <- height(cdfb, i = 1, height = 0.35)
+cdfb <- height(cdfb, i = 2, height = 0.57)
+cdfb <- theme_box(cdfb)
+cdfb <- bg(cdfb, j = c("txt.1", "txt.3"), bg = "light cyan")
+cdfb <- align(cdfb, align = "left", part = "body")
+cdfb <- valign(cdfb, valign = "top", part = "body")
+cdfb
 
 ```
 
@@ -112,17 +136,19 @@ remk
 ```
    
 \newpage
-# Definition of Wetland Labels and Uses  
+# Definitions of Wetland Labels and Uses  
 
-```{r wetdef028, echo=FALSE}
+```{r wetdef026, echo=FALSE}
 wetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","WetlandDefinition.csv"), header = TRUE, sep = ",")
 deftable <- flextable(wetdef)
 deftable <- bold(deftable, part = "header")
-deftable <- fontsize(deftable, part = "header", size = 11)
+deftable <- fontsize(deftable, part = "header", size = 10)
 deftable <- font(deftable, part = "header", fontname = "Times")
-deftable <- fontsize(deftable, size = 10)
+deftable <- fontsize(deftable, size = 9.25)
 deftable <- font(deftable, fontname = "Times")
-deftable <- set_header_labels(deftable, Label_Name = "Label and Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
+deftable <- set_header_labels(deftable, Label_Name = "Label/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
+deftable <- align(deftable, align = "left", part = "header")
+deftable <- valign(deftable, valign = "top", part = "header")
 deftable <- set_table_properties(deftable, width = 1, layout = "autofit")
 deftable <- theme_box(deftable)
 deftable
@@ -134,11 +160,11 @@ The following wetland labels have been discontinued but may have been used on ol
 wetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","PreviousWetlandDefinition.csv"), header = TRUE, sep = ",")
 deftable <- flextable(wetdef)
 deftable <- bold(deftable, part = "header")
-deftable <- fontsize(deftable, part = "header", size = 11)
+deftable <- fontsize(deftable, part = "header", size = 10)
 deftable <- font(deftable, part = "header", fontname = "Times")
-deftable <- fontsize(deftable, size = 10)
+deftable <- fontsize(deftable, size = 9.5)
 deftable <- font(deftable, fontname = "Times")
-deftable <- set_header_labels(deftable, Label_Name = "Lable and Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
+deftable <- set_header_labels(deftable, Label_Name = "Lable/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
 deftable <- set_table_properties(deftable, width = 1, layout = "autofit")
 deftable <- theme_box(deftable)
 deftable
@@ -151,10 +177,8 @@ In accordance with Federal civil rights law and U.S. Department of Agriculture (
 
 Persons with disabilities who require alternative means of communication for program information (e.g., Braille, large print, audiotape, American Sign Language, etc.) should contact the responsible Agency or USDA's TARGET Center at (202) 720-2600 (voice and TTY) or contact USDA through the Federal Relay Service at (800) 877-8339. Additionally, program information may be made available in languages other than English.
 
-To file a program discrimination complaint, complete the USDA Program Discrimination Complaint Form, AD-3027, found online at [How to File a Program Discrimination Complaint](https://www.usda.gov/oascr/how-to-file-a-program-discrimination-complaint) and at any USDA office or write a letter addressed to USDA and provide in the letter all of the information requested in the form. To request a copy of the complaint form, call (866) 632-9992. Submit your completed form or letter to USDA by: (1) mail: U.S. Department of Agriculture, Office of the Assistant Secretary for Civil Rights, 1400 Independence Avenue, SW, Washington, D.C. 20250-9410; (2) fax: (202) 690-7442; or (3) email: [program.intake@usda.gov](program.intake@usda.gov).
+To file a program discrimination complaint, complete the USDA Program Discrimination Complaint Form, AD-3027, found online at [How to File a Program Discrimination Complaint](https://www.usda.gov/oascr/how-to-file-a-program-discrimination-complaint) and at any USDA office or write a letter addressed to USDA and provide in the letter all of the information requested in the form. To request a copy of the complaint form, call (866) 632-9992. Submit your completed form or letter to USDA by: (1) mail: U.S. Department of Agriculture, Office of the Assistant Secretary for Civil Rights, 1400 Independence Avenue, SW, Washington, D.C. 20250-9410; (2) fax: (202) 690-7442; or (3) email: [program.intake@usda.gov](mailto:program.intake@usda.gov).
 
 
 
 USDA is an equal opportunity provider, employer, and lender.
-
-

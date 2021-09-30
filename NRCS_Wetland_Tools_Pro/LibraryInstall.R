@@ -27,7 +27,7 @@ installRprofile(overwrite=TRUE)
 .rs.restartR()
 
 #Install packages needed for the report generator
-install.packages(c("flextable", "knitr", "rmarkdown", "textreadr", "xlsx"), dependencies = TRUE)
+install.packages(c("flextable", "knitr", "rmarkdown", "textreadr", "xlsx", "dbplyr"), dependencies = TRUE)
 
 #Install arcgidbinding package
 install.packages("arcgisbinding", repos = "https://r.esri.com", type = "win.binary")

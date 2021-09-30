@@ -14,11 +14,14 @@ tool_exec <- function(in_params, out_params)
     install.packages("flextable")
   if (!requireNamespace("textreadr", quietly = TRUE))
     install.packages("textreadr")
+  if (!requireNamespace("dbplyr", quietly = TRUE))
+    install.packages("dbplyr")
   require(xlsx)
   require(rmarkdown)
   require(knitr)
   require(flextable)
   require(textreadr)
+  require(dbplyr)
   
   arc.progress_label('Loading required dataset...')
   arc.progress_pos(0)
@@ -31,10 +34,11 @@ tool_exec <- function(in_params, out_params)
   ))
   
 #Get input/ouput paramenters
+  PJW_Statement <- in_params$PJW_Statement
+  Create_028 <- in_params$Create_028
   Admin_Excel_Path <- in_params$Admin_Excel_Path
   CLU_CWD_026_Excel_Path <- in_params$CLU_CWD_026_Excel_Path
   CLU_CWD_028_Excel_Path <- in_params$CLU_CWD_028_Excel_Path
-  Create_028 <- in_params$Create_028
   Path_to_the_install_directory <- in_params$Path_to_the_install_directory
 
 #out_params is output_file + file name 
