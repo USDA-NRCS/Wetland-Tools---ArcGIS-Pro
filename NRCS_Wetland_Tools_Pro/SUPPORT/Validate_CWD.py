@@ -321,7 +321,7 @@ try:
     edit.stopEditing(True)
     del workspace, edit
 
-    expression = "!Shape.Area@acres!"
+    expression = "round(!Shape.Area@acres!,2)"
     arcpy.CalculateField_management(projectCWD, "acres", expression, "PYTHON_9.3")
     del expression
     

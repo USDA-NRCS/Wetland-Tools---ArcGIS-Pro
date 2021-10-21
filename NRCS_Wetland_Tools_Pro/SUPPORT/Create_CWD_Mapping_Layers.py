@@ -301,9 +301,9 @@ try:
 
     # Copy the administrative table into the wetlands database for use with the attribute rules during digitizing
     # Repeated in case enter project info was re-run in between steps.
-    if arcpy.Exists(wetDetTable):
-        arcpy.Delete_management(wetDetTable)
-    arcpy.TableToTable_conversion(projectTable, wcGDB_path, wetDetTableName)
+    if not arcpy.Exists(wetDetTable):
+        #arcpy.Delete_management(wetDetTable)
+        arcpy.TableToTable_conversion(projectTable, wcGDB_path, wetDetTableName)
 
 
     #### Get the current job_id for use in processing
@@ -363,14 +363,14 @@ try:
             arcpy.Append_management(pccs_single, prevCluCertSite, "NO_TEST")
 
         # Update acres
-        expression = "!Shape.Area@acres!"
+        expression = "round(!Shape.Area@acres!,2)"
         arcpy.CalculateField_management(prevCluCertSite, "acres", expression, "PYTHON_9.3")
         del expression
 
         # Do summary stats to make an acres table for use with the 028
         AddMsgAndPrint("\nGenerating Previous_CLU_CWD summary tables...\n",0)
         arcpy.SetProgressorLabel("Generating Previous CWD summary tables...")
-        case_fields = ["clu_number", "wetland_label", "occur_year","cert_date"]
+        case_fields = ["farm_number", "tract_number", "clu_number", "wetland_label", "occur_year","cert_date"]
         stats_fields = [['acres', 'SUM']]
         arcpy.Statistics_analysis(prevCluCertSite, cluCWD028, stats_fields, case_fields)
 
@@ -388,14 +388,14 @@ try:
     arcpy.Append_management(clucwd_single, cluCWD, "NO_TEST")
 
     # Update acres
-    expression = "!Shape.Area@acres!"
+    expression = "round(!Shape.Area@acres!,2)"
     arcpy.CalculateField_management(cluCWD, "acres", expression, "PYTHON_9.3")
     del expression
 
     # Do summary stats to make an acres table for use with the 026
     AddMsgAndPrint("\nGenerating CLU_CWD summary tables...\n",0)
     arcpy.SetProgressorLabel("Generating CLU CWD summary tables...")
-    case_fields = ["clu_number", "wetland_label", "occur_year"]
+    case_fields = ["farm_number","tract_number","clu_number", "wetland_label", "occur_year"]
     stats_fields = [['acres', 'SUM']]
     arcpy.Statistics_analysis(cluCWD, cluCWD026, stats_fields, case_fields)
 

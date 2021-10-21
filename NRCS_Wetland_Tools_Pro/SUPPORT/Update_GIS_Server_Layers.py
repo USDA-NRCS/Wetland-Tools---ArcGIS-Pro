@@ -143,7 +143,7 @@ def update_polys(proj_lyr, target_hfs, local_temp, fldmapping=''):
         if result > 0:
             # The Erase attempt left additional features outside of the current project extent, update their integrity and measurments
             arcpy.MultipartToSinglepart_management(server_multi, server_single)
-            expression = "!Shape.Area@acres!"
+            expression = "round(!Shape.Area@acres!,2)"
             arcpy.CalculateField_management(server_single, "acres", expression, "PYTHON_9.3")
             del expression
             # Copy the residual server intersected features to the local temp layer as a backup step before upload

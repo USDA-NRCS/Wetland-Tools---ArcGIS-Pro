@@ -1,5 +1,5 @@
 ﻿NAME,DESCRIPTION,TYPE,SUBTYPE,FIELD,ISEDITABLE,TRIGGERINSERT,TRIGGERDELETE,TRIGGERUPDATE,SCRIPTEXPRESSION,ERRORNUMBER,ERRORMESSAGE,EXCLUDECLIENTEVALUATION,ISENABLED,BATCH,SEVERITY,TAGS,CATEGORY,CHECKPARAMETERS
-Update Acres,Update acres for all edits,CALCULATION,,acres,True,True,False,True,"Area($feature, 'acres')",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
+Update Acres,Update acres for all edits,CALCULATION,,acres,True,True,False,True,"Round(Area($feature, 'acres'),2)",,,False,True,False,,,,"{""type"":""PropertySet"",""propertySetItems"":[]}"
 Add SU Job ID,Adds Job ID to a new Sampling Unit,CALCULATION,,job_id,True,True,False,False,"var det_table = FeatureSetByName($datastore, ""Admin_Table"")
 var records = First(det_table)
 

@@ -274,24 +274,72 @@ try:
 
     #### Now add back the layers to the map if the corresponding feature class exists.
     AddMsgAndPrint("\Adding layers back to the map...",0)
+    arcpy.SetProgressorLabel("Adding layers to the map...")
 
-    if arcpy.Exists(projectSU):
-        addLayer(m, suLyr, wcGDB_path, suName)
+    lyr_list = m.listLayers()
+    lyr_name_list = []
+    for lyr in lyr_list:
+        lyr_name_list.append(lyr.name)
 
-    if arcpy.Exists(projectROP):
-        addLayer(m, ropLyr, wcGDB_path, ropName)
+    if suName not in lyr_name_list:
+        suLyr_cp = suLyr.connectionProperties
+        suLyr_cp['connection_info']['database'] = wcGDB_path
+        suLyr_cp['dataset'] = suName
+        suLyr.updateConnectionProperties(suLyr.connectionProperties, suLyr_cp)
+        m.addLayer(suLyr)
+        
+##    if arcpy.Exists(projectSU):
+##        addLayer(m, suLyr, wcGDB_path, suName)
 
-    if arcpy.Exists(projectREF):
-        addLayer(m, refLyr, wcGDB_path, refName)
+    if ropName not in lyr_name_list:
+        ropLyr_cp = ropLyr.connectionProperties
+        ropLyr_cp['connection_info']['database'] = wcGDB_path
+        ropLyr_cp['dataset'] = ropName
+        ropLyr.updateConnectionProperties(ropLyr.connectionProperties, ropLyr_cp)
+        m.addLayer(ropLyr)
+        
+##    if arcpy.Exists(projectROP):
+##        addLayer(m, ropLyr, wcGDB_path, ropName)
 
-    if arcpy.Exists(projectLines):
-        addLayer(m, drainLyr, wcGDB_path, drainName)
+    if refName not in lyr_name_list:
+        refLyr_cp = ropLyr.connectionProperties
+        refLyr_cp['connection_info']['database'] = wcGDB_path
+        refLyr_cp['dataset'] = refName
+        refLyr.updateConnectionProperties(refLyr.connectionProperties, refLyr_cp)
+        m.addLayer(refLyr)
+        
+##    if arcpy.Exists(projectREF):
+##        addLayer(m, refLyr, wcGDB_path, refName)
 
-    if arcpy.Exists(projectCWD):
-        addLayer(m, cwdLyr, wcGDB_path, cwdName)
+    if drainName not in lyr_name_list:
+        drainLyr_cp = ropLyr.connectionProperties
+        drainLyr_cp['connection_info']['database'] = wcGDB_path
+        drainLyr_cp['dataset'] = drainName
+        drainLyr.updateConnectionProperties(drainLyr.connectionProperties, drainLyr_cp)
+        m.addLayer(drainLyr)
+        
+##    if arcpy.Exists(projectLines):
+##        addLayer(m, drainLyr, wcGDB_path, drainName)
 
-    if arcpy.Exists(projectPJW):
-        addLayer(m, pjwLyr, wcGDB_path, pjwName)
+    if cwdName not in lyr_name_list:
+        cwdLyr_cp = cwdLyr.connectionProperties
+        cwdLyr_cp['connection_info']['database'] = wcGDB_path
+        cwdLyr_cp['dataset'] = cwdName
+        cwdLyr.updateConnectionProperties(cwdLyr.connectionProperties, cwdLyr_cp)
+        m.addLayer(cwdLyr)
+        
+##    if arcpy.Exists(projectCWD):
+##        addLayer(m, cwdLyr, wcGDB_path, cwdName)
+
+    if pjwName not in lyr_name_list:
+        pjwLyr_cp = pjwLyr.connectionProperties
+        pjwLyr_cp['connection_info']['database'] = wcGDB_path
+        pjwLyr_cp['dataset'] = pjwName
+        pjwLyr.updateConnectionProperties(pjwLyr.connectionProperties, pjwLyr_cp)
+        m.addLayer(pjwLyr)
+        
+##    if arcpy.Exists(projectPJW):
+##        addLayer(m, pjwLyr, wcGDB_path, pjwName)
 
     # Adjust the visibility of the newly added layers to turn them all off to reduce clutter
     off_names = [suName, ropName, refName, drainName, cwdName, pjwName]

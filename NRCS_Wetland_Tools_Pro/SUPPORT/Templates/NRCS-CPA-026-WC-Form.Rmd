@@ -72,7 +72,7 @@ cdfa
 df2b <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
                   stringsAsFactors=FALSE)
 df2b[1, ] <- list("5. Request Form:",wcform,"6. Farm Number:",cfarm)
-df2b[2, ] <- list("7. Request Date:",format(ddate, format = "%B %d, %Y"),"8. Tract Number:",tract)
+df2b[2, ] <- list("7. Request Date:",format(ddate, format = "%m/%d/%Y"),"8. Tract Number:",tract)
 
 cdfb <- flextable(as.data.frame(df2b))
 cdfb <- delete_part(cdfb, part = "header")
@@ -98,18 +98,20 @@ This certified wetland determination identifies areas subject to the wetland con
 wctable <- read.xlsx(CLU_CWD_026_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_026")
 wctable <- wctable[ ,c(2,3,4,6)]
 wctable <- wctable[order(as.numeric(wctable$clu_number)),]
+wctable$SUM_acres <- round(wctable$SUM_acres, 2)
+wctable$SUM_acres <- as.character(wctable$SUM_acres)
 
 wcdf <- flextable(wctable, col_keys = c("clu_number", "wetland_label", "occur_year", "SUM_acres")) %>%
-  set_header_labels(clu_number = "Field", wetland_label = "Label", occur_year = "Occurrence #year\n(CW+YEAR)", SUM_acres = "Acreage")
+  set_header_labels(clu_number = "Field", wetland_label = "Label", occur_year = "Occurrence year\n(CW+YEAR)", SUM_acres = "Acreage")
 wcdf <- bold(wcdf, part = "header")
 wcdf <- fontsize(wcdf, part = "header", size = 11)
 wcdf <- font(wcdf, part = "header", fontname = "Times")
-wcdf <- align(wcdf, align = "center", part = "header")
-wcdf <- fontsize(wcdf, size = 10)
-wcdf <- font(wcdf, fontname = "Times")
+wcdf <- align(wcdf, align = "left", part = "header")
+wcdf <- valign(wcdf, valign = "top", part = "header")
+wcdf <- fontsize(wcdf, part = "body", size = 10)
+wcdf<- font(wcdf, part = "body", fontname = "Times")
 wcdf <- align(wcdf, align = "left", part = "body")
-wcdf <- valign(wcdf, valign = "top", part = "all")
-wcdf <- colformat_double(wcdf, j = "SUM_acres", big.mark=",", digits = 2, na_str = "N/A")
+wcdf <- valign(wcdf, valign = "top", part = "body")
 wcdf <- width(wcdf, j = 1, width = 1.97)
 wcdf <- width(wcdf, j = 2, width = 0.83)
 wcdf <- width(wcdf, j = 3, width = 1.53)
@@ -142,14 +144,14 @@ remk <- bg(remk, bg = "light cyan")
 remk
 ```
    
-I certify that the above determinations are sufficient for the purpose of making a determination of eligibility for program benefits and were conducted in accordance with policies and procedures contained in the National Food Security Act Manual.  
+#### I certify that the above determinations are sufficient for the purpose of making a determination of eligibility for program benefits and were conducted in accordance with policies and procedures contained in the National Food Security Act Manual.  
 
 ```{r remk, echo=FALSE}
 N4 <- 1  # total number of rows to preallocate--possibly an overestimate
 
 df4 <- data.frame(txt=rep("", N4), txt=rep("", N4),  # as many cols as you need
                   stringsAsFactors=FALSE)
-df4[1, ] <- list("", format(Sys.Date(), "%A, %B %d, %Y"))
+df4[1, ] <- list("", format(Sys.Date(), "%m/%d/%Y"))
 
 sid <- flextable(as.data.frame(df4))
 sid <- set_header_labels(sid, txt = "10. Signature Designed Conservationist:", txt.1 = "Date:")

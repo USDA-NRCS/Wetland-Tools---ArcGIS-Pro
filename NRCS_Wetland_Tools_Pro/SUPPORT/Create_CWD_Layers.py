@@ -364,7 +364,7 @@ def createCWD():
     arcpy.AssignDomainToField_management(projectCWD, "deter_method", "Method")
 
     # Update the acres of the CWD layer
-    expression = "!Shape.Area@acres!"
+    expression = "round(!Shape.Area@acres!,2)"
     arcpy.CalculateField_management(projectCWD, "acres", expression, "PYTHON_9.3")
     del expression
     

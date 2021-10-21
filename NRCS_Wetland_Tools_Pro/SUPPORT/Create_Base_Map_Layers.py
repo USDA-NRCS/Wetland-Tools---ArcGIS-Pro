@@ -227,7 +227,7 @@ def createSU():
 ##    # job_id and eval_status are now inherited from the Extent layer
 
     # Update calculated acres
-    expression = "!Shape.Area@acres!"
+    expression = "round(!Shape.Area@acres!,2)"
     arcpy.CalculateField_management(projectSUnew, "acres", expression, "PYTHON_9.3")
     del expression
 

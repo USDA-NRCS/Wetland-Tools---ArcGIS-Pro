@@ -309,9 +309,11 @@ try:
             AddMsgAndPrint("\nAn output DEM cell size was not specified. Exiting...",2)
             exit()
         else:
-            AddMsgAndPrint("\nProjecting AOI to WGS 84 Geographic...",0)
-            arcpy.SetProgressorLabel("Projecting AOI to WGS 84 Geographic...")
-            wgs_CS = arcpy.SpatialReference(4326)
+            AddMsgAndPrint("\nProjecting AOI to match input DEM...",0)
+            arcpy.SetProgressorLabel("Projecting AOI to match input DEM...")
+            #wgs_CS = arcpy.SpatialReference(4326)  # WGS 1984 Geographic
+            #wgs_CS = arcpy.SpatialReference(3857)   # Web Mercator Auxilliary Sphere
+            wgs_CS = demSR
             arcpy.Project_management(projectAOI_B, wgs_AOI, wgs_CS)
             
             AddMsgAndPrint("\nDownloading DEM data...",0)
