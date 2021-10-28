@@ -44,14 +44,14 @@ taddress <- data.frame(x1 = cadd,
                  x2 = ccity,
                  x3= cstate,
                  x4 = czip)
-taddress <- list(taddress)
+taddress <- data.frame(taddress)
 
 N <- 2  # total number of rows to preallocate--possibly an overestimate
 
 df2a <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
                   stringsAsFactors=FALSE)
-df2a[1, ] <- list("1. Name:",cname,"2. Location County:",ocounty)
-df2a[2, ] <- list("3. Address:",taddress,"4. Admin. County:",admincounty)
+df2a[1, ] <- (list("1. Name:",toString(cname),"2. Location County:",toString(ocounty)))
+df2a[2, ] <- (list("3. Address:",toString(taddress),"4. Admin. County:",toString(admincounty)))
 
 cdfa <- flextable(as.data.frame(df2a))
 cdfa <- delete_part(cdfa, part = "header")
@@ -71,8 +71,8 @@ cdfa
 
 df2b <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
                   stringsAsFactors=FALSE)
-df2b[1, ] <- list("5. Request Form:",wcform,"6. Farm Number:",cfarm)
-df2b[2, ] <- list("7. Request Date:",format(ddate, format = "%m/%d/%Y"),"8. Tract Number:",tract)
+df2b[1, ] <- list("5. Request Form:",toString(wcform),"6. Farm Number:",toString(cfarm))
+df2b[2, ] <- list("7. Request Date:",toString(format(ddate, format = "%m/%d/%Y")),"8. Tract Number:",toString(tract))
 
 cdfb <- flextable(as.data.frame(df2b))
 cdfb <- delete_part(cdfb, part = "header")
@@ -96,7 +96,7 @@ This certified wetland determination identifies areas subject to the wetland con
 
 ```{r wcdet026, echo=FALSE}
 wctable <- read.xlsx(CLU_CWD_026_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_026")
-wctable <- wctable[ ,c(2,3,4,6)]
+wctable <- wctable[ ,c(4,5,6,8)]
 wctable <- wctable[order(as.numeric(wctable$clu_number)),]
 wctable$SUM_acres <- round(wctable$SUM_acres, 2)
 wctable$SUM_acres <- as.character(wctable$SUM_acres)

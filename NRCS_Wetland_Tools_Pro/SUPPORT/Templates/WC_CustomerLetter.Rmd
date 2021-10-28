@@ -148,9 +148,9 @@ Nfsa <- 2  # total number of rows to preallocate--possibly an overestimate
 
 dfsa <- data.frame(txt=rep("", Nfsa), txt=rep("", Nfsa),  # as many cols as you need
                   stringsAsFactors=FALSE)
-dfsa[1, ] <- list(fsaco, fsatel)
-dfsa[2, ] <- list(fsaadd, fsafax)
-dfsa[3, ] <- list(fsaloc,"")
+dfsa[1, ] <- list(toString(fsaco), fsatel)
+dfsa[2, ] <- list(toString(fsaadd), fsafax)
+dfsa[3, ] <- list(toString(fsaloc),"")
 
 tfsa <- flextable(as.data.frame(dfsa))
 tfsa <- delete_part(tfsa, part = "header")
@@ -179,8 +179,8 @@ Nnad <- 2  # total number of rows to preallocate--possibly an overestimate
 dnad <- data.frame(txt=rep("", Nnad), txt=rep("", Nnad),  # as many cols as you need
                   stringsAsFactors=FALSE)
 dnad[1, ] <- list("National Appeals Division", nadftfnum)
-dnad[2, ] <- list(nadadd, nadtty)
-dnad[3, ] <- list(nadloc,nadfax)
+dnad[2, ] <- list(toString(nadadd), nadtty)
+dnad[3, ] <- list(toString(nadloc),nadfax)
 
 tnad <- flextable(as.data.frame(dnad))
 tnad <- delete_part(tnad, part = "header")
