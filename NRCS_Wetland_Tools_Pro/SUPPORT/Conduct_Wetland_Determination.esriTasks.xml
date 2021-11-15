@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<metadata xml:lang="en">
+  <Esri>
+    <CreaDate>20211104</CreaDate>
+    <CreaTime>16355800</CreaTime>
+    <ArcGISFormat>1.0</ArcGISFormat>
+    <SyncOnce>TRUE</SyncOnce>
+  </Esri>
+  <dataIdInfo>
+    <idCitation>
+      <resTitle>(Users) Conduct a Wetland Determination</resTitle>
+    </idCitation>
+    <idPurp>A series of steps to perform mapping and client product creation for a wetland determination.</idPurp>
+    <idAbs>&lt;P&gt;Guides users through all the steps to perform a wetland determination project for a tract.&lt;/P&gt;</idAbs>
+    <resConst>
+      <Consts>
+        <useLimit>&lt;P&gt;These tasks are connected to templates sourced with the determination tools and are contingent on USDA network connectivity to geospatial portals.&lt;/P&gt;</useLimit>
+      </Consts>
+    </resConst>
+    <searchKeys>
+      <keyword>USDA</keyword>
+      <keyword>Create Project</keyword>
+      <keyword>Determinations</keyword>
+      <keyword>Conservation</keyword>
+      <keyword>Compliance</keyword>
+      <keyword>GeoPortal</keyword>
+    </searchKeys>
+  </dataIdInfo>
+</metadata>
