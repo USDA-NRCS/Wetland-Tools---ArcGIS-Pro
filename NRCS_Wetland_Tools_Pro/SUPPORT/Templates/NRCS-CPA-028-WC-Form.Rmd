@@ -44,14 +44,14 @@ taddress <- data.frame(x1 = cadd,
                  x2 = ccity,
                  x3= cstate,
                  x4 = czip)
-taddress <- list(taddress)
+taddress <- data.frame(taddress)
 
 N <- 2  # total number of rows to preallocate--possibly an overestimate
 
 df2a <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
                   stringsAsFactors=FALSE)
-df2a[1, ] <- list("1. Name:",cname,"2. Location County:",ocounty)
-df2a[2, ] <- list("3. Address:",taddress,"4. Admin. County:",admincounty)
+df2a[1, ] <- (list("1. Name:",toString(cname),"2. Location County:",toString(ocounty)))
+df2a[2, ] <- (list("3. Address:",toString(taddress),"4. Admin. County:",toString(admincounty)))
 
 cdfa <- flextable(as.data.frame(df2a))
 cdfa <- delete_part(cdfa, part = "header")
@@ -71,8 +71,8 @@ cdfa
 
 df2b <- data.frame(txt=rep("", N), txt=rep("", N), txt=rep("", N), txt=rep("", N),  # as many cols as you need
                   stringsAsFactors=FALSE)
-df2b[1, ] <- list("5. Request Form:",wcform,"6. Farm Number:",cfarm)
-df2b[2, ] <- list("7. Request Date:",format(ddate, format = "%B %d, %Y"),"8. Tract Number:",tract)
+df2b[1, ] <- list("5. Request Form:",toString(wcform),"6. Farm Number:",toString(cfarm))
+df2b[2, ] <- list("7. Request Date:",toString(format(ddate, format = "%m/%d/%Y")),"8. Tract Number:",toString(tract))
 
 cdfb <- flextable(as.data.frame(df2b))
 cdfb <- delete_part(cdfb, part = "header")
@@ -97,18 +97,28 @@ This is a consolidated listing of previously issued and final certified wetland 
 
 ```{r wcdet028, echo=FALSE}
 wctable <- read.xlsx(CLU_CWD_028_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_028")
-wctable <- wctable[ ,c(2,3,4,6,7)]
+wctable <- wctable[ ,c(4,5,6,8,9)]
 wctable <- wctable[order(as.numeric(wctable$clu_number)),]
-wcdf <- flextable(wctable)
+wctable$SUM_acres <- round(wctable$SUM_acres, 2)
+wctable$SUM_acres <- as.character(wctable$SUM_acres)
+wctable$cert_date <- as.character(wctable$cert_date)
+
+wcdf <- flextable(wctable, col_keys = c("clu_number", "wetland_label", "occur_year", "SUM_acres", "cert_date")) %>%
+  set_header_labels(clu_number = "Field", wetland_label = "Label", occur_year = "Occurrence year\n(CW+YEAR)", SUM_acres = "Acreage",cert_date = "Certification \nDate")
 wcdf <- bold(wcdf, part = "header")
 wcdf <- fontsize(wcdf, part = "header", size = 11)
 wcdf <- font(wcdf, part = "header", fontname = "Times")
-wcdf <- fontsize(wcdf, size = 10)
-wcdf <- font(wcdf, fontname = "Times")
-wcdf <- set_header_labels(wcdf, clu_number = "Field", wetland_label = "Label", occur_year = "Occurrence year\n(CW+YEAR)", SUM_acres = "Acreage", cert_date = "Certification \nDate")
-wcdf <- align(wcdf, j = c("clu_number", "wetland_label", "occur_year", "cert_date"), align = "center", part = "all")
-wcdf <- colformat_double(wcdf, j = "SUM_acres", big.mark=",", digits = 2, na_str = "N/A")
-wcdf <- set_table_properties(wcdf, width = 1, layout = "autofit")
+wcdf <- align(wcdf, align = "left", part = "header")
+wcdf <- valign(wcdf, valign = "top", part = "header")
+wcdf <- fontsize(wcdf, part = "body", size = 10)
+wcdf<- font(wcdf, part = "body", fontname = "Times")
+wcdf <- align(wcdf, align = "left", part = "body")
+wcdf <- valign(wcdf, valign = "top", part = "body")
+wcdf <- width(wcdf, j = 1, width = 1.37)
+wcdf <- width(wcdf, j = 2, width = 0.83)
+wcdf <- width(wcdf, j = 3, width = 1.28)
+wcdf <- width(wcdf, j = 4, width = 1.20)
+wcdf <- width(wcdf, j = 5, width = 1.40)
 wcdf <- theme_box(wcdf)
 wcdf <- bg(wcdf, bg = "light cyan")
 wcdf
@@ -128,11 +138,10 @@ remk <- font(remk, fontname = "Times", part = "header")
 remk <- fontsize(remk, size = 11)
 remk <- font(remk, fontname = "Times")
 remk <- height(remk, height = 5)
-remk <- width(remk, width = 7)
+remk <- width(remk, width = 7.5)
 remk <- theme_box(remk)
 remk <- bg(remk, bg = "light cyan")
 remk
-
 ```
    
 \newpage
@@ -140,15 +149,16 @@ remk
 
 ```{r wetdef026, echo=FALSE}
 wetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","WetlandDefinition.csv"), header = TRUE, sep = ",")
-deftable <- flextable(wetdef)
+deftable <- flextable(wetdef, col_keys = c("dummy", "CriteriaDetermination", "AuthorizedUses", "AuthorizedMaintenance")) %>%
+  compose(j = "dummy", value = as_paragraph(as_b(Label), Name)) %>%
+  set_header_labels(dummy = "Label/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
 deftable <- bold(deftable, part = "header")
 deftable <- fontsize(deftable, part = "header", size = 10)
 deftable <- font(deftable, part = "header", fontname = "Times")
 deftable <- fontsize(deftable, size = 9.25)
 deftable <- font(deftable, fontname = "Times")
-deftable <- set_header_labels(deftable, Label_Name = "Label/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
-deftable <- align(deftable, align = "left", part = "header")
-deftable <- valign(deftable, valign = "top", part = "header")
+deftable <- align(deftable, align = "left", part = "all")
+deftable <- valign(deftable, valign = "top", part = "all")
 deftable <- set_table_properties(deftable, width = 1, layout = "autofit")
 deftable <- theme_box(deftable)
 deftable
@@ -157,17 +167,20 @@ deftable
 # Previously Authorized Wetland Labels  
 The following wetland labels have been discontinued but may have been used on older certified wetland determinations.  
 ```{r wetdef, echo=FALSE}
-wetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","PreviousWetlandDefinition.csv"), header = TRUE, sep = ",")
-deftable <- flextable(wetdef)
-deftable <- bold(deftable, part = "header")
-deftable <- fontsize(deftable, part = "header", size = 10)
-deftable <- font(deftable, part = "header", fontname = "Times")
-deftable <- fontsize(deftable, size = 9.5)
-deftable <- font(deftable, fontname = "Times")
-deftable <- set_header_labels(deftable, Label_Name = "Lable/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
-deftable <- set_table_properties(deftable, width = 1, layout = "autofit")
-deftable <- theme_box(deftable)
-deftable
+pwetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","PreviousWetlandDefinition.csv"), header = TRUE, sep = ",")
+#pdeftable <- flextable(pwetdef)
+pdeftable <- flextable(pwetdef, col_keys = c("dummy", "CriteriaDetermination", "AuthorizedUses", "AuthorizedMaintenance")) %>%
+  compose(j = "dummy", value = as_paragraph(as_b(Label), Name)) %>%
+  set_header_labels(dummy = "Label/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
+pdeftable <- bold(pdeftable, part = "header")
+pdeftable <- fontsize(pdeftable, part = "header", size = 10)
+pdeftable <- font(pdeftable, part = "header", fontname = "Times")
+pdeftable <- fontsize(pdeftable, size = 9.5)
+pdeftable <- font(pdeftable, fontname = "Times")
+pdeftable <- set_header_labels(pdeftable, Label_Name = "Lable/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
+pdeftable <- set_table_properties(pdeftable, width = 1, layout = "autofit")
+pdeftable <- theme_box(pdeftable)
+pdeftable
 ```
 \newpage
 
