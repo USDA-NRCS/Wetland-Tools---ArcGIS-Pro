@@ -197,6 +197,11 @@ except:
 
 
 #### Check GeoPortal Connection
+#nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'     # GeoPortal Production 10.8.1
+#if not portalToken:
+#arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GeoPortal 10.8.1! Exiting...")
+#exit()
+    
 #nrcsPortal = 'https://gis-states.sc.egov.usda.gov/portal/'     # GeoPortal States Production 10.8.1
 #if not portalToken:
 #arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GeoPortal States 10.8.1! Exiting...")
