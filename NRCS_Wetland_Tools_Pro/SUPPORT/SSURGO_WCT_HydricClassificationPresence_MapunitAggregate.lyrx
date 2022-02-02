@@ -1,14 +1,14 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.6.0",
-  "build" : 24783,
+  "version" : "2.8.0",
+  "build" : 29751,
   "layers" : [
     "CIMPATH=map/hydric_classification_presence.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Hydric Classification Presence",
+      "name" : "Hydric Rating by Map Unit",
       "uRI" : "CIMPATH=map/hydric_classification_presence.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
@@ -18,17 +18,20 @@
       "description" : "SSURGO_WCT",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{DFC64D37-2BF3-4F2D-8C2B-4FD2470244B6}"
+        "mapElevationID" : "{599B122C-1A5E-4BC3-B30F-AD9511CF441D}"
       },
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : true,
+      "transparency" : 50,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
       "serviceLayerID" : -1,
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "allowDrapingOnIntegratedMesh" : true,
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
@@ -37,7 +40,7 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\Temp\\SSURGO_WCT.gdb",
+          "workspaceConnectionString" : "DATABASE=I:\\scratch\\scratch.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "SSURGO_Mapunits",
           "datasetType" : "esriDTFeatureClass"
@@ -116,6 +119,7 @@
       "selectable" : true,
       "featureCacheType" : "Session",
       "displayFiltersType" : "ByScale",
+      "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
@@ -164,7 +168,8 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ]
+              ],
+              "trimStackingSeparators" : true
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",
@@ -232,14 +237,15 @@
             "truncationMarkerCharacter" : ".",
             "truncationMinimumLength" : 1,
             "truncationPreferredCharacters" : "aeiou",
-            "truncationExcludedCharacters" : "0123456789"
+            "truncationExcludedCharacters" : "0123456789",
+            "polygonAnchorPointPerimeterInsetUnit" : "Point"
           },
           "name" : "Class 1",
           "priority" : -1,
           "standardLabelPlacementProperties" : {
             "type" : "CIMStandardLabelPlacementProperties",
             "featureType" : "Line",
-            "featureWeight" : "Low",
+            "featureWeight" : "None",
             "labelWeight" : "High",
             "numLabelsOption" : "OneLabelPerName",
             "lineLabelPosition" : {
@@ -363,9 +369,9 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        129,
-                        255,
-                        125,
+                        244.80000000000001,
+                        110,
+                        114,
                         100
                       ]
                     }
@@ -407,9 +413,9 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        205,
                         255,
-                        206,
+                        201,
+                        118,
                         100
                       ]
                     }
@@ -421,7 +427,7 @@
           },
           {
             "type" : "CIMClassBreak",
-            "label" : "Partially Hydric (32 to 65%)",
+            "label" : "Partially Hydric (33 to 65%)",
             "patch" : "Default",
             "symbol" : {
               "type" : "CIMSymbolReference",
@@ -497,9 +503,9 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
+                        205,
                         255,
-                        201,
-                        118,
+                        206,
                         100
                       ]
                     }
@@ -542,9 +548,9 @@
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
-                        244.80000000000001,
-                        110,
-                        114,
+                        129,
+                        255,
+                        125,
                         100
                       ]
                     }
@@ -593,7 +599,7 @@
           "roundingValue" : 0,
           "zeroPad" : true
         },
-        "showInAscendingOrder" : true,
+        "showInAscendingOrder" : false,
         "heading" : "Hydric Classification Presence",
         "sampleSize" : 10000,
         "defaultSymbolPatch" : "Default",
@@ -702,7 +708,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{DFC64D37-2BF3-4F2D-8C2B-4FD2470244B6}",
+      "mapElevationID" : "{599B122C-1A5E-4BC3-B30F-AD9511CF441D}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [
@@ -717,6 +723,6 @@
       "expanded" : true
     }
   ],
-  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
+  "rGBColorProfile" : "sRGB IEC61966-2.1",
   "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
 }

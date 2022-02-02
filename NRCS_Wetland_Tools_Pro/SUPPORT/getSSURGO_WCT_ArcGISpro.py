@@ -42,6 +42,15 @@
 # Updated  9/3/2021 - Adolfo Diaz
 # - Added survey area version and survey area version date to the SSURGO_Mapunits layer
 
+# ==========================================================================================
+# Updated  2/2/2022 - Adolfo Diaz
+# - Added Hydric Classification Presence - Mapunit Aggregate to the soil property choice
+#   list.  However, the output for this property is renamed to 'Hydric Rating by Map Unit'
+# - Renamed Hydric Rating to 'Hydric Rating by Component' to distinguish between Jason
+#   Nemecek's and WSS interp
+# - Updated Console messages to honor hard returns and tabs by adding a '.'
+
+
 #-------------------------------------------------------------------------------
 
 # ==============================================================================================================================
@@ -77,10 +86,10 @@ def errorMsg():
         theMsg = "\t" + traceback.format_exception(exc_type, exc_value, exc_traceback)[1] + "\n\t" + traceback.format_exception(exc_type, exc_value, exc_traceback)[-1]
 
         if theMsg.find("exit") > -1:
-            AddMsgAndPrint("\n\n")
+            AddMsgAndPrint(".\n.\n")
             pass
         else:
-            AddMsgAndPrint(theMsg,2)
+            AddMsgAndPrint(".\n.\n" + theMsg,2)
 
     except:
         AddMsgAndPrint("Unhandled error in unHandledException method", 2)
@@ -107,7 +116,7 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
 
     # Returns
     # This function returns the directory path to the output spatial layer when it
-    # successfully executes.
+    # successfully xecutes.
     # This function will return False if:
     #     - Output workspace is not a FGDB, Folder or FGDB Feature dataset
     #     - The minimum bounding coordinates could not be determined from AOI
@@ -188,7 +197,7 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
         elif desc.dataType == 'FeatureDataset':
             outSSURGOlayerPath = os.path.dirname(outputWS) + outputName
         else:
-            AddMsgAndPrint("\nOutput Workspace is invalid: " + str(outputWS),2)
+            AddMsgAndPrint(".\nOutput Workspace is invalid: " + str(outputWS),2)
             return False
 
         arcpy.env.workspace = outputWS
@@ -196,7 +205,7 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
         # Delete outputSSURGOlayer if it exists
         if arcpy.Exists(outSSURGOlayerPath):
             arcpy.Delete_management(outSSURGOlayerPath)
-            AddMsgAndPrint("\nSuccessully deleted " + outSSURGOlayerPath)
+            AddMsgAndPrint(".\nSuccessully deleted " + outSSURGOlayerPath)
 
         # Create a minimum bounding polygon from input AOI feature
         # This is the easiest way to get 4 coordinates in Lat/Long.
@@ -223,7 +232,7 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
         arcpy.Delete_management(minBoundary)
 
         if coorStr == '':
-            AddMsgAndPrint("\nCould note create AOI minimum bounding coordinates",2)
+            AddMsgAndPrint(".\nCould note create AOI minimum bounding coordinates",2)
             return False
 
         # Create empty feature class - fields will be added based on SDA metadata
@@ -257,7 +266,7 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
 
         # SDA url
         url = "https://SDMDataAccess.sc.egov.usda.gov/Tabular/post.rest"
-        AddMsgAndPrint('Sending coordinates to Soil Data Access')
+        AddMsgAndPrint('.\nSending coordinates to Soil Data Access')
 
         # Create request using JSON, return data as JSON
         request = {}
@@ -322,14 +331,14 @@ def getSSURGOgeometryFromSDA(aoi, outputWS, outputName="SSURGO_SDA"):
                 value = areasym,musym,muname,mukey,surveyAreaVer,surveyAreaDate,spatialVer,spatialDate,tabularVer,tabularDate,polygon
                 rows.insertRow(value)
 
-            AddMsgAndPrint("\nSuccessfully Created SSURGO Layer from Soil Data Access")
-            AddMsgAndPrint("Output location: " + str(outSSURGOlayerPath))
+            AddMsgAndPrint(".\nSuccessfully Created SSURGO Layer from Soil Data Access")
+            AddMsgAndPrint(".\tOutput location: " + str(outSSURGOlayerPath))
 
             # Update Basic Metadata for the SSURGO_WCT layer
             ssurgoWCTmetadata = md.Metadata(outSSURGOlayerPath)
 
             if not ssurgoWCTmetadata.isReadOnly:
-                AddMsgAndPrint("\n\n Updating Metadata for " + outSSURGOlayerPath)
+                AddMsgAndPrint(".\tUpdating Metadata for " + outSSURGOlayerPath)
                 newSSURGOmeta = md.Metadata()
                 newSSURGOmeta.title = "SSURGO WCT"
                 newSSURGOmeta.tags = "USDA, NRCS, Soil and Plant Science Division, Wetland Compliance Tool"
@@ -358,25 +367,25 @@ essential for making the best conservation-planning decisions."
             return outSSURGOlayerPath
 
         else:
-            AddMsgAndPrint("Failed to create geometry from SDA",2)
+            AddMsgAndPrint("\.nFailed to create geometry from SDA",2)
             AddMsgAndPrint(gQry,1)
             return False
 
     except socket.timeout as e:
-        AddMsgAndPrint('Soil Data Access timeout error',2)
+        AddMsgAndPrint('.\nSoil Data Access timeout error',2)
         return False
 
     except socket.error as e:
-        AddMsgAndPrint('Socket error: ' + str(e),2)
+        AddMsgAndPrint('.\nSocket error: ' + str(e),2)
         return False
 
     except HTTPError as e:
-        AddMsgAndPrint('HTTP Error' + str(e),2)
+        AddMsgAndPrint('.\nHTTP Error' + str(e),2)
         AddMsgAndPrint(gQry,1)
         return False
 
     except URLError as e:
-        AddMsgAndPrint('URL Error' + str(e),2)
+        AddMsgAndPrint('.\nURL Error' + str(e),2)
         return False
 
     except:
@@ -548,7 +557,7 @@ vegetation."}
 
 
         if not ssurgoProperty in propertyDescriptionDict:
-            AddMsgAndPrint("Could not update metadata description for " + ssurgoProperty)
+            AddMsgAndPrint(".\t.\tCould not update metadata description for " + ssurgoProperty)
             return False
 
         # Update Metadata description for the SSURGO_WCT layer
@@ -571,10 +580,11 @@ vegetation."}
             lyrMetadata.copy(updatedMetadata)
             lyrMetadata.save()
             arcpy.SetProgressorLabel("Successfully updated metadata for " + ssurgoProperty)
-            #AddMsgAndPrint("Successfully updated metadata for " + ssurgoProperty)
+            AddMsgAndPrint(".\t.\tSuccessfully updated metadata for " + ssurgoProperty)
+            return True
 
         else:
-            AddMsgAndPrint("Metadata is Read-only.  Could not update Description metadata for: " + ssurgoProperty,1)
+            AddMsgAndPrint(".\t.\tMetadata is Read-only.  Could not update Description metadata for: " + ssurgoProperty,1)
 
     except:
         errorMsg()
@@ -651,7 +661,7 @@ def compileSQLquery(ssurgoProperty,aggregationMethod,mukeyList):
             " order by  #domcondition.areasymbol,#domcondition.musym, #domcondition.mukey\n"\
 
         # This is for Jason Nemecek's
-        elif aggregationMethod == 'Component Count':
+        elif aggregationMethod == 'By Component':
             pQry = "SELECT areasymbol, musym, muname, mu.mukey/1  AS mukey,\n"\
             " (SELECT TOP 1 COUNT_BIG(*)\n"\
             " FROM mapunit\n"\
@@ -902,7 +912,7 @@ def compileSQLquery(ssurgoProperty,aggregationMethod,mukeyList):
             " INNER JOIN mapunit ON c.mukey=mapunit.mukey AND c1.mukey=mu.mukey ORDER BY c1.comppct_r DESC, c1.cokey)\n"
 
         else:
-            AddMsgAndPrint(aggregationMethod + " aggregation method is Invalid.  Could not compile query",2)
+            AddMsgAndPrint('.\n' + aggregationMethod + " aggregation method is Invalid.  Could not compile query",2)
             return False
 
         return pQry
@@ -1092,7 +1102,7 @@ def addSSURGOpropertyFld(layer, fldNames, fldInfo):
                 arcpy.AddField_management(layer, fldName, dataType, precision, scale, length)
 
         else:
-            AddMsgAndPrint("\n" + str(layer) + " Does Not Exist.  Could not add fields",2)
+            AddMsgAndPrint(".\n" + str(layer) + " Does Not Exist.  Could not add fields",2)
             return False
 
         return True
@@ -1208,23 +1218,23 @@ def getSDATabularRequest(sqlQuery,layerPath):
             return True
 
         else:
-            AddMsgAndPrint("Failed to get tabular data (getSDATabularRequest)",2)
+            AddMsgAndPrint(".\nFailed to get tabular data (getSDATabularRequest)",2)
             return False
 
     except socket.timeout as e:
-        AddMsgAndPrint('Soil Data Access timeout error',2)
+        AddMsgAndPrint('.\nSoil Data Access timeout error',2)
         return False
 
     except socket.error as e:
-        AddMsgAndPrint('Socket error: ' + str(e),2)
+        AddMsgAndPrint('.\nSocket error: ' + str(e),2)
         return False
 
     except HTTPError as e:
-        AddMsgAndPrint('HTTP Error' + str(e),2)
+        AddMsgAndPrint('.\nHTTP Error' + str(e),2)
         return False
 
     except URLError as e:
-        AddMsgAndPrint('URL Error' + str(e),2)
+        AddMsgAndPrint('.\nURL Error' + str(e),2)
         return False
 
     except:
@@ -1310,7 +1320,7 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
     # ------------------------------------------------------------------
 
     try:
-        AddMsgAndPrint("Adding Layers to ArcGIS Pro")
+        AddMsgAndPrint(".\nAdding Layers to ArcGIS Pro")
 
         # path to individual .lyrx files
         scriptPath = os.path.dirname(__file__)
@@ -1347,8 +1357,8 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
             # The layer is missing a .lyrx.  Exception is Ecological class ID and Type
             else:
                 if not soilproperty in ['Ecological Classification ID - coecoclass','Ecological Classification Type Name - coecoclass']:
-                    AddMsgAndPrint(soilproperty + " is missing .lyrx file",1)
-                    AddMsgAndPrint(str(lyrxPath),2)
+                    AddMsgAndPrint('.\t' + soilproperty + " is missing .lyrx file",1)
+                    AddMsgAndPrint('.\t' + str(lyrxPath),2)
 
         aprx = arcpy.mp.ArcGISProject("CURRENT")
 
@@ -1422,7 +1432,7 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
 
     except:
         errorMsg()
-        AddMsgAndPrint("Couldn't Add Layers to your ArcGIS Pro Session",1)
+        AddMsgAndPrint(".\nCouldn't Add Layers to your ArcGIS Pro Session",1)
         pass
 
 
@@ -1496,7 +1506,7 @@ def start(aoi,soilPropertyList,outputWS):
         outSSURGOlayer = getSSURGOgeometryFromSDA(aoi, outputWS, "SSURGO_Mapunits")
 
         if not outSSURGOlayer:
-            AddMsgAndPrint("Failed to get SSURGO from Soil Data Access",2)
+            AddMsgAndPrint(".\nFailed to get SSURGO from Soil Data Access",2)
             exit()
 
         listOfMukeys = list(set([row[0] for row in arcpy.da.SearchCursor(outSSURGOlayer,["MUKEY"])]))
@@ -1509,10 +1519,9 @@ def start(aoi,soilPropertyList,outputWS):
                 soilproperty = propSplit[0].strip()  # Hydric Classification Presence
                 aggMethod = propSplit[1].strip()     # Mapunit Aggregate
 
-##                print(propSplit)
-##                print(soilproperty)
-##                print(aggMethod)
-##                exit()
+                #AddMsgAndPrint(propSplit)
+                #AddMsgAndPrint(soilproperty)
+                #AddMsgAndPrint(aggMethod)
 
                 theQuery = compileSQLquery(soilproperty,aggMethod,listOfMukeys)
                 #AddMsgAndPrint(str(theQuery),1)
@@ -1522,7 +1531,7 @@ def start(aoi,soilPropertyList,outputWS):
             # Add EDIT URL field if ecoclassname or ecoclassid fields are present
             if "Ecological Classification Name - coecoclass" in soilPropertyList:
 
-                AddMsgAndPrint("Adding Ecological Site Description web link")
+                AddMsgAndPrint(".\nAdding Ecological Site Description web link")
                 # https://edit.jornada.nmsu.edu/catalogs/esd/103X/F103XY030MN
                 editURL = r'https://edit.jornada.nmsu.edu/catalogs/esd'
                 editFld = "EDIT_URL"
@@ -1545,7 +1554,7 @@ def getEditURL(ecoID):
                 arcpy.CalculateField_management(outSSURGOlayer, editFld, expression, "PYTHON3", codeblock)
 
         else:
-            AddMsgAndPrint("Failed to get a list of MUKEYs from " + os.path.basename(outSSURGOlayer),2)
+            AddMsgAndPrint(".\nFailed to get a list of MUKEYs from " + os.path.basename(outSSURGOlayer),2)
             return False
 
         # Adding the SSURGO polygons to the list so that it can be automatically added to ArcGISPro
