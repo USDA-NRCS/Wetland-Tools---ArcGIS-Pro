@@ -17,23 +17,30 @@
 ## ===============================================================================================================
 ##
 ## rev. 10/06/2020
-## -Start revisions of Create SU Layer ArcMap tool to National Wetlands Tool in ArcGIS Pro.
-## -CLU and derived layers now use GeoPortal based web service extract attribute schema.
+## - Start revisions of Create SU Layer ArcMap tool to National Wetlands Tool in ArcGIS Pro.
+## - CLU and derived layers now use GeoPortal based web service extract attribute schema.
 ##
 ## rev. 10/14/2020
-## -Incorporate download of previously certified determination areas; used later to restrict request extent
-##      -Added check for GeoPortal login using getPortalTokenInfo call to the extract_CLU_by_Tract tool
-##      -Added creation of prevCert feature class
-##      -Added creation of prevAdmin feature class
+## - Incorporate download of previously certified determination areas; used later to restrict request extent
+##      - Added check for GeoPortal login using getPortalTokenInfo call to the extract_CLU_by_Tract tool
+##      - Added creation of prevCert feature class
+##      - Added creation of prevAdmin feature class
 ##
 ## rev. 11/17/2020
-## -Added a check for the input extent to make sure it is within the FSA Tract for the project.
-## -Revised the methodology for developing the sampling unit layer to not include previously certified append step.
+## - Added a check for the input extent to make sure it is within the FSA Tract for the project.
+## - Revised the methodology for developing the sampling unit layer to not include previously certified append step.
 ##
 ## rev. 03/02/2021
-## -Updated tool to focus on creating the Request Extent layer and display New Request vs Certified-Digital areas
-##  within the user entered AOI parameter(s).
-## -Removed Sampling Unit and ROP data creation from this tool and moved it to the Create Base Map Layers tool.
+## - Updated tool to focus on creating the Request Extent layer and display New Request vs Certified-Digital areas
+##   within the user entered AOI parameter(s).
+## - Removed Sampling Unit and ROP data creation from this tool and moved it to the Create Base Map Layers tool.
+##
+## rev. 02/02/2022
+## - Added functions and code to handle querying existing CWD data from server to update request extent and
+##   protect existing determination extents.
+##
+## rev. 02/18/2022
+## - Updated and debugged query server functions that were added on 2/2/2022
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -105,11 +112,100 @@ def deleteTempLayers(lyrs):
                 arcpy.Delete_management(lyr)
             except:
                 pass
+
+##  ===============================================================================================================
+def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
+##  This function uses a REST API query to retrieve geometry from that intersect an input feature class from a
+##  hosted feature service.
+##  Relies on a global variable of portalToken to exist and be active (checked before running this function)
+##  ws is a file geodatabase workspace to store temp files for processing
+##  fc is the input feature class. Should be a polygon feature class, but technically shouldn't fail if other types
+##  RESTurl is the url for the query where the target hosted data resides
+##  Example: """https://gis-testing.usda.net/server/rest/services/Hosted/CWD_Training/FeatureServer/0/query"""
+##  outFC is the output feature class path/name that is return if the function succeeds AND finds data
+##  Otherwise False is returned
+
+    # Run the query
+    try:
+        
+        # Set variables
+        query_url = RESTurl + "/query"
+        jfile = temp_dir + os.sep + "jsonFile.json"
+        wmas_fc = ws + os.sep + "wmas_fc"
+        wmas_dis = ws + os.sep + "wmas_dis_fc"
+        wmas_sr = arcpy.SpatialReference(3857)
+
+        # Convert the input feature class to Web Mercator and to JSON
+        arcpy.management.Project(fc, wmas_fc, wmas_sr)
+        arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
+        jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
+
+        # Setup parameters for query
+        params = urllibEncode({'f': 'json',
+                               'geometry':jsonPolygon,
+                               'geometryType':'esriGeometryPolygon',
+                               'spatialRelationship':'esriSpatialRelIntersects',
+                               'returnGeometry':'true',
+                               'outFields':'*',
+                               'token': portalToken['token']})
+
+    
+        INparams = params.encode('ascii')
+        resp = urllib.request.urlopen(query_url,INparams)
+
+        responseStatus = resp.getcode()
+        responseMsg = resp.msg
+        jsonString = resp.read()
+
+        # json --> Python; dictionary containing 1 key with a list of lists
+        results = json.loads(jsonString)
+
+        # Check for error in results and exit with message if found.
+        if 'error' in results.keys():
+            if results['error']['message'] == 'Invalid Token':
+                AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
+                exit()
+            else:
+                AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
+                AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
+                exit()
+        else:
+            # Convert results to a feature class
+            if not len(results['features']):
+                return False
+            else:
+                with open(jfile, 'w') as outfile:
+                    json.dump(results, outfile)
+
+                arcpy.conversion.JSONToFeatures(jfile, outFC)
+                return outFC
+
+            # Cleanup temp stuff from this function
+            files_to_del = [jfile, wmas_fc, wmas_dis]
+            for item in files_to_del:
+                if arcpy.Exists(item):
+                    arcpy.management.Delete(item)
+
+    except httpErrors as e:
+        if int(e.code) >= 400:
+            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
+            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
+            errorMsg()
+            exit()
+        else:
+            errorMsg()
+            return False
             
 ## ===============================================================================================================
 #### Import system modules
 import arcpy, sys, os, traceback, re, shutil, csv
 from importlib import reload
+import urllib, time, json, random
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError as httpErrors
+global urllibEncode = urllib.parse.urlencode
+global parseQueryString = urllib.parse.parse_qsl
+
 sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
 sys.path.append(scriptPath)
@@ -135,6 +231,7 @@ except:
 
 
 #### Check GeoPortal Connection
+#nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
 nrcsPortal = 'https://gis-testing.usda.net/portal/'
 portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
 if not portalToken:
@@ -151,7 +248,7 @@ try:
     wholeTract = arcpy.GetParameterAsText(1)
     selectFields = arcpy.GetParameterAsText(2)
     sourceAOI = arcpy.GetParameterAsText(3)
-    existing_cwd = arcpy.GetParameterAsText(4)
+    cwdURL = arcpy.GetParameterAsText(4)
 ##    extentLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(6))
     extentLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Extent.lyrx").listLayers()[0]
 
@@ -221,6 +318,7 @@ try:
     extentTemp3 = scratchGDB + os.sep + "Extent_temp3_" + projectName
     tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
 
+    intCWD = wcFD + os.sep + "Intersected_CWD"
     prevCert = wcFD + os.sep + "Previous_CWD"
     prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
     prevCertMulti = scratchGDB + os.sep + "pCertMulti"
@@ -400,72 +498,69 @@ try:
     del drop_fields, existing_fields
     
 
-    #### Check for Existing CWD data on the tract from the statewide layer and create the previous certication layers if found.
-    if arcpy.Exists(existing_cwd):
-        AddMsgAndPrint("\tChecking for existing CWD data in the Tract...",0)
-        arcpy.SetProgressorLabel("Checking for existing CWD data in the Tract...")
-        process_cwd = False
-        # Use intersect so that you apply current tract data to the existing CWD in case it changed over time
-        arcpy.Intersect_analysis([projectTract, existing_cwd], prevCertMulti, "NO_FID", "#", "INPUT")
+    #### Check for Existing CWD data within the request extent from the server layer and create the previous certication layers if found.
+    AddMsgAndPrint("\tChecking for existing CWD data in the Tract...",0)
+    arcpy.SetProgressorLabel("Checking for existing CWD data in the Tract...")
 
-        # Check for any results
-        result = int(arcpy.GetCount_management(prevCertMulti).getOutput(0))
-        if result > 0:
-            process_cwd = True
-            # Features were found in the area
-            AddMsgAndPrint("\tPrevious certifications found within current Tract! Processing...",0)
-            arcpy.SetProgressorLabel("Previous certifications found within current Tract! Processing...")
+    query_results_fc = queryIntersect(scratchGDB,wetDir, projectTract,cwdURL,intCWD)
+    
+    if query_results_fc != False:
+        # This section runs if any intersecting geometry is returned from the query
+        AddMsgAndPrint("\tPrevious certifications found within current Tract! Processing...",0)
+        arcpy.SetProgressorLabel("Previous certifications found within current Tract! Processing...")
+        
+        # Use intersect to apply current tract data to the intCWD in case FSA CLU administrative info changed over time
+        arcpy.Intersect_analysis([projectTract, query_results_fc], prevCertMulti, "NO_FID", "#", "INPUT")
 
-            # Explode features into single part
-            arcpy.MultipartToSinglepart_management(prevCertMulti, prevCert)
-            arcpy.Delete_management(prevCertMulti)
+        # Explode features into single part
+        arcpy.MultipartToSinglepart_management(prevCertMulti, prevCert)
+        arcpy.Delete_management(prevCertMulti)
 
-            # Calculate the eval_status field to "Certified-Digital"
-            expression = "\"Certified-Digital\""
-            arcpy.CacluateField_management(prevCert, "eval_status", expression, "PYTHON_9.3")
-            del expression
+        # Calculate the eval_status field to "Certified-Digital"
+        expression = "\"Certified-Digital\""
+        arcpy.CacluateField_management(prevCert, "eval_status", expression, "PYTHON_9.3")
+        del expression
 
-            # Transer the job_id_1 attributes to the job_id field
-            fields = ['job_id','job_id_1']
-            cursor = arcpy.da.UpdateCursor(prevCert, fields)
-            for row in cursor:
-                row[0] = row[1]
-                cursor.updateRow(row)
-            del fields
-            del cursor
-            
-            # Create the prevAdmin layer using Dissolve.
-            dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
-            arcpy.Dissolve_management(prevCert, prevAdmin, dis_fields, "", "SINGLE_PART", "")
-            del dis_fields
+        # Transer the job_id_1 attributes to the job_id field
+        fields = ['job_id','job_id_1']
+        cursor = arcpy.da.UpdateCursor(prevCert, fields)
+        for row in cursor:
+            row[0] = row[1]
+            cursor.updateRow(row)
+        del fields
+        del cursor
+        
+        # Create the prevAdmin layer using Dissolve.
+        dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+        arcpy.Dissolve_management(prevCert, prevAdmin, dis_fields, "", "SINGLE_PART", "")
+        del dis_fields
 
-            # Also Delete excess tabular fields from the prevCert layer
-            existing_fields = []
-            drop_fields = ['job_id_1','admin_state_1','admin_state_name_1','admin_county_1','admin_county_name_1','state_code_1','state_name_1','county_code_1','county_name_1','farm_number_1',
-                           'tract_number_1', 'eval_status_1']
-            
-            for fld in arcpy.ListFields(prevCert):
-                existing_fields.append(fld.name)
-            
-            for fld in drop_fields:
-                if fld not in existing_fields:
-                    drop_fields.remove(fld)
-                    
-            if len(drop_fields) > 0:
-                arcpy.DeleteField_management(prevCert, drop_fields)
+        # Also Delete excess tabular fields from the prevCert layer
+        existing_fields = []
+        drop_fields = ['job_id_1','admin_state_1','admin_state_name_1','admin_county_1','admin_county_name_1','state_code_1','state_name_1','county_code_1','county_name_1','farm_number_1',
+                       'tract_number_1', 'eval_status_1']
+        
+        for fld in arcpy.ListFields(prevCert):
+            existing_fields.append(fld.name)
+        
+        for fld in drop_fields:
+            if fld not in existing_fields:
+                drop_fields.remove(fld)
                 
-            del drop_fields, existing_fields
+        if len(drop_fields) > 0:
+            arcpy.DeleteField_management(prevCert, drop_fields)
+            
+        del drop_fields, existing_fields
 
-        else:
-            AddMsgAndPrint("\tNo previous certifications found! Continuing...",0)
-            arcpy.SetProgressorLabel("No previous certifications found! Continuing...")
-            arcpy.Delete_management(prevCert)
-            if arcpy.Exists(prevAdmin):
-                try:
-                    arcpy.Delete_management(prevAdmin)
-                except:
-                    pass
-        del result
+    else:
+        AddMsgAndPrint("\tNo previous certifications found! Continuing...",0)
+        arcpy.SetProgressorLabel("No previous certifications found! Continuing...")
+        if arcpy.Exists(prevAdmin):
+            try:
+                arcpy.Delete_management(prevAdmin)
+                arcpy.Delete_management(prevCert)
+            except:
+                pass
 
 
     #### Use the prevAdmin areas to update the request extent if there is overlap between them

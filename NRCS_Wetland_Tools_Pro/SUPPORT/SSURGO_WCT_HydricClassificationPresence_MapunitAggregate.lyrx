@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.8.0",
-  "build" : 29751,
+  "version" : "2.7.0",
+  "build" : 26828,
   "layers" : [
     "CIMPATH=map/hydric_classification_presence.xml"
   ],
@@ -18,7 +18,7 @@
       "description" : "SSURGO_WCT",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{599B122C-1A5E-4BC3-B30F-AD9511CF441D}"
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
       },
       "layerType" : "Operational",
       "showLegends" : true,
@@ -31,7 +31,6 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
-      "allowDrapingOnIntegratedMesh" : true,
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
@@ -40,7 +39,7 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=I:\\scratch\\scratch.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\Determinations\\in001_t0000309_2022_01\\in001_t0000309_2022_01_BaseData.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "SSURGO_Mapunits",
           "datasetType" : "esriDTFeatureClass"
@@ -53,7 +52,12 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Not Hydric (0%)",
           "tags" : "Polygon",
-          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
+          "toolFilter" : [
+            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
+            "a281e635-0f22-47d4-a438-e4d29b920e22",
+            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
+          ],
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -66,7 +70,12 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Partially Hydric (1 to 32%)",
           "tags" : "Polygon",
-          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
+          "toolFilter" : [
+            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
+            "a281e635-0f22-47d4-a438-e4d29b920e22",
+            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
+          ],
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -77,9 +86,14 @@
         },
         {
           "type" : "CIMFeatureTemplate",
-          "name" : "Partially Hydric (32 to 65%)",
+          "name" : "Partially Hydric (33 to 65%)",
           "tags" : "Polygon",
-          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
+          "toolFilter" : [
+            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
+            "a281e635-0f22-47d4-a438-e4d29b920e22",
+            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
+          ],
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -92,7 +106,12 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Partially Hydric (66 to 99%)",
           "tags" : "Polygon",
-          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
+          "toolFilter" : [
+            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
+            "a281e635-0f22-47d4-a438-e4d29b920e22",
+            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
+          ],
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -105,7 +124,12 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Hydric (100%)",
           "tags" : "Polygon",
-          "toolProgID" : "00000000-0000-0000-0000-000000000000",
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
+          "toolFilter" : [
+            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
+            "a281e635-0f22-47d4-a438-e4d29b920e22",
+            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
+          ],
           "defaultValues" : {
             "type" : "PropertySet",
             "propertySetItems" : [
@@ -168,8 +192,7 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ],
-              "trimStackingSeparators" : true
+              ]
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",
@@ -708,7 +731,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{599B122C-1A5E-4BC3-B30F-AD9511CF441D}",
+      "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [
@@ -723,6 +746,6 @@
       "expanded" : true
     }
   ],
-  "rGBColorProfile" : "sRGB IEC61966-2.1",
+  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
   "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
 }

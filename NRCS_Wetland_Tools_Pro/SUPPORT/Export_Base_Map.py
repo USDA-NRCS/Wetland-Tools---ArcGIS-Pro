@@ -26,11 +26,18 @@
 ## -Start revisions of Generate WC Map ArcMap tool to National Wetlands Tool in ArcGIS Pro and retool to Base Map.
 ##
 ## rev. 07/07/2021
-## -Add Town Range Section query sequence
-## -Refine map export process to streamline tool and remove extraneous layer ordering and display
+## - Added Town Range Section query sequence
+## - Refined map export process to streamline tool and remove extraneous layer ordering and display
 ##
 ## rev. 07/16/2021
-## -Add zoom management functions
+## - Added zoom management functions
+##
+## rev. 01/26/2022
+## - Added handling for specifiying imagery layer to display in a map text box.
+## - Added automatic control of legends to only show features in map extent and to hide the imagery layer.
+##
+## rev. 02/08/2022
+## - Blocked out annotation and labels related code
 ##
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -213,7 +220,7 @@ def getPLSS(plss_point):
     return trs_text
 
 ## ================================================================================================================
-def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digitizer, location_txt=''):
+def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digitizer, image_name, location_txt=''):
     
     # Check for appropriate element names on Base Map layout, otherwise exit
     elm_list = []
@@ -254,6 +261,10 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
         # Customer element
         if elm.name == "Customer":
             customer_elm = elm
+
+        # Imagery Text element
+        if elm.name == "Imagery Text Box":
+            imagery_elm = elm
         
 ##        # Map Prepared By element
 ##        if elm.name == "Map Author":
@@ -296,10 +307,22 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
         loc_elm.visible = False
         loc_elm.text = "Location: "
 
+    if imagery != '':
+        imagery_elm.text = " Image: " + image_name
+    else:
+        imagery_elm.text = " Image: "
+        
 ##    if digitizer != '':
 ##        prep_elm.text = "Map Prepared By: " + digitizer
 ##    else:
 ##        prep_elm.text = "Map Prepared By: (Not Entered)"
+
+    #### Turn off the imagery element in each layout
+    # Get the legend item for the layout
+    leg = lyt.listElements('LEGEND_ELEMENT')[0]
+    for item in leg.items:
+        if item.name == image_name:
+            item.visible = False
 
         
 ## ================================================================================================================
@@ -315,6 +338,7 @@ parseQueryString = urllib.parse.parse_qsl
 
 #### Update Environments
 arcpy.AddMessage("Setting Environments...\n")
+arcpy.SetProgressorLabel("Setting Environments...")
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -343,6 +367,7 @@ try:
     showLocation = arcpy.GetParameter(8)
     plssPoint = arcpy.GetParameterAsText(9)
     owLayouts = arcpy.GetParameter(10)
+    imagery = arcpy.GetParameterAsText(11)
 
 
     #### Initial Validations
@@ -400,6 +425,7 @@ try:
     ropName = "Site_ROPs"
     rpName = "Site_Reference_Points"
     drainName = "Site_Drainage_Lines"
+    imageName = imagery
 
 
     #### Set up log file path and start logging
@@ -493,7 +519,7 @@ try:
         exit()
 
     # Send information to function to set the layout elements
-    setLytElements(bm_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, bm_plss_text)
+    setLytElements(bm_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, imageName, bm_plss_text)
 
     
     #####################################################################################################
@@ -514,6 +540,11 @@ try:
     except:
         dl_lyr = ''
 
+    try:
+        image_lyr = m.listLayers(imageName)[0]
+    except:
+        image_lyr = ''
+
     plss_lyr = ''
     if plssPoint:
         plssDesc = arcpy.Describe(plssPoint)
@@ -522,61 +553,73 @@ try:
                 plss_lyr = m.listLayers(plssPoint)[0]
             except:
                 plss_lyr = ''
-                
+
+    # Turn on the visibility of the specified image layer
+    try:
+        image_lyr.visible = True
+    except:
+        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
+        exit()
+
+    # Get the imagery text box element for use in subsequent reset steps
+    for elm in bm_lyt.listElements():
+        if elm.name == "Imagery Text Box":
+            bm_imagery_elm = elm
+            
     # Find annotation for the typical layers, if any
     lyrs = m.listLayers()
     
-    su_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(suName + "Anno"):
-            su_anno_list.append(lyr.name)
-    if len(su_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one SU Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA SU Annotation layers and run this tool again. Exiting...",2)
-        exit()
-
-    rop_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(ropName + "Anno"):
-            rop_anno_list.append(lyr.name)
-    if len(rop_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one ROPs Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA ROPs Annotation layers and run this tool again. Exiting...",2)
-        exit()
-        
-    rp_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(rpName + "Anno"):
-            rp_anno_list.append(lyr.name)
-    if len(rp_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one Representative Points Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA Representative Points Annotation layers and run this tool again. Exiting...",2)
-        exit()
-        
-    dl_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(drainName + "Anno"):
-            dl_anno_list.append(lyr.name)
-    if len(dl_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one Drainage Lines Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA Drainage Lines Annotation layers and run this tool again. Exiting...",2)
-        exit()
-        
-    su_anno_lyr = ''
-    if len(su_anno_list) == 1:
-        su_anno_lyr = m.listLayers(su_anno_list[0])
-
-    rop_anno_lyr = ''
-    if len(rop_anno_list) == 1:
-        rop_anno_lyr = m.listLayers(rop_anno_list[0])
-
-    rp_anno_lyr = ''
-    if len(rp_anno_list) == 1:
-        rp_anno_lyr = m.listLayers(rp_anno_list[0])
-
-    dl_anno_lyr = ''
-    if len(dl_anno_list) == 1:
-        dl_anno_lyr = m.listLayers(dl_anno_list[0])
+##    su_anno_list = []
+##    for lyr in lyrs:
+##        if lyr.name.startswith(suName + "Anno"):
+##            su_anno_list.append(lyr.name)
+##    if len(su_anno_list) > 1:
+##        AddMsgAndPrint("\tThe map contains more than one SU Annotation layer.",2)
+##        AddMsgAndPrint("\tPlease remove any EXTRA SU Annotation layers and run this tool again. Exiting...",2)
+##        exit()
+##
+##    rop_anno_list = []
+##    for lyr in lyrs:
+##        if lyr.name.startswith(ropName + "Anno"):
+##            rop_anno_list.append(lyr.name)
+##    if len(rop_anno_list) > 1:
+##        AddMsgAndPrint("\tThe map contains more than one ROPs Annotation layer.",2)
+##        AddMsgAndPrint("\tPlease remove any EXTRA ROPs Annotation layers and run this tool again. Exiting...",2)
+##        exit()
+##        
+##    rp_anno_list = []
+##    for lyr in lyrs:
+##        if lyr.name.startswith(rpName + "Anno"):
+##            rp_anno_list.append(lyr.name)
+##    if len(rp_anno_list) > 1:
+##        AddMsgAndPrint("\tThe map contains more than one Representative Points Annotation layer.",2)
+##        AddMsgAndPrint("\tPlease remove any EXTRA Representative Points Annotation layers and run this tool again. Exiting...",2)
+##        exit()
+##        
+##    dl_anno_list = []
+##    for lyr in lyrs:
+##        if lyr.name.startswith(drainName + "Anno"):
+##            dl_anno_list.append(lyr.name)
+##    if len(dl_anno_list) > 1:
+##        AddMsgAndPrint("\tThe map contains more than one Drainage Lines Annotation layer.",2)
+##        AddMsgAndPrint("\tPlease remove any EXTRA Drainage Lines Annotation layers and run this tool again. Exiting...",2)
+##        exit()
+##        
+##    su_anno_lyr = ''
+##    if len(su_anno_list) == 1:
+##        su_anno_lyr = m.listLayers(su_anno_list[0])
+##
+##    rop_anno_lyr = ''
+##    if len(rop_anno_list) == 1:
+##        rop_anno_lyr = m.listLayers(rop_anno_list[0])
+##
+##    rp_anno_lyr = ''
+##    if len(rp_anno_list) == 1:
+##        rp_anno_lyr = m.listLayers(rp_anno_list[0])
+##
+##    dl_anno_lyr = ''
+##    if len(dl_anno_list) == 1:
+##        dl_anno_lyr = m.listLayers(dl_anno_list[0])
 
     #### Start exporting maps
     AddMsgAndPrint("\nCreating the Base Map PDF file...",0)
@@ -593,34 +636,34 @@ try:
     
     # Set required layers and corresponding annotation or labels to be visible
     su_lyr.visible = True
-    if arcpy.Exists(su_anno_lyr):
-        su_anno_lyr.visible = True
-        su_lyr.showLabels = False
-    else:
-        su_lyr.showLabels = True
+##    if arcpy.Exists(su_anno_lyr):
+##        su_anno_lyr.visible = True
+##        su_lyr.showLabels = False
+##    else:
+##        su_lyr.showLabels = True
         
     rop_lyr.visible = True
-    if arcpy.Exists(rop_anno_lyr):
-        rop_anno_lyr.visible = True
-        rop_lyr.showLabels = False
-    else:
-        rop_lyr.showLabels = True
+##    if arcpy.Exists(rop_anno_lyr):
+##        rop_anno_lyr.visible = True
+##        rop_lyr.showLabels = False
+##    else:
+##        rop_lyr.showLabels = True
     
     if includeRP:
         rp_lyr.visible = True
-        if arcpy.Exists(rp_anno_lyr):
-            rp_anno_lyr.visible = True
-            rp_lyr.showLabels = False
-        else:
-            rp_lyr.showLabels = True
+##        if arcpy.Exists(rp_anno_lyr):
+##            rp_anno_lyr.visible = True
+##            rp_lyr.showLabels = False
+##        else:
+##            rp_lyr.showLabels = True
         
     if includeDL:
         dl_lyr.visible = True
-        if arcpy.Exists(dl_anno_lyr):
-            dl_anno_lyr.visible = True
-            dl_lyr.showLabels = False
-        else:
-            dl_lyr.showLabels = True
+##        if arcpy.Exists(dl_anno_lyr):
+##            dl_anno_lyr.visible = True
+##            dl_lyr.showLabels = False
+##        else:
+##            dl_lyr.showLabels = True
 
     # Set the plss inpoint layer to be not visible, if it was used
     if plssPoint:
@@ -628,7 +671,22 @@ try:
             plss_lyr.visible = False
         except:
             pass
-            
+
+    # Set legend options for visibility and visible features on RP and DRAIN layers
+    bm_leg = bm_lyt.listElements('LEGEND_ELEMENT')[0]
+    for item in bm_leg.items:
+        if item.name == rpName:
+            if includeRP:
+                item.visible = True
+            else:
+                item.visible = False
+        elif item.name == drainName:
+            if includeDL:
+                item.visible = True
+                item.showVisibleFeatures = True
+            else:
+                item.visible = False
+        
     # Export the map
     AddMsgAndPrint("\tExporting the Base Map to PDF...",0)
     bm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
@@ -636,6 +694,18 @@ try:
     
 
     #### MAINTENANCE
+    AddMsgAndPrint("\tRunning cleanup...",0)
+    arcpy.SetProgressorLabel("Running cleanup...")
+    
+    ## Reset image text on each layout to be blank
+    # Define the imagery text box elements
+    for elm in bm_lyt.listElements():
+        if elm.name == "Imagery Text Box":
+            bm_imagery_elm = elm
+            
+    dflt_img_text = " Image: "
+    bm_imagery_elm.text = dflt_img_text
+    
     # Look for and delete anything else that may remain in the installed SCRATCH.gdb
     startWorkspace = arcpy.env.workspace
     arcpy.env.workspace = scratchGDB

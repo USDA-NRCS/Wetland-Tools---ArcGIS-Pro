@@ -3,13 +3,13 @@
   "version" : "2.7.0",
   "build" : 26828,
   "layers" : [
-    "CIMPATH=determinations/hydric_rating_by_component.xml"
+    "CIMPATH=determinations/hydric_rating.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Hydric Rating by Component",
-      "uRI" : "CIMPATH=determinations/hydric_rating_by_component.xml",
+      "name" : "Hydric Rating",
+      "uRI" : "CIMPATH=determinations/hydric_rating.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant",
         "start" : 978307200000
@@ -21,9 +21,9 @@
         "type" : "CIMLayerElevationSurface",
         "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
       },
+      "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "transparency" : 50,
       "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
@@ -258,20 +258,6 @@
             "fieldName" : "EDIT_URL",
             "visible" : true,
             "searchMode" : "Exact"
-          },
-          {
-            "type" : "CIMFieldDescription",
-            "alias" : "Hydric Classification Presence",
-            "fieldName" : "hydclprs",
-            "numberFormat" : {
-              "type" : "CIMNumericFormat",
-              "alignmentOption" : "esriAlignRight",
-              "alignmentWidth" : 0,
-              "roundingOption" : "esriRoundNumberOfDecimals",
-              "roundingValue" : 0
-            },
-            "visible" : true,
-            "searchMode" : "Exact"
           }
         ],
         "dataConnection" : {
@@ -422,7 +408,7 @@
           "standardLabelPlacementProperties" : {
             "type" : "CIMStandardLabelPlacementProperties",
             "featureType" : "Line",
-            "featureWeight" : "None",
+            "featureWeight" : "Low",
             "labelWeight" : "High",
             "numLabelsOption" : "OneLabelPerName",
             "lineLabelPosition" : {
@@ -589,13 +575,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 1.4999999999999998,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            0,
-                            0,
-                            0,
+                            110,
+                            110,
+                            110,
                             100
                           ]
                         }
@@ -643,13 +629,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 1.4999999999999998,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            0,
-                            0,
-                            0,
+                            110,
+                            110,
+                            110,
                             100
                           ]
                         }
@@ -697,13 +683,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 1.4999999999999998,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            0,
-                            0,
-                            0,
+                            110,
+                            110,
+                            110,
                             100
                           ]
                         }
@@ -750,13 +736,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 1.4999999999999998,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            0,
-                            0,
-                            0,
+                            110,
+                            110,
+                            110,
                             100
                           ]
                         }
@@ -803,13 +789,13 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 1.4999999999999998,
+                        "width" : 0.69999999999999996,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
-                            0,
-                            0,
-                            0,
+                            110,
+                            110,
+                            110,
                             100
                           ]
                         }

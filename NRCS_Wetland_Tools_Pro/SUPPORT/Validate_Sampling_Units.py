@@ -1,6 +1,7 @@
 ## ===============================================================================================================
 ## Name:    Validate Sampling Units
-## Purpose: Check for topology overlaps and other attribute errors in the Sampling Units layer.
+## Purpose: Check for attribute errors in the Sampling Units layer.
+##          Topology check dropped due to uncertainty of the integrity of the CLU at a national level
 ##
 ## Authors: Chris Morse
 ##          GIS Specialist
@@ -16,30 +17,30 @@
 ## ===============================================================================================================
 ##
 ## rev. 11/04/2020
-## -Start revisions of Validate Topology ArcMap tool to National Wetlands Tool in ArcGIS Pro.
+## - Start revisions of Validate Topology ArcMap tool to National Wetlands Tool in ArcGIS Pro.
 ##
 ## rev. 11/18/2020
-## -Check for internal gaps will have to be handled differently because SUs can go beyond extent/tract edges
-##      -Use the outer edge of the extent layer itself in place of the tract layer.
+## - Check for internal gaps will have to be handled differently because SUs can go beyond extent/tract edges
+##      - Use the outer edge of the extent layer itself in place of the tract layer.
 ##
 ## rev. 03/05/2021
-## -Removed request extent updates and certified area enforcement because if Sampling Units are combined
-##  internally, or extented outside of the request extent and/or tract then cutting in Certified-Digital or
-##  Revision extents could artificially split a contiguous sampling unit.
-## -Request Extent and Certified/Revision areas will be moved to and enforced in the Create CWD Data tool.
-## -Removed topology check for gaps steps due to SU's being allowed to extend outside of Request Extent/Tract.
-## -Removed the steps to check that ROPs are inside the Sampling Units (now enforced with an attribute rule).
-## -Added Sampling Unit attribute validations to this tool, and renamed this tool to Validate Sampling Units.
+## - Removed request extent updates and certified area enforcement because if Sampling Units are combined
+##   internally, or extented outside of the request extent and/or tract then cutting in Certified-Digital or
+##   Revision extents could artificially split a contiguous sampling unit.
+## - Request Extent and Certified/Revision areas will be moved to and enforced in the Create CWD Data tool.
+## - Removed topology check for gaps steps due to SU's being allowed to extend outside of Request Extent/Tract.
+## - Removed the steps to check that ROPs are inside the Sampling Units (now enforced with an attribute rule).
+## - Added Sampling Unit attribute validations to this tool, and renamed this tool to Validate Sampling Units.
 ##
 ## rev. 05/11/2021
-## -Added a check for multiple ROPs within a single sampling unit.
+## - Added a check for multiple ROPs within a single sampling unit.
 ##
 ## rev. 07/23/2021
-## -Blocked out topology check because they were causing post-script editing problems.
+## - Blocked out topology checks due to uncertainty of the integrity of the CLU at a national level
 ##
 ## rev. 09/09/2021
-## -Slight modifications to test edit objects interfering with output schema locks. Confirmed that editing is
-##  required during script runtime to allow attribute rules that use the "Update" option to function properly.
+## - Slight modifications to test edit objects interfering with output schema locks. Confirmed that editing is
+##   required during script runtime to allow attribute rules that use the "Update" option to function properly.
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    

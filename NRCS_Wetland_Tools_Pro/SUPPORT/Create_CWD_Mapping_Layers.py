@@ -17,10 +17,17 @@
 ## ===============================================================================================================
 ##
 ## rev. 04/05/2021
-## -Started updated from ArcMap NRCS Compliance Tools and the Validate WC Layer tool.
+## - Started updated from ArcMap NRCS Compliance Tools and the Validate WC Layer tool.
 ##
 ## rev. 09/21/2021
-## -Updated messaging and cursor clean-up in memory
+## - Updated messaging and cursor clean-up in memory
+##
+## rev. 02/08/2022
+## - Added processing to create an alt 026 and 028 table summarized by wetland label and occurence year combos
+##   and populated with comma separated lists of fields that have those labels and the total acres of it.
+##
+## rev. 02/18/2022
+## - Added steps to create Request Points and CLU CWD Points layers for the project for use in later upload steps
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -157,13 +164,13 @@ except:
     exit()
 
 
-#### Check GeoPortal Connection
-#nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
-nrcsPortal = 'https://gis-testing.usda.net/portal/'
-portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
-if not portalToken:
-    arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
-    exit()
+###### Check GeoPortal Connection
+###nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
+##nrcsPortal = 'https://gis-testing.usda.net/portal/'
+##portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
+##if not portalToken:
+##    arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
+##    exit()
     
 
 #### Main procedures
@@ -226,7 +233,6 @@ try:
     ropName = "Site_ROPs"
     refName = "Site_Reference_Points"
     drainName = "Site_Drainage_Lines"
-    cluCwdName = "Site_CLU_CWD"
 
     projectCLU = basedataGDB_path + os.sep + cluName
 
@@ -235,7 +241,9 @@ try:
     wetDetTable = wcGDB_path + os.sep + wetDetTableName
 
     extentName = "Request_Extent"
+    extentPtsName = "Request_Extent_Points"
     projectExtent = basedataFD + os.sep + extentName
+    extPoints = basedataFD + os.sep + extentPtsName
     
     suName = "Site_Sampling_Units"
     projectSU = wcFD + os.sep + suName
@@ -250,9 +258,11 @@ try:
     cwdTopo = wcFD + os.sep + cwdTopoName
 
     cluCwdName = "Site_CLU_CWD"
+    cluCwdPtsName = "Site_CLU_CWD_Points"
     cluCWD = wcFD + os.sep + cluCwdName
     clucwd_multi = scratchGDB + os.sep + "clucwd_multi"
     clucwd_single = scratchGDB + os.sep + "clucwd_single"
+    cluCWDpts = wcFD + os.sep + cluCwdPtsName
     
     prevCert = wcFD + os.sep + "Previous_CWD"
     psc_name = "Site_Previous_CWD"
@@ -267,13 +277,24 @@ try:
     updatedAdmin = wcFD + os.sep + "Updated_Admin"
 
     name026 = "CLU_CWD_026"
-    name028 = "CLU_CWD_028"
+    name026_temp = "CLU_CWD_026_temp"
+    name026_alt = "CLU_CWD_026_alt"
     cluCWD026 = wcGDB_path + os.sep + name026
+    cluCWD026 = wcGDB_path + os.sep + name026_temp
+    cluCWD026_alt = wcGDB_path + os.sep + name026_alt
+    
+    name028 = "CLU_CWD_028"
+    name028_temp = "CLU_CWD_028_temp"
+    name028_alt = "CLU_CWD_028_alt"
     cluCWD028 = wcGDB_path + os.sep + name028
+    cluCWD028_temp = wcGDB_path + os.sep + name028_temp
+    cluCWD028_alt = wcGDB_path + os.sep + name028_alt
 
     excelAdmin = userWorkspace + os.sep + "Admin_Table.xlsx"
     excel026 = wetDir + os.sep + "CLU_CWD_026.xlsx"
+    excel026_alt = wetDir + os.sep + "CLU_CWD_026_alt.xlsx"
     excel028 = wetDir + os.sep + "CLU_CWD_028.xlsx"
+    excel028_alt = wetDir + os.sep + "CLU_CWD_028_alt.xlsx"
 
     # Temp layers list for cleanup at the start and at the end
     tempLayers = [clucwd_multi, clucwd_single, pccs_multi, pccs_single]
@@ -375,6 +396,74 @@ try:
         stats_fields = [['acres', 'SUM']]
         arcpy.Statistics_analysis(prevCluCertSite, cluCWD028, stats_fields, case_fields)
 
+        # Do summary stats to make an alternate table that combines fields with matching labels for the 028
+        case_fields = ["farm_number", "tract_number", "wetland_label", "occur_year","cert_date"]
+        stats_fields = [['clu_number','FIRST'],['acres', 'SUM']]
+        arcpy.Statistics_analysis(prevCluCertSite, cluCWD028_temp, stats_fields, case_fields)
+        # Make a list of the labels in the new table
+        alt_028_labels = []
+        search_fields = ['wetland_label','occur_year']
+        with arcpy.da.SearchCursor(cluCWD028_temp, search_fields) as cursor:
+            for row in cursor:
+                if row[1] is None:
+                    value = row[0]
+                else:
+                    value = row[0] + row[1]
+                if value not in alt_028_labels:
+                    alt_028_labels.append(value)
+        # Use the list of labels to search the previous data and create a dictionary of labels to clu fields
+        dict_028_alt = {}            
+        search_fields = ['clu_number','wetland_label','occur_year']
+        for item in alt_028_labels:
+            with arcpy.da.SearchCursor(prevCluCertSite, search_fields) as cursor:
+                for row in cursor:
+                    if row[2] is None:
+                        value = row[1]
+                    else:
+                        value = row[1] + row[2]
+                    if item == value:
+                        # This row has a field with the wetland label + occur year being searched. Add it to the dictionary
+                        # check if the item is in the dict keys already
+                        if item in dict_028_alt.keys():
+                            # label is in dictionary, check if clu field is already in dictionary for that label and add if not
+                            if (item, row[2]) not in dict_028_alt.items():
+                                #append the current row's field
+                                dict_028_alt[item] = dict_028_alt[item] + ", " + row[0]
+                        else:
+                            # label not in keys yet, add key and first field
+                            dict_028_alt[item] = row[0]
+                            
+        # Dictionary populated with all fields (values) that go with each label + occur year (key)
+        # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
+        arcpy.management.AddField(cluCWD028_temp, "clu_number", 'TEXT', '', '', 512)
+        field_names = ['wetland_label','occur_year','clu_number']
+        with arcpy.da.UpdateCursor(cluCWD028_temp, field_names) as cursor:
+            for row in cursor:
+                if row[1] is None:
+                    value = row[0]
+                else:
+                    value = row[0] + row[1]
+                row[2] = dict_028_alt[value]
+                cursor.updateRow(row)
+
+        # Convert the temp table to the final alt table, then delete the temp table
+        # Build field mapping for the conversion
+        fm = arcpy.FieldMap()
+        fms = arcpy.FieldMappings()
+        fm.addInputField(cluCWD028_temp, 'farm_number')
+        fm.addInputField(cluCWD028_temp, 'tract_number')
+        fm.addInputField(cluCWD028_temp, 'clu_number')
+        fm.addInputField(cluCWD028_temp, 'wetland_label')
+        fm.addInputField(cluCWD028_temp, 'occur_year')
+        fm.addInputField(cluCWD028_temp, 'cert_date')
+        fm.addInputField(cluCWD028_temp, 'FREQUENCY')
+        fm.addInputField(cluCWD028_temp, 'SUM_acres')
+        fms.addFieldMap(fm)
+        # Convert the table
+        arcpy.TableToTable_conversion(cluCWD028_temp, wcGDB_path, name028_alt)
+        # Delete the temp table
+        arcpy.management.Delete(cluCWD028_temp)
+        
 
     ## Create the CLU CWD layer suitable for 026 maps and forms
     AddMsgAndPrint("\nCreating CLU_CWD Layer...\n",0)
@@ -400,6 +489,73 @@ try:
     stats_fields = [['acres', 'SUM']]
     arcpy.Statistics_analysis(cluCWD, cluCWD026, stats_fields, case_fields)
 
+    # Do summary stats to make an alternate table that combines fields with matching labels for the 026
+    case_fields = ["farm_number", "tract_number", "wetland_label", "occur_year"]
+    stats_fields = [['clu_number','FIRST'],['acres', 'SUM']]
+    arcpy.Statistics_analysis(cluCWD, cluCWD026_temp, stats_fields, case_fields)
+    # Make a list of the labels in the new table
+    alt_026_labels = []
+    search_fields = ['wetland_label','occur_year']
+    with arcpy.da.SearchCursor(cluCWD026_temp, search_fields) as cursor:
+        for row in cursor:
+            if row[1] is None:
+                value = row[0]
+            else:
+                value = row[0] + row[1]
+            if value not in alt_028_labels:
+                alt_026_labels.append(value)
+    # Use the list of labels to search the previous data and create a dictionary of labels to clu fields
+    dict_026_alt = {}            
+    search_fields = ['clu_number','wetland_label','occur_year']
+    for item in alt_026_labels:
+        with arcpy.da.SearchCursor(cluCWD, search_fields) as cursor:
+            for row in cursor:
+                if row[2] is None:
+                    value = row[1]
+                else:
+                    value = row[1] + row[2]
+                if item == value:
+                    # This row has a field with the wetland label + occur year being searched. Add it to the dictionary
+                    # check if the item is in the dict keys already
+                    if item in dict_026_alt.keys():
+                        # label is in dictionary, check if clu field is already in dictionary for that label and add if not
+                        if (item, row[2]) not in dict_026_alt.items():
+                            #append the current row's field
+                            dict_026_alt[item] = dict_026_alt[item] + ", " + row[0]
+                    else:
+                        # label not in keys yet, add key and first field
+                        dict_026_alt[item] = row[0]
+                        
+    # Dictionary populated with all fields (values) that go with each label + occur year (key)
+    # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
+    arcpy.management.AddField(cluCWD026_temp, "clu_number", 'TEXT', '', '', 512)
+    field_names = ['wetland_label','occur_year','clu_number']
+    with arcpy.da.UpdateCursor(cluCWD026_temp, field_names) as cursor:
+        for row in cursor:
+            if row[1] is None:
+                value = row[0]
+            else:
+                value = row[0] + row[1]
+            row[2] = dict_026_alt[value]
+            cursor.updateRow(row)
+
+    # Convert the temp table to the final alt table, then delete the temp table
+    # Build field mapping for the conversion
+    fm = arcpy.FieldMap()
+    fms = arcpy.FieldMappings()
+    fm.addInputField(cluCWD028_temp, 'farm_number')
+    fm.addInputField(cluCWD028_temp, 'tract_number')
+    fm.addInputField(cluCWD028_temp, 'clu_number')
+    fm.addInputField(cluCWD028_temp, 'wetland_label')
+    fm.addInputField(cluCWD028_temp, 'occur_year')
+    fm.addInputField(cluCWD028_temp, 'FREQUENCY')
+    fm.addInputField(cluCWD028_temp, 'SUM_acres')
+    fms.addFieldMap(fm)
+    # Convert the table
+    arcpy.TableToTable_conversion(cluCWD026_temp, wcGDB_path, name026_alt)
+    # Delete the temp table
+    arcpy.management.Delete(cluCWD026_temp)
+    
     # Update the extent characteristics of the Site_CLU_CWD layer
     arcpy.RecalculateFeatureClassExtent_management(cluCWD)
     
@@ -414,13 +570,27 @@ try:
     if arcpy.Exists(excel026):
         arcpy.Delete_management(excel026)
     arcpy.TableToExcel_conversion(cluCWD026, excel026)
+    
+    if arcpy.Exists(excel026_alt):
+        arcpy.Delete_management(excel026_alt)
+    arcpy.TableToExcel_conversion(cluCWD026_alt, excel026_alt)
 
     if arcpy.Exists(excel028):
         arcpy.Delete_management(excel028)
     if arcpy.Exists(cluCWD028):
         arcpy.TableToExcel_conversion(cluCWD028, excel028)
 
+    if arcpy.Exists(excel028_alt):
+        arcpy.Delete_management(excel028_alt)
+    if arcpy.Exists(cluCWD028_alt):
+        arcpy.TableToExcel_conversion(cluCWD028_alt, excel028_alt)
 
+
+    #### Convert CLUCWD and Request Extent to point versions of the layers
+    arcpy.management.FeatureToPoint(cluCWD, cluCWDpts, "INSIDE")
+    arcpy.management.FeatureToPoint(projectExtent, extPoints, "INSIDE")
+
+        
     #### Clean up Temporary Datasets
     # Temporary datasets specifically from this tool
     AddMsgAndPrint("\nCleaning up temporary data...",0)

@@ -23,7 +23,16 @@
 ## ===============================================================================================================
 ##
 ## rev. 06/21/2021
-## -Start revisions of Export Base Map tool to retool to reference maps.
+## - Start revisions of Export Base Map tool to retool to reference maps.
+##
+## rev. 01/20/2022
+## - Added handling for specifiying imagery layer to display in a map text box.
+## - Added automatic control of legends to only show features in map extent and to hide the imagery layer.
+## - Added SSURGO Version date string
+##
+## rev. 02/08/2022
+## - Added SSURGO Metadata report PDF to outputs
+## - Blocked out annotation related code. Annotation will be handled through training/documentation
 ##
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -88,7 +97,8 @@ def logBasicSettings():
     f.write("\tSSURGO Ecological Classification Map: " + str(eco_map) + "\n")
     f.write("\tSSURGO Flooding Frequency Map: " + str(flood_map) + "\n")
 ##    f.write("\tSSURGO Hydric Condition DCD Map: " + str(hydricCon_map) + "\n")
-    f.write("\tSSURGO Hydric Rating Map: " + str(hydricRat_map) + "\n")
+    f.write("\tSSURGO Hydric Rating Map Unit Map: " + str(hydricMU_map) + "\n")
+    f.write("\tSSURGO Hydric Rating Component Map: " + str(hydricCOMP_map) + "\n")
     f.write("\tSSURGO Hydrologic Soil Group DCD Map: " + str(hydrologic_map) + "\n")
     f.write("\tSSURGO Ponding Frequency Class Map: " + str(ponding_map) + "\n")
     f.write("\tSSURGO Water Table Depth Annual Min Map: " + str(wtrtbl_map) + "\n")
@@ -104,6 +114,7 @@ def logBasicSettings():
         f.write("\tSeperate PDF files: True\n")
     else:
         f.write("\tSeperate PDF files: False\n")
+    f.write("\tImage Layer Selected: " + imagery + "\n")
     f.close
     del f
 
@@ -222,7 +233,7 @@ def getPLSS(plss_point):
     return trs_text
 
 ## ================================================================================================================
-def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digitizer, location_txt=''):
+def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digitizer, image_name, location_txt=''):
     
     # Check for appropriate element names on Base Map layout, otherwise exit
     elm_list = []
@@ -263,6 +274,10 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
         # Customer element
         if elm.name == "Customer":
             customer_elm = elm
+
+        # Imagery Text element
+        if elm.name == "Imagery Text Box":
+            imagery_elm = elm
         
 ##        # Map Prepared By element
 ##        if elm.name == "Map Author":
@@ -305,11 +320,25 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
         loc_elm.visible = False
         loc_elm.text = "Location: "
 
+    if imagery != '':
+        imagery_elm.text = " Image: " + image_name
+    else:
+        imagery_elm.text = " Image: "
+        
 ##    if digitizer != '':
 ##        prep_elm.text = "Map Prepared By: " + digitizer
 ##    else:
 ##        prep_elm.text = "Map Prepared By: (Not Entered)"
 
+
+    #### Turn off the imagery element in each layout
+    # Get the legend item for the layout
+    leg = lyt.listElements('LEGEND_ELEMENT')[0]
+    for item in leg.items:
+        if item.name == image_name:
+            item.visible = False
+
+        
 ## ================================================================================================================
 def setZoom(layout, extent, scale_up="No"):
     # Sets a zoom extent for a specified layout using a provided extent object
@@ -337,6 +366,7 @@ import arcpy, sys, os, traceback, re
 arcpy.AddMessage("Performing imports...\n")
 arcpy.SetProgressorLabel("Performing imports...")
 import urllib, json, time
+import shutil
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError as httpErrors
 urllibEncode = urllib.parse.urlencode
@@ -372,6 +402,7 @@ try:
     plssPoint = arcpy.GetParameterAsText(5)
     owLayouts = arcpy.GetParameter(6)
     multiLayouts = arcpy.GetParameter(7)
+    imagery = arcpy.GetParameterAsText(8)
 
     site_map = True
     if "'Elevation - Contours'" in mapList:
@@ -424,10 +455,15 @@ try:
 ##    else:
 ##        hydricCon_map = False
 
-    if "'SSURGO Hydric Rating'" in mapList:
-        hydricRat_map = True
+    if "'SSURGO Hydric Rating by Map Unit'" in mapList:
+        hydricMU_map = True
     else:
-        hydricRat_map = False
+        hydricMU_map = False
+
+    if "'SSURGO Hydric Rating by Component'" in mapList:
+        hydricCOMP_map = True
+    else:
+        hydricCOMP_map = False
 
     if "'SSURGO Hydrologic Soil Group DCD'" in mapList:
         hydrologic_map = True
@@ -475,6 +511,8 @@ try:
     
     projectTable = basedataGDB_path + os.sep + "Table_" + projectName
 
+    ssurgo_meta = os.path.join(os.path.dirname(sys.argv[0]), "WCT_SSURGO_Metadata.pdf")
+
     cluName = "Site_CLU"
     ctrName = "Site_Contours"
     demName = "Site_DEM"
@@ -488,12 +526,15 @@ try:
     wtrtblName = "Water Table Depth - Annual - Minimum"
     pondingName = "Ponding Frequency Class"
     hydrologicName = "Hydrologic Soil Group - Dom. Cond."
-    hydricRatName = "Hydric Rating"
+    hydricMuName = "Hydric Rating by Map Unit"
+    hydricCompName = "Hydric Rating by Component"
 ##    hydricConName = "Hydric Condition - Dom. Cond."
     floodName = "Flooding Frequency"
     drainName = "Drainage Class Dom. Cond."
+    imageName = imagery
 
-
+    project_soils = basedataGDB_path + os.sep + "SSURGO_Mapunits"
+    
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
     arcpy.SetProgressorLabel("Commence logging...")
@@ -527,10 +568,12 @@ try:
     ecoPDF = wetDir + os.sep + "Ecological_Classification_" + projectName + ".pdf"
     floodPDF = wetDir + os.sep + "Flooding_Frequency_" + projectName + ".pdf"
 ##    hydricConPDF = wetDir + os.sep + "Hydric_Condition_" + projectName + ".pdf"
-    hydricRatPDF = wetDir + os.sep + "Hydric_Rating_" + projectName + ".pdf"
+    hydricRatMuPDF = wetDir + os.sep + "Hydric_Rating_MU_" + projectName + ".pdf"
+    hydricRatCompPDF = wetDir + os.sep + "Hydric_Rating_Comp_" + projectName + ".pdf"
     hydrologicPDF = wetDir + os.sep + "Hydrologic_Groups_" + projectName + ".pdf"
     pondingPDF = wetDir + os.sep + "Ponding_" + projectName + ".pdf"
     wtrtblPDF = wetDir + os.sep + "Water_Table_" + projectName + ".pdf"
+    metadataPDF = wetDir + os.sep + "SSURGO_Metadata_" + projectName + ".pdf"
 
     if owLayouts == False:
         if os.path.exists(outPDF):
@@ -548,10 +591,12 @@ try:
                 ecoPDF = wetDir + os.sep + "Ecological_Classification_" + projectName + "_" + str(count) + ".pdf"
                 floodPDF = wetDir + os.sep + "Flooding_Frequency_" + projectName + "_" + str(count) + ".pdf"
 ##                hydricConPDF = wetDir + os.sep + "Hydric_Condition_" + projectName + "_" + str(count) + ".pdf"
-                hydricRatPDF = wetDir + os.sep + "Hydric_Rating_" + projectName + "_" + str(count) + ".pdf"
+                hydricRatMuPDF = wetDir + os.sep + "Hydric_Rating_MU_" + projectName + "_" + str(count) + ".pdf"
+                hydricRatCompPDF = wetDir + os.sep + "Hydric_Rating_Comp_" + projectName + "_" + str(count) + ".pdf"
                 hydrologicPDF = wetDir + os.sep + "Hydrologic_Groups_" + projectName + "_" + str(count) + ".pdf"
                 pondingPDF = wetDir + os.sep + "Ponding_" + projectName + "_" + str(count) + ".pdf"
                 wtrtblPDF = wetDir + os.sep + "Water_Table_" + projectName + "_" + str(count) + ".pdf"
+                metadataPDF = wetDir + os.sep + "SSURGO_Metadata_" + projectName + "_" + str(count) + ".pdf"
 
                 if os.path.exists(outPDF):
                     count += 1
@@ -566,7 +611,8 @@ try:
             pass
         
         PDFlist = [sitePDF, ctrPDF, demPDF, depthPDF, slopePDF, nwiPDF, soilPDF, drainPDF, ecoPDF,
-                   floodPDF, hydricRatPDF, hydrologicPDF, pondingPDF, wtrtblPDF]
+                   floodPDF, hydricRatMuPDF, hydricRatCompPDF, hydrologicPDF, pondingPDF, wtrtblPDF,
+                   metadataPDF]
         for item in PDFlist:
             try:
                 os.remove(item)
@@ -583,6 +629,13 @@ try:
         AddMsgAndPrint("\nThe reference Maps PDF file is open or in use by another program. Please close the PDF and try running this tool again. Exiting...",2)
         exit()
 
+
+    #### Copy the metadata map file to the project folder
+    try:
+        shutil.copy2(ssurgo_meta, metadataPDF)
+    except:
+        AddMsgAndPrint("\nMetadata PDF file is open or missing. Please close the Metadata PDF if it is open and try running this tool again. Exiting...",2)
+        exit()
         
     #### Retrieve PLSS Text for Output Maps, if applicable
     # Set starting boolean for location text box. Stays false unless all query criteria to show location are met
@@ -655,10 +708,10 @@ try:
         exit()
         
     # Send information to function to set the layout elements
-    setLytElements(lm_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, plss_text)
-    setLytElements(elev_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, plss_text)
-    setLytElements(nwi_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, plss_text)
-    setLytElements(soil_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, plss_text)
+    setLytElements(lm_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, imageName, plss_text)
+    setLytElements(elev_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, imageName, plss_text)
+    setLytElements(nwi_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, imageName, plss_text)
+    setLytElements(soil_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, imageName, plss_text)
 
 
     #### Create map layer objects for visibility and movement control
@@ -715,9 +768,13 @@ try:
     except:
         hydrologic_lyr = ''
     try:
-        hydricRat_lyr = m.listLayers(hydricRatName)[0]
+        hydricMu_lyr = m.listLayers(hydricMuName)[0]
     except:
-        hydricRat_lyr = ''
+        hydricMu_lyr = ''
+    try:
+        hydricComp_lyr = m.listLayers(hydricCompName)[0]
+    except:
+        hydricComp_lyr = ''
 ##    try:
 ##        hydricCon_lyr = m.listLayers(hydricConName)[0]
 ##    except:
@@ -731,6 +788,11 @@ try:
     except:
         drain_lyr = ''
 
+    try:
+        image_lyr = m.listLayers(imageName)[0]
+    except:
+        image_lyr = ''
+
     plss_lyr = ''
     if plssPoint:
         plssDesc = arcpy.Describe(plssPoint)
@@ -742,21 +804,54 @@ try:
                 
     # Turn off visibility of operational layers to start, except CLU
     lyr_list = [ctr_lyr, dem_lyr, slp_lyr, hill_lyr, depth_lyr, nwi_lyr, sgroup_lyr, mu_lyr,
-                eco_lyr, wtrtbl_lyr, ponding_lyr, hydrologic_lyr, hydricRat_lyr,
+                eco_lyr, wtrtbl_lyr, ponding_lyr, hydrologic_lyr, hydricMu_lyr, hydricComp_lyr,
                 flood_lyr, drain_lyr]
 
     visibility_off(lyr_list)
+
+    # Turn on the visibility of the specified image layer
+    try:
+        image_lyr.visible = True
+    except:
+        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
+        exit()
+
+    # There is no check to set the order for the image layer. If users run it wrong, results should be self evident, they should re-arrange and re-run.
 
     # Get the elevation layout title for use
     for elm in elev_lyt.listElements():
         if elm.name == "Title":
             elev_title_elm = elm
 
-    # Get the soil layout title for use
+    # Get the soil layout title and SSURGO Date object for use
     for elm in soil_lyt.listElements():
         if elm.name == "Title":
             soil_title_elm = elm
+        if elm.name == "SSURGO Date":
+            soil_version_elm = elm
+        
+    ## Setup the SSURGO Date text string on the soil map layout
+    # Search the first row of the map units layer for the saversion and surveyareadate attributes
+    field_names = ['saversion','surveyareadate']
+    with arcpy.da.SearchCursor(project_soils, field_names) as cursor:
+        for row in cursor:
+            ssa_ver = str(row[0])
+            ver_date = row[1]
+            break
 
+    # Set the version string
+    if ssa_ver != '':
+        if ver_date != '':
+            fmt_ver_date = ver_date[5:7] + """/""" + ver_date[8:] + """/""" + ver_date[0:4]
+            version_string = "Survey Version: " + ssa_ver + ", " + fmt_ver_date
+        else:
+            version_string = "Survey Version: <Data missing>"
+    else:
+        version_string = "Survey Version: <Data missing>"
+
+    # Update the soil layout with the version string
+    soil_version_elm.text = version_string
+    
     # Set starting zoom flags
     update_elev_zoom = False
     update_soil_zoom = False
@@ -784,7 +879,7 @@ try:
         cam = mf.camera
         ext = cam.getExtent()
         
-    # Set required layers and corresponding annotation or labels to be visible
+    # Set required layers to be visible
     clu_lyr.visible = True
     
     # Set the plss input layer to be not visible, if it was used
@@ -859,6 +954,11 @@ try:
 
             dem_lyr.visible = True
             hill_lyr.visible = True
+        
+            elev_leg = elev_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in elev_leg.items:
+                if item.name == hillName:
+                    item.visible = False
 
             # Update the title
             elev_title_elm.text = "Elevation"
@@ -895,6 +995,11 @@ try:
                 
             slp_lyr.visible = True
             hill_lyr.visible = True
+
+            elev_leg = elev_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in elev_leg.items:
+                if item.name == hillName:
+                    item.visible = False
 
             # Update the title
             elev_title_elm.text = "Slope"
@@ -963,6 +1068,12 @@ try:
                 setZoom(nwi_lyt, ext)
                 
             nwi_lyr.visible = True
+
+            # Set the legend to only show nwi features that are visible in the map
+            nwi_leg = nwi_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in nwi_leg.items:
+                if item.name == nwiName:
+                    item.showVisibleFeatures = True
 
             # Export the map
             AddMsgAndPrint("\tExporting the NWI Map to PDF...",0)
@@ -1037,6 +1148,12 @@ try:
             drain_lyr.visible = True
             drain_lyr.showLabels = False
 
+            # Set the legend to only show drainage features that are visible in the map
+            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in soil_leg.items:
+                if item.name == drainName:
+                    item.showVisibleFeatures = True
+
             # Update the title
             soil_title_elm.text = "Drainage Class"
 
@@ -1075,6 +1192,12 @@ try:
             mu_lyr.showLabels = True
             eco_lyr.visible = True
             eco_lyr.showLabels = False
+
+            # Set the legend to only show ecological features that are visible in the map
+            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in soil_leg.items:
+                if item.name == ecoName:
+                    item.showVisibleFeatures = True
 
             # Update the title
             soil_title_elm.text = "Ecological Classificaiton"
@@ -1115,6 +1238,12 @@ try:
             flood_lyr.visible = True
             flood_lyr.showLabels = False
 
+            # Set the legend to only show flooding frequency features that are visible in the map
+            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in soil_leg.items:
+                if item.name == floodName:
+                    item.showVisibleFeatures = True
+
             # Update the title
             soil_title_elm.text = "Flooding Frequency"
 
@@ -1154,6 +1283,12 @@ try:
 ##            hydricCon_lyr.visible = True
 ##            hydricCon_lyr.showLabels = False
 ##
+##            # Set the legend to only show hydric condition features that are visible in the map
+##            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+##            for item in soil_leg.items:
+##                if item.name == hydricConName:
+##                    item.showVisibleFeatures = True
+##
 ##            # Update the title
 ##            soil_title_elm.text = "Hydric Condition"
 ##
@@ -1171,14 +1306,14 @@ try:
 
 
     #####################################################################################################
-    #################################### HYDRIC RATING MAP START ########################################
+    ############################## HYDRIC RATING BY MAP UNIT MAP START ##################################
     #####################################################################################################
-    if hydricRat_map:
-        AddMsgAndPrint("\nCreating the Hydric Rating Map PDF file...",0)
-        arcpy.SetProgressorLabel("Creating Hydric Rating Map...")
+    if hydricMU_map:
+        AddMsgAndPrint("\nCreating the Hydric Rating by Map Unit Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Hydric Rating by Map Unit Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
-        if sgroup_lyr != '' and mu_lyr != '' and hydricRat_lyr != '':
+        if sgroup_lyr != '' and mu_lyr != '' and hydricMu_lyr != '':
             if update_soil_zoom == False:
                 # Set zoom and visiblility
                 if zoomType == "Zoom to a layer":
@@ -1190,23 +1325,74 @@ try:
             sgroup_lyr.visible = True
             mu_lyr.visible = True
             mu_lyr.showLabels = True
-            hydricRat_lyr.visible = True
-            hydricRat_lyr.showLabels = False
+            hydricMu_lyr.visible = True
+            hydricMu_lyr.showLabels = False
+
+            # Set the legend to only show hydric rating features that are visible in the map
+            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in soil_leg.items:
+                if item.name == hydricMuName:
+                    item.showVisibleFeatures = True
 
             # Update the title
-            soil_title_elm.text = "Hydric Rating"
+            soil_title_elm.text = "Hydric Rating by Map Unit"
 
             # Export the map
-            AddMsgAndPrint("\tExporting the Hydric Rating Map to PDF...",0)
-            arcpy.SetProgressorLabel("Exporting Hydric Rating Map...")
-            soil_lyt.exportToPDF(hydricRatPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
-            AddMsgAndPrint("\tHydric Rating Map file exported!",0)
+            AddMsgAndPrint("\tExporting the Hydric Rating by Map Unit Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Hydric Rating MU Map...")
+            soil_lyt.exportToPDF(hydricRatMuPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            AddMsgAndPrint("\tHydric Rating by Map Unit Map file exported!",0)
 
             # Reset visibility
             visibility_off(lyr_list)
 
         else:
-            AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Hydric Rating layer not in map. Cannot create Hydric Rating Map PDF. Continuing to next map...",1)
+            AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Hydric Rating by Map Unit layer not in map. Cannot create Hydric Rating by Map Unit Map PDF. Continuing to next map...",1)
+
+
+    #####################################################################################################
+    ############################# HYDRIC RATING BY COMPONENT MAP START ##################################
+    #####################################################################################################
+    if hydricCOMP_map:
+        AddMsgAndPrint("\nCreating the Hydric Rating by Component Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Hydric Rating by Comopnent Map...")
+
+        # Proceed if operational layer(s) actually exist(s) in the map
+        if sgroup_lyr != '' and mu_lyr != '' and hydricComp_lyr != '':
+            if update_soil_zoom == False:
+                # Set zoom and visiblility
+                if zoomType == "Zoom to a layer":
+                    setZoom(soil_lyt, ext, "Yes")
+                else:
+                    setZoom(soil_lyt, ext)
+                update_soil_zoom = True
+                
+            sgroup_lyr.visible = True
+            mu_lyr.visible = True
+            mu_lyr.showLabels = True
+            hydricComp_lyr.visible = True
+            hydricComp_lyr.showLabels = False
+
+            # Set the legend to only show hydric rating features that are visible in the map
+            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in soil_leg.items:
+                if item.name == hydricCompName:
+                    item.showVisibleFeatures = True
+
+            # Update the title
+            soil_title_elm.text = "Hydric Rating by Component"
+
+            # Export the map
+            AddMsgAndPrint("\tExporting the Hydric Rating by Component Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Hydric Rating by Component Map...")
+            soil_lyt.exportToPDF(hydricRatCompPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            AddMsgAndPrint("\tHydric Rating by Component Map file exported!",0)
+
+            # Reset visibility
+            visibility_off(lyr_list)
+
+        else:
+            AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Hydric Rating by Component layer not in map. Cannot create Hydric Rating by Component Unit Map PDF. Continuing to next map...",1)
 
 
     #####################################################################################################
@@ -1231,6 +1417,12 @@ try:
             mu_lyr.showLabels = True
             hydrologic_lyr.visible = True
             hydrologic_lyr.showLabels = False
+
+            # Set the legend to only show hydrologic soil group features that are visible in the map
+            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in soil_leg.items:
+                if item.name == hydrologicName:
+                    item.showVisibleFeatures = True
 
             # Update the title
             soil_title_elm.text = "Hydrologic Groups"
@@ -1271,6 +1463,12 @@ try:
             ponding_lyr.visible = True
             ponding_lyr.showLabels = False
 
+            # Set the legend to only show ponding features that are visible in the map
+            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in soil_leg.items:
+                if item.name == pondingName:
+                    item.showVisibleFeatures = True
+
             # Update the title
             soil_title_elm.text = "Ponding Frequency"
 
@@ -1310,6 +1508,12 @@ try:
             wtrtbl_lyr.visible = True
             wtrtbl_lyr.showLabels = False
 
+            # Set the legend to only show water table depth features that are visible in the map
+            soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in soil_leg.items:
+                if item.name == wtrtblName:
+                    item.showVisibleFeatures = True
+
             # Update the title
             soil_title_elm.text = "Water Table Depth"
 
@@ -1324,7 +1528,7 @@ try:
 
         else:
             AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Water Table Depth layer not in map. Cannot create Water Table Depth Map PDF. Continuing to next map...",1)
-
+    
 
     #### Build the final PDF file
     AddMsgAndPrint("\nCreating final map book PDF file...",0)
@@ -1403,13 +1607,20 @@ try:
 ##        except:
 ##            pass
 
-    if hydricRat_map:
-        AddMsgAndPrint("\tAppending Hydric Rating map...",0)
+    if hydricMU_map:
+        AddMsgAndPrint("\tAppending Hydric Rating by Map Unit map...",0)
         try:
-            finalPDF.appendPages(hydricRatPDF)
+            finalPDF.appendPages(hydricRatMuPDF)
         except:
             pass
 
+    if hydricCOMP_map:
+        AddMsgAndPrint("\tAppending Hydric Rating by Component map...",0)
+        try:
+            finalPDF.appendPages(hydricRatCompPDF)
+        except:
+            pass
+        
     if hydrologic_map:
         AddMsgAndPrint("\tAppending Hydrologic Group map...",0)
         try:
@@ -1428,6 +1639,13 @@ try:
         AddMsgAndPrint("\tAppending Water Table Depth map...",0)
         try:
             finalPDF.appendPages(wtrtblPDF)
+        except:
+            pass
+
+    if flood_map or hydricMU_map or hydricCOMP_map or hydrologic_map or ponding_map or wtrtbl_map:
+        AddMsgAndPrint("\tAppending SSURGO Metadata report...",0)
+        try:
+            finalPDF.appendPages(metadataPDF)
         except:
             pass
 
@@ -1450,9 +1668,34 @@ try:
     # Reset Elevation Layout Title
     elev_title_elm.text = "Elevation"
     
-    # Reset Soil Layout Title
+    # Reset Soil Layout Title and version text box
     soil_title_elm.text = "Soils"
+    soil_version_elm.text = "Survey Version:"
 
+    ## Reset image text on each layout to be blank
+    # Define the imagery text box elements
+    for elm in lm_lyt.listElements():
+        if elm.name == "Imagery Text Box":
+            lm_imagery_elm = elm
+
+    for elm in elev_lyt.listElements():
+        if elm.name == "Imagery Text Box":
+            elev_imagery_elm = elm
+            
+    for elm in soil_lyt.listElements():
+        if elm.name == "Imagery Text Box":
+            soil_imagery_elm = elm
+
+    for elm in nwi_lyt.listElements():
+        if elm.name == "Imagery Text Box":
+            nwi_imagery_elm = elm
+            
+    dflt_img_text = " Image: "
+    lm_imagery_elm.text = dflt_img_text
+    elev_imagery_elm.text = dflt_img_text
+    soil_imagery_elm.text = dflt_img_text
+    nwi_imagery_elm.text = dflt_img_text
+    
     # Reset visibility of operational layers
     visibility_off(lyr_list)
                 

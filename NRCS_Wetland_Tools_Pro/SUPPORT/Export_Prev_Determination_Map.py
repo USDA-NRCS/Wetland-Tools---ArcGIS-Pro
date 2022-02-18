@@ -25,6 +25,13 @@
 ## rev. 07/15/2021
 ## -Start revisions from the Export Determination Map tool to retool for the previous determinations map.
 ##
+## rev. 02/03/2022
+## - Added handling for specifiying imagery layer to display in a map text box.
+## - Added automatic control of legends to only show features in map extent and to hide the imagery layer.
+##
+## rev. 02/08/2022
+## - Blocked out annotation and labels related code
+##
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
     # Adds tool message to the geoprocessor and text file log.
@@ -201,7 +208,7 @@ def getPLSS(plss_point):
     return trs_text
 
 ## ================================================================================================================
-def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digitizer, location_txt=''):
+def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digitizer, image_name, location_txt=''):
     
     # Check for appropriate element names on Base Map layout, otherwise exit
     elm_list = []
@@ -242,7 +249,11 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
         # Customer element
         if elm.name == "Customer":
             customer_elm = elm
-        
+
+        # Imagery Text element
+        if elm.name == "Imagery Text Box":
+            imagery_elm = elm
+            
 ##        # Map Prepared By element
 ##        if elm.name == "Map Author":
 ##            prep_elm = elm
@@ -284,11 +295,23 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
         loc_elm.visible = False
         loc_elm.text = "Location: "
 
+    if imagery != '':
+        imagery_elm.text = " Image: " + image_name
+    else:
+        imagery_elm.text = " Image: "
+        
 ##    if digitizer != '':
 ##        prep_elm.text = "Map Prepared By: " + digitizer
 ##    else:
 ##        prep_elm.text = "Map Prepared By: (Not Entered)"
 
+    #### Turn off the imagery element in each layout
+    # Get the legend item for the layout
+    leg = lyt.listElements('LEGEND_ELEMENT')[0]
+    for item in leg.items:
+        if item.name == image_name:
+            item.visible = False
+            
         
 ## ================================================================================================================
 #### Import system modules
@@ -327,6 +350,7 @@ try:
     showLocation = arcpy.GetParameter(3)
     plssPoint = arcpy.GetParameterAsText(4)
     owDetLayout = arcpy.GetParameter(5)
+    imagery = arcpy.GetParameterAsText(6)
 
 
     #### Initial Validations
@@ -377,7 +401,7 @@ try:
     cwdName = "Site_CWD"
     clucwdName = "Site_CLU_CWD"
     prevcwdName = "Site_Previous_CLU_CWD"
-
+    imageName = imagery
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
@@ -466,7 +490,7 @@ try:
     #### Set up layout elements
     AddMsgAndPrint("\nUpdating layout elements...",0)
     arcpy.SetProgressorLabel("Updating map headers...")
-    # Get Base Map layout
+    # Get Map layout
     try:
         dm_lyt = aprx.listLayouts("Previous Determination Map")[0]
     except:
@@ -474,7 +498,7 @@ try:
         exit()
 
     # Send information to function to set the layout elements
-    setLytElements(dm_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, dm_plss_text)
+    setLytElements(dm_lyt, adm_Co_Name, geo_Co_Name, farm_Num, tr_Num, client_Name, dig_staff, imageName, dm_plss_text)
 
 
     #### Manage layers as objects for visibility and movement control
@@ -493,48 +517,55 @@ try:
                 plss_lyr = m.listLayers(plssPoint)[0]
             except:
                 plss_lyr = ''
+
+    # Turn on the visibility of the specified image layer
+    try:
+        image_lyr.visible = True
+    except:
+        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
+        exit()
         
     # Find annotation for the typical layers, if any
     lyrs = m.listLayers()
 
-    prev_cwd_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(prevcwdName + "Anno"):
-            prev_cwd_anno_list.append(lyr.name)
-    if len(prev_cwd_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one Site Previous CLU CWD Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA Site Previous CLU CWD Annotation layers and run this tool again. Exiting...",2)
-        exit()
-    
-    cwd_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(cwdName + "Anno"):
-            cwd_anno_list.append(lyr.name)
-    if len(cwd_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one CWD Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA CWD Annotation layers and run this tool again. Exiting...",2)
-        exit()
-
-    clucwd_anno_list = []
-    for lyr in lyrs:
-        if lyr.name.startswith(clucwdName + "Anno"):
-            clucwd_anno_list.append(lyr.name)
-    if len(clucwd_anno_list) > 1:
-        AddMsgAndPrint("\tThe map contains more than one CLU CWD Annotation layer.",2)
-        AddMsgAndPrint("\tPlease remove any EXTRA CLU CWD Annotation layers and run this tool again. Exiting...",2)
-        exit()
-
-    prev_cwd_anno_lyr = ''
-    if len(prev_cwd_anno_list) == 1:
-        prev_cwd_anno_lyr = m.listLayers(prev_cwd_anno_list[0])
-        
-    cwd_anno_lyr = ''
-    if len(cwd_anno_list) == 1:
-        cwd_anno_lyr = m.listLayers(cwd_anno_list[0])
-
-    clucwd_anno_lyr = ''
-    if len(clucwd_anno_list) == 1:
-        clucwd_anno_lyr = m.listLayers(clucwd_anno_list[0])
+##    prev_cwd_anno_list = []
+##    for lyr in lyrs:
+##        if lyr.name.startswith(prevcwdName + "Anno"):
+##            prev_cwd_anno_list.append(lyr.name)
+##    if len(prev_cwd_anno_list) > 1:
+##        AddMsgAndPrint("\tThe map contains more than one Site Previous CLU CWD Annotation layer.",2)
+##        AddMsgAndPrint("\tPlease remove any EXTRA Site Previous CLU CWD Annotation layers and run this tool again. Exiting...",2)
+##        exit()
+##    
+##    cwd_anno_list = []
+##    for lyr in lyrs:
+##        if lyr.name.startswith(cwdName + "Anno"):
+##            cwd_anno_list.append(lyr.name)
+##    if len(cwd_anno_list) > 1:
+##        AddMsgAndPrint("\tThe map contains more than one CWD Annotation layer.",2)
+##        AddMsgAndPrint("\tPlease remove any EXTRA CWD Annotation layers and run this tool again. Exiting...",2)
+##        exit()
+##
+##    clucwd_anno_list = []
+##    for lyr in lyrs:
+##        if lyr.name.startswith(clucwdName + "Anno"):
+##            clucwd_anno_list.append(lyr.name)
+##    if len(clucwd_anno_list) > 1:
+##        AddMsgAndPrint("\tThe map contains more than one CLU CWD Annotation layer.",2)
+##        AddMsgAndPrint("\tPlease remove any EXTRA CLU CWD Annotation layers and run this tool again. Exiting...",2)
+##        exit()
+##
+##    prev_cwd_anno_lyr = ''
+##    if len(prev_cwd_anno_list) == 1:
+##        prev_cwd_anno_lyr = m.listLayers(prev_cwd_anno_list[0])
+##        
+##    cwd_anno_lyr = ''
+##    if len(cwd_anno_list) == 1:
+##        cwd_anno_lyr = m.listLayers(cwd_anno_list[0])
+##
+##    clucwd_anno_lyr = ''
+##    if len(clucwd_anno_list) == 1:
+##        clucwd_anno_lyr = m.listLayers(clucwd_anno_list[0])
 
 
     #### Start exporting maps
@@ -559,18 +590,22 @@ try:
     cwd_lyr.visible = False
     clucwd_lyr.visible = False
     
-    if arcpy.Exists(prev_cwd_anno_lyr):
-        prev_cwd_anno_lyr.visible = True
-        prev_cwd_lyr.showLabels = False
-    else:
-        prev_cwd_lyr.showLabels = True
-        
-    if arcpy.Exists(cwd_anno_lyr):
-        cwd_anno_lyr.visible = False
-        
-    if arcpy.Exists(clucwd_anno_lyr):
-        clucwd_anno_lyr.visible = False
+##    if arcpy.Exists(prev_cwd_anno_lyr):
+##        prev_cwd_anno_lyr.visible = True
+##        prev_cwd_lyr.showLabels = False
+##    else:
+##        prev_cwd_lyr.showLabels = True
+##        
+##    if arcpy.Exists(cwd_anno_lyr):
+##        cwd_anno_lyr.visible = False
+##        
+##    if arcpy.Exists(clucwd_anno_lyr):
+##        clucwd_anno_lyr.visible = False
 
+    # Set the legend elements for contingent visibility options
+    dm_leg = dm_lyt.listElements('LEGEND_ELEMENT')[0]
+    for item in dm_leg.items:
+        item.showVisibleFeatures = True
 
     # Set the plss input layer to not be visible, if it was used
     if plssPoint:
@@ -591,6 +626,15 @@ try:
     startWorkspace = arcpy.env.workspace
     arcpy.env.workspace = scratchGDB
 
+    ## Reset image text on each layout to be blank
+    # Define the imagery text box elements
+    for elm in dm_lyt.listElements():
+        if elm.name == "Imagery Text Box":
+            dm_imagery_elm = elm
+
+    dflt_img_text = " Image: "
+    dm_imagery_elm.text = dflt_img_text
+    
     # Feature Classes
     fcs = []
     for fc in arcpy.ListFeatureClasses('*'):

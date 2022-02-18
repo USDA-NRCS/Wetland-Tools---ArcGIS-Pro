@@ -1,6 +1,7 @@
 ## ===============================================================================================================
 ## Name:    Validate CWD
-## Purpose: Check for topology overlaps and other attribute errors in the CWD layer.
+## Purpose: Check for attribute errors in the CWD layer.
+##          Topology check dropped due to uncertainty of the integrity of the CLU at a national level
 ##
 ## Authors: Chris Morse
 ##          GIS Specialist
@@ -16,14 +17,14 @@
 ## ===============================================================================================================
 ##
 ## rev. 11/04/2020
-## -Start revisions of Validate Topology ArcMap tool to National Wetlands Tool in ArcGIS Pro.
+## - Start revisions of Validate Topology ArcMap tool to National Wetlands Tool in ArcGIS Pro.
 ##
 ## rev. 04/02/2021
-## -Combined the Topology validation and the Attribute validation tools.
-## -Gaps validation removed
+## - Combined the Topology validation and the Attribute validation tools.
+## - Gaps validation removed
 ##
 ## rev. 07/23/2021
-## -Blocked out topology check because they were causing post-script editing problems.
+## - Blocked out topology checks due to uncertainty of the integrity of the CLU at a national level
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    

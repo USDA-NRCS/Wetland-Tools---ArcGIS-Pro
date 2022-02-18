@@ -485,13 +485,13 @@ except:
     exit()
 
 
-#### Check GeoPortal Connection
-#nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
-nrcsPortal = 'https://gis-testing.usda.net/portal/'
-portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
-if not portalToken:
-    arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
-    exit()
+###### Check GeoPortal Connection
+###nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
+##nrcsPortal = 'https://gis-testing.usda.net/portal/'
+##portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
+##if not portalToken:
+##    arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
+##    exit()
     
 
 #### Main procedures
@@ -502,7 +502,7 @@ try:
     sourceSU = arcpy.GetParameterAsText(0)
     resetCWD = arcpy.GetParameterAsText(1)
     resetPJW = arcpy.GetParameterAsText(2)
-    existingCWD = arcpy.GetParameterAsText(3)                   #### MISSING FROM SCRIPT
+##    existingCWD = arcpy.GetParameterAsText(3)     # Not needed because we base final polygons off the incoming SU status tags
 ##    cwdLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(4)).listLayers()[0]
 ##    pjwLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(5)).listLayers()[0]
 ##    extLyr = arcpy.mp.LayerFile(arcpy.GetParameterAsText(6)).listLayers()[0]
