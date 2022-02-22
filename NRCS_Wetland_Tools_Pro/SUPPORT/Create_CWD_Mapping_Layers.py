@@ -276,16 +276,20 @@ try:
     updatedCert = wcFD + os.sep + "Updated_Cert"
     updatedAdmin = wcFD + os.sep + "Updated_Admin"
 
+    name026_unsort = "CLU_CWD_026_unsorted"
     name026 = "CLU_CWD_026"
     name026_temp = "CLU_CWD_026_temp"
     name026_alt = "CLU_CWD_026_alt"
+    cluCWD026_unsort = wcGDB_path + os.sep + name026_unsort
     cluCWD026 = wcGDB_path + os.sep + name026
-    cluCWD026 = wcGDB_path + os.sep + name026_temp
+    cluCWD026_temp = wcGDB_path + os.sep + name026_temp
     cluCWD026_alt = wcGDB_path + os.sep + name026_alt
-    
+
+    name028_unsort = "CLU_CWD_028_unsorted"
     name028 = "CLU_CWD_028"
     name028_temp = "CLU_CWD_028_temp"
     name028_alt = "CLU_CWD_028_alt"
+    cluCWD028_unsort = wcGDB_path + os.sep + name028_unsort
     cluCWD028 = wcGDB_path + os.sep + name028
     cluCWD028_temp = wcGDB_path + os.sep + name028_temp
     cluCWD028_alt = wcGDB_path + os.sep + name028_alt
@@ -297,7 +301,7 @@ try:
     excel028_alt = wetDir + os.sep + "CLU_CWD_028_alt.xlsx"
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [clucwd_multi, clucwd_single, pccs_multi, pccs_single]
+    tempLayers = [clucwd_multi, clucwd_single, pccs_multi, pccs_single, cluCWD026_unsort, cluCWD028_unsort]
     deleteTempLayers(tempLayers)
 
 
@@ -394,12 +398,23 @@ try:
         arcpy.SetProgressorLabel("Generating Previous CWD summary tables...")
         case_fields = ["farm_number", "tract_number", "clu_number", "wetland_label", "occur_year","cert_date"]
         stats_fields = [['acres', 'SUM']]
-        arcpy.Statistics_analysis(prevCluCertSite, cluCWD028, stats_fields, case_fields)
+        arcpy.Statistics_analysis(prevCluCertSite, cluCWD028_unsort, stats_fields, case_fields)
+        # Sort the results
+        sort_fields = [["clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
+        arcpy.management.Sort(cluCWD028_unsort, cluCWD028, sort_fields)
+        arcpy.management.Delete(cluCWD028_unsort)
+        del sort_fields
 
         # Do summary stats to make an alternate table that combines fields with matching labels for the 028
         case_fields = ["farm_number", "tract_number", "wetland_label", "occur_year","cert_date"]
         stats_fields = [['clu_number','FIRST'],['acres', 'SUM']]
-        arcpy.Statistics_analysis(prevCluCertSite, cluCWD028_temp, stats_fields, case_fields)
+        arcpy.Statistics_analysis(prevCluCertSite, cluCWD028_unsort, stats_fields, case_fields)
+        # Sort the results
+        sort_fields = [["clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
+        arcpy.management.Sort(cluCWD028_unsort, cluCWD028_temp, sort_fields)
+        arcpy.management.Delete(cluCWD028_unsort)
+        del sort_fields
+        
         # Make a list of the labels in the new table
         alt_028_labels = []
         search_fields = ['wetland_label','occur_year']
@@ -434,6 +449,16 @@ try:
                             dict_028_alt[item] = row[0]
                             
         # Dictionary populated with all fields (values) that go with each label + occur year (key)
+        # Examine the values in the dictionary and sort any sets of field numbers
+        for key in dict_028_alt.keys():
+            v = dict_028_alt[key]
+            if ", " in v:
+                split_list = v.split(", ")
+                integer_list = sorted(list(map(int, split_list)))
+                string_ints = [str(int) for int in integer_list]
+                str_of_ints = ", ".join(string_ints)
+                dict_028_alt[key]=str_of_ints
+        
         # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
         arcpy.management.AddField(cluCWD028_temp, "clu_number", 'TEXT', '', '', 512)
         field_names = ['wetland_label','occur_year','clu_number']
@@ -447,20 +472,21 @@ try:
                 cursor.updateRow(row)
 
         # Convert the temp table to the final alt table, then delete the temp table
-        # Build field mapping for the conversion
-        fm = arcpy.FieldMap()
-        fms = arcpy.FieldMappings()
-        fm.addInputField(cluCWD028_temp, 'farm_number')
-        fm.addInputField(cluCWD028_temp, 'tract_number')
-        fm.addInputField(cluCWD028_temp, 'clu_number')
-        fm.addInputField(cluCWD028_temp, 'wetland_label')
-        fm.addInputField(cluCWD028_temp, 'occur_year')
-        fm.addInputField(cluCWD028_temp, 'cert_date')
-        fm.addInputField(cluCWD028_temp, 'FREQUENCY')
-        fm.addInputField(cluCWD028_temp, 'SUM_acres')
-        fms.addFieldMap(fm)
+##        # Build field mapping for the conversion
+##        fm = arcpy.FieldMap()
+##        fms = arcpy.FieldMappings()
+##        fm.addInputField(cluCWD028_temp, 'farm_number')
+##        fm.addInputField(cluCWD028_temp, 'tract_number')
+##        fm.addInputField(cluCWD028_temp, 'clu_number')
+##        fm.addInputField(cluCWD028_temp, 'wetland_label')
+##        fm.addInputField(cluCWD028_temp, 'occur_year')
+##        fm.addInputField(cluCWD028_temp, 'cert_date')
+##        fm.addInputField(cluCWD028_temp, 'FREQUENCY')
+##        fm.addInputField(cluCWD028_temp, 'SUM_acres')
+##        fms.addFieldMap(fm)
         # Convert the table
-        arcpy.TableToTable_conversion(cluCWD028_temp, wcGDB_path, name028_alt)
+        field_mapping="farm_number \"Farm Number\" true true false 7 Text 0 0,First,#,CLU_CWD_028_temp,farm_number,0,7;tract_number \"Tract Number\" true true false 7 Text 0 0,First,#,CLU_CWD_028_temp,tract_number,0,7;clu_number \"clu_number\" true true false 512 Text 0 0,First,#,CLU_CWD_028_temp,clu_number,0,512;wetland_label \"Wetland Label\" true true false 12 Text 0 0,First,#,CLU_CWD_028_temp,wetland_label,0,12;occur_year \"Occurrence Year\" true true false 4 Text 0 0,First,#,CLU_CWD_028_temp,occur_year,0,4;FREQUENCY \"FREQUENCY\" true true false 4 Long 0 0,First,#,CLU_CWD_028_temp,FREQUENCY,-1,-1;SUM_acres \"SUM_acres\" true true false 8 Double 0 0,First,#,CLU_CWD_028_temp,SUM_acres,-1,-1"
+        arcpy.TableToTable_conversion(cluCWD028_temp, wcGDB_path, name028_alt, fms)
         # Delete the temp table
         arcpy.management.Delete(cluCWD028_temp)
         
@@ -487,12 +513,23 @@ try:
     arcpy.SetProgressorLabel("Generating CLU CWD summary tables...")
     case_fields = ["farm_number","tract_number","clu_number", "wetland_label", "occur_year"]
     stats_fields = [['acres', 'SUM']]
-    arcpy.Statistics_analysis(cluCWD, cluCWD026, stats_fields, case_fields)
+    arcpy.Statistics_analysis(cluCWD, cluCWD026_unsort, stats_fields, case_fields)
+    # Sort the results
+    sort_fields = [["clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
+    arcpy.management.Sort(cluCWD026_unsort, cluCWD026, sort_fields)
+    arcpy.management.Delete(cluCWD026_unsort)
+    del sort_fields
 
     # Do summary stats to make an alternate table that combines fields with matching labels for the 026
     case_fields = ["farm_number", "tract_number", "wetland_label", "occur_year"]
     stats_fields = [['clu_number','FIRST'],['acres', 'SUM']]
-    arcpy.Statistics_analysis(cluCWD, cluCWD026_temp, stats_fields, case_fields)
+    arcpy.Statistics_analysis(cluCWD, cluCWD026_unsort, stats_fields, case_fields)
+    # Sort the results
+    sort_fields = [["FIRST_clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
+    arcpy.management.Sort(cluCWD026_unsort, cluCWD026_temp, sort_fields)
+    arcpy.management.Delete(cluCWD026_unsort)
+    del sort_fields
+    
     # Make a list of the labels in the new table
     alt_026_labels = []
     search_fields = ['wetland_label','occur_year']
@@ -502,7 +539,7 @@ try:
                 value = row[0]
             else:
                 value = row[0] + row[1]
-            if value not in alt_028_labels:
+            if value not in alt_026_labels:
                 alt_026_labels.append(value)
     # Use the list of labels to search the previous data and create a dictionary of labels to clu fields
     dict_026_alt = {}            
@@ -527,6 +564,16 @@ try:
                         dict_026_alt[item] = row[0]
                         
     # Dictionary populated with all fields (values) that go with each label + occur year (key)
+    # Examine the values in the dictionary and sort any sets of field numbers
+    for key in dict_026_alt.keys():
+        v = dict_026_alt[key]
+        if ", " in v:
+            split_list = v.split(", ")
+            integer_list = sorted(list(map(int, split_list)))
+            string_ints = [str(int) for int in integer_list]
+            str_of_ints = ", ".join(string_ints)
+            dict_026_alt[key]=str_of_ints
+                
     # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
     arcpy.management.AddField(cluCWD026_temp, "clu_number", 'TEXT', '', '', 512)
     field_names = ['wetland_label','occur_year','clu_number']
@@ -540,19 +587,20 @@ try:
             cursor.updateRow(row)
 
     # Convert the temp table to the final alt table, then delete the temp table
-    # Build field mapping for the conversion
-    fm = arcpy.FieldMap()
-    fms = arcpy.FieldMappings()
-    fm.addInputField(cluCWD028_temp, 'farm_number')
-    fm.addInputField(cluCWD028_temp, 'tract_number')
-    fm.addInputField(cluCWD028_temp, 'clu_number')
-    fm.addInputField(cluCWD028_temp, 'wetland_label')
-    fm.addInputField(cluCWD028_temp, 'occur_year')
-    fm.addInputField(cluCWD028_temp, 'FREQUENCY')
-    fm.addInputField(cluCWD028_temp, 'SUM_acres')
-    fms.addFieldMap(fm)
+##    # Build field mapping for the conversion
+##    fm = arcpy.FieldMap()
+##    fms = arcpy.FieldMappings()
+##    fm.addInputField(cluCWD026_temp, 'farm_number')
+##    fm.addInputField(cluCWD026_temp, 'tract_number')
+##    fm.addInputField(cluCWD026_temp, 'clu_number')
+##    fm.addInputField(cluCWD026_temp, 'wetland_label')
+##    fm.addInputField(cluCWD026_temp, 'occur_year')
+##    fm.addInputField(cluCWD026_temp, 'FREQUENCY')
+##    fm.addInputField(cluCWD026_temp, 'SUM_acres')
+##    fms.addFieldMap(fm)
     # Convert the table
-    arcpy.TableToTable_conversion(cluCWD026_temp, wcGDB_path, name026_alt)
+    field_mapping="farm_number \"Farm Number\" true true false 7 Text 0 0,First,#,CLU_CWD_026_temp,farm_number,0,7;tract_number \"Tract Number\" true true false 7 Text 0 0,First,#,CLU_CWD_026_temp,tract_number,0,7;clu_number \"clu_number\" true true false 512 Text 0 0,First,#,CLU_CWD_026_temp,clu_number,0,512;wetland_label \"Wetland Label\" true true false 12 Text 0 0,First,#,CLU_CWD_026_temp,wetland_label,0,12;occur_year \"Occurrence Year\" true true false 4 Text 0 0,First,#,CLU_CWD_026_temp,occur_year,0,4;FREQUENCY \"FREQUENCY\" true true false 4 Long 0 0,First,#,CLU_CWD_026_temp,FREQUENCY,-1,-1;SUM_acres \"SUM_acres\" true true false 8 Double 0 0,First,#,CLU_CWD_026_temp,SUM_acres,-1,-1"
+    arcpy.TableToTable_conversion(cluCWD026_temp, wcGDB_path, name026_alt, "", field_mapping)
     # Delete the temp table
     arcpy.management.Delete(cluCWD026_temp)
     
