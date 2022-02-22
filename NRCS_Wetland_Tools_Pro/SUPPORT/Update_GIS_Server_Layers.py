@@ -35,6 +35,10 @@
 ## - Complete rewrite to change all server interactions other than Append to use the REST API
 ## - Added management & upload of layers for Request Extent Points and CLU CWD Points for dashboards
 ##
+## rev. 02/22/2022
+## - Replaced intersects with overlaps in query function.
+## - Created advanced logic for polygon and point replacement in the update_polys function
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -204,14 +208,14 @@ def del_by_attributes(sqlQuery, RESTurl):
 
 ## ===============================================================================================================
 def del_by_intersect(ws, temp_dir, fc, RESTurl):
-## This function deletes features via the REST API with a spatial intersect
+## This function deletes features via the REST API with a spatial overlap
 ## This is only called if intersecting features are known to exist using the returned shapes from queryIntersect
 ## If the deletes are successful, the function returns a status of True, otherwise it gives an error and is false
 
     try:
         # Set variables
         delete_url = RESTurl + "/deleteFeatures"
-        jfile = temp_dir + os.sep + jsonFile.json
+        jfile = temp_dir + os.sep + "jsonFile.json"
         wmas_fc = ws + os.sep + "wmas_fc"
         wmas_dis = ws + os.sep + "wmas_dis_fc"
         wmas_sr = arcpy.SpatialReference(3857)
@@ -225,7 +229,7 @@ def del_by_intersect(ws, temp_dir, fc, RESTurl):
         params = urllibEncode({'f': 'json',
                                'geometry':jsonPolygon,
                                'geometryType':'esriGeometryPolygon',
-                               'spatialRelationship':'esriSpatialRelIntersects',
+                               'spatialRelationship':'esriSpatialRelOverlaps',
                                'rollbackOnFailure':'true',
                                'returnDeleteResults':'false',
                                'token': portalToken['token']})
@@ -274,7 +278,7 @@ def del_by_intersect(ws, temp_dir, fc, RESTurl):
 
 ##  ===============================================================================================================
 def queryIntersect(ws, temp_dir, fc, RESTurl, outFC):
-##  This function uses a REST API query to retrieve geometry from that intersect an input feature class from a
+##  This function uses a REST API query to retrieve geometry from that overlap an input feature class from a
 ##  hosted feature service.
 ##  Relies on a global variable of portalToken to exist and be active (checked before running this function)
 ##  ws is a file geodatabase workspace to store temp files for processing
@@ -303,7 +307,7 @@ def queryIntersect(ws, temp_dir, fc, RESTurl, outFC):
         params = urllibEncode({'f': 'json',
                                'geometry':jsonPolygon,
                                'geometryType':'esriGeometryPolygon',
-                               'spatialRelationship':'esriSpatialRelIntersects',
+                               'spatialRelationship':'esriSpatialRelOverlaps',
                                'returnGeometry':'true',
                                'outFields':'*',
                                'token': portalToken['token']})
@@ -356,37 +360,121 @@ def queryIntersect(ws, temp_dir, fc, RESTurl, outFC):
             return False
 
 ## ===============================================================================================================
-def update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, fldmapping=''):
-
-## This function will check for intersect via queryIntersect function. If intersect found, it will dissolve the
-## feature class returned from the intersect and send it to the delete_by_intersect function.
-## After deleting intersecting area OR finding no intersecting area, it will append the new data to the target HFS
+def update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, proj_pts = '', ptsURL = '', fldmapping=''):
+## Queries polygon layer for intersects. If none found, appends proceed.
+## If intersection is found, query returns the geometry for local processing to split the old areas from the new.
+## Once local processing is complete the two pieces are put through Delete intersect and then re-uploaded.
+## If the related pts and ptsURL variables are populated, the remnant poly data is used to check and move points
+## as needed to maintain points. This effectively moves the existing points, if they are not completely
+## overwritten, into the remnant poly areas. Also, the points update does not take place if ALL geometry is
+## replaced by the new data (100%+ full area overwrite).
     
-    try:
-        # set variables
-        int_fc = up_ws + os.sep + "int_fc"
-        
-        # Check whether the input data overlaps anything on the server
-        test_results = queryIntersect(up_ws, up_temp_dir, proj_fc, up_RESTurl, int_fc)
-        if test_results != False:
-            # Features found. Delete by intersect and then append
-            del_by_intersect(up_ws, up_temp_dir, proj_fc, up_RESTurl)
-            arcpy.management.Delete(test_results)
-            if fldmapping != '':
-                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
-            else:
-                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST")
+##    try:
+    # set variables
+    int_fc = up_ws + os.sep + "int_fc"
+    pts_temp = up_ws + os.sep + "pts_temp"
+
+    # Manage the local_temp file in case of previous run of tool that had an error or crashed
+    if arcpy.Exists(local_temp):
+        # Query local temp against the server to see if data is still there. If nothing returned,
+        # then append the local temp to the server to restore "deleted" features
+        overlapCheck = queryIntersect(up_ws, up_temp_dir, local_temp, up_RESTurl, int_fc)
+        if overlapCheck == False:
+            # Restore the local_temp onto the server without the field mapping setting (not needed)
+            arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
+            # Also handle proj_pts again to make sure they remain restored on the server if necessary
+            if proj_pts != '':
+                # Convert local temp to points
+                arcpy.management.FeatureToPoint(local_temp, pts_temp, "INSIDE")
+                # Delete server points
+                del_by_intersect(up_ws, up_temp_dir, local_temp, ptsURL)
+                # Append updated server points
+                arcpy.management.Append(pts_temp, ptsURL, "NO_TEST", fldmapping)
+                arcpy.management.Delete(pts_temp)
+            arcpy.management.Delete(local_temp)
         else:
-            # Features not found. Append
-            if fldmapping != '':
-                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+            # Server features take precedence. Delete local_temp. It will be re-created, if needed, in the next step.
+            arcpy.management.Delete(local_temp)
+            arcpy.management.Delete(int_fc)
+
+    # Check whether the input project area data overlaps anything on the server
+    test_results = queryIntersect(up_ws, up_temp_dir, proj_fc, up_RESTurl, int_fc)
+    if test_results != False:
+        ## Features found. Process the geometry changes locally to prep layers for upload.
+        # Use the proj_fc to erase overlapping area from the downloaded polygons and check results
+        arcpy.analysis.Erase(test_results, proj_fc, poly_multi)
+        result = int(arcpy.management.GetCount(poly_multi).getOutput(0))
+        if result > 0:
+            # Not a 100% replace. Change to single part and update acres
+            arcpy.management.MultipartToSinglepart(poly_multi, poly_single)
+            expression = "round(!Shape.Area@acres!,2)"
+            arcpy.management.CalculateField(poly_single, "acres", expression, "PYTHON_9.3")
+            del expression
+            # Copy the residual features to the local temp layer to be used in re-upload later in the process
+            arcpy.management.CopyFeatures(poly_single, local_temp)
+            ## Also process the points layer if there is overlap
+            if proj_pts != '':
+                # Create a new set of points to upload
+                arcpy.management.FeatureToPoint(local_temp, pts_temp, "INSIDE")
+
+    ## Handle uploads
+    if test_results != False:
+        # Overlaps exist. First delete server features that overlap the project area
+        del_by_intersect(up_ws, up_temp_dir, proj_fc, up_RESTurl)
+
+        # Restore remnant local temp copy of server features (around the new data)
+        arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
+        arcpy.management.Delete(local_temp)
+
+        # Also restore the points data for remnant polys if those flags are set
+        if proj_pts != ''
+            del_by_intersect(up_ws, up_temp_dir, test_results, ptsURL)
+            if arcpy.Exists(pts_temp):
+                # Not a 100% replace, so upload the remnant points and the new points
+                if fldmapping != '':
+                    arcpy.management.Append(pts_temp, ptsURL, "NO_TEST", fldmapping)
+                    arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
+                else:
+                    arcpy.management.Append(pts_temp, ptsURL, "NO_TEST")
+                    arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
+                arcpy.management.Delete(pts_temp)
             else:
-                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST")
+                # A 100% replace, so upload the new points only
+                if fldmapping != '':
+                    arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
+                else:
+                    arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
 
-    except:
-        AddMsgAndPrint("\nSomething went wrong during upload of " + proj_fc + "!. Exiting...",2)
-        exit()
+        #Do append of current project data
+        if fldmapping != '':
+            arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+        else:
+            arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
 
+        arcpy.management.Delete(test_results)
+        if arcpy.Exists(pts_temp):
+            arcpy.management.Delete(pts_temp)
+        
+    else:
+        # No overlaps, just Append the new data.
+        if proj_pts != '':
+            # Append new data and project points.
+            if fldmapping != '':
+                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+                arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
+            else:
+                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+                arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
+        else:
+            if fldmapping != '':
+                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+            else:
+                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+
+##    except:
+##        AddMsgAndPrint("\nSomething went wrong during upload of " + proj_fc + "!. Exiting...",2)
+##        exit()
+            
 ## ===============================================================================================================
 def replace_pts_by_area(up_ws, up_temp_dir, proj_fc, area_fc, up_RESTurl, fldmapping=''):
 ## This function will check for intersect of the area_fc via queryIntersect function.
@@ -580,11 +668,11 @@ try:
     updatedCert = wcFD + os.sep + "Updated_Cert"
     updatedAdmin = wcFD + os.sep + "Updated_Admin"
 
-    server_multi = scratchGDB + os.sep + "server_multi"
-    server_single = scratchGDB + os.sep + "server_single"
+    poly_multi = scratchGDB + os.sep + "poly_multi"
+    poly_single = scratchGDB + os.sep + "poly_single"
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [server_multi, server_single]
+    tempLayers = [poly_multi, poly_single]
     #deleteTempLayers(tempLayers)
 
 
@@ -762,16 +850,16 @@ try:
     arcpy.SetProgressorLabel("Uploading to Active Layers...")
     
     # Polygon find and replace function syntax reference
-    # update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, fldmapping='')
-    update_polys(scratchGDB, wetDir, projectExtent, ext_HFS)                                    # Request Extent Layer
-    update_polys(scratchGDB, wetDir, projectSU, su_HFS, field_mapping_su_to_hfs)                # Sampling Units Layer
-    update_polys(scratchGDB, wetDir, projectCWD, cwd_HFS, field_mapping_cwd_to_hfs)             # CWD Layer
-    update_polys(scratchGDB, wetDir, projectCLUCWD, clucwd_HFS, field_mapping_clucwd_to_hfs)    # CLU CWD Layer
+    # update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, proj_pts = '', ptsURL = '', fldmapping='')
+    update_polys(scratchGDB, wetDir, projectExtent, ext_HFS, ext_server_copy, extPoints, reqpts_HFS)    # Request Extent Layer and points
+    update_polys(scratchGDB, wetDir, projectSU, su_HFS, su_server_copy, field_mapping_su_to_hfs)        # Sampling Units Layer
+    update_polys(scratchGDB, wetDir, projectCWD, cwd_HFS, cwd_server_copy, field_mapping_cwd_to_hfs)    # CWD Layer
+    update_polys(scratchGDB, wetDir, projectCLUCWD, clucwd_HFS, clucwd_server_copy, cluCWDpts, clucwdpts_HFS, field_mapping_clucwd_to_hfs)  # CLU CWD Layer and points
 
-    arcpy.Append_management(extPoints, reqpts_HFS, "NO_TEST", field_mapping_ref_to_hfs)         # Request extent points
+    #arcpy.Append_management(extPoints, reqpts_HFS, "NO_TEST", field_mapping_ref_to_hfs)         # Request extent points
     arcpy.Append_management(projectROP, rop_HFS, "NO_TEST", field_mapping_rop_to_hfs)           # ROPs Layer
     # replace_pts_by_area(scratchGDB, wetDir, projectROP, projectSU, rop_HFS, field_mapping_rop_to_hfs)             # ROPs Layer - can't do it this way due to legacy ramifications (split SUs)
-    arcpy.Append_management(cluCWDpts, clucwdpts_HFS, "NO_TEST", field_mapping_clucwd_to_hfs)   # CLU CWD Points Layer
+    #arcpy.Append_management(cluCWDpts, clucwdpts_HFS, "NO_TEST", field_mapping_clucwd_to_hfs)   # CLU CWD Points Layer
     # replace_pts_by_area(scratchGDB, wetDir, cluCWDpts, projectCWD, clucwdpts_HFS, field_mapping_clucwd_to_hfs)    # CLU CWD Pts Layer - can't do it this way due to legacy ramifications (split CLUs or CWDs)
     
     if ref_count > 0:

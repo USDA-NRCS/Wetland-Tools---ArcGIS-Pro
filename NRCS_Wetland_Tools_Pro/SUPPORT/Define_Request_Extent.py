@@ -42,6 +42,9 @@
 ## rev. 02/18/2022
 ## - Updated and debugged query server functions that were added on 2/2/2022
 ##
+## rev. 02/22/2022
+## - Replaced intersects with overlaps in query function.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -115,7 +118,7 @@ def deleteTempLayers(lyrs):
 
 ##  ===============================================================================================================
 def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
-##  This function uses a REST API query to retrieve geometry from that intersect an input feature class from a
+##  This function uses a REST API query to retrieve geometry from that overlap an input feature class from a
 ##  hosted feature service.
 ##  Relies on a global variable of portalToken to exist and be active (checked before running this function)
 ##  ws is a file geodatabase workspace to store temp files for processing
@@ -144,7 +147,7 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
         params = urllibEncode({'f': 'json',
                                'geometry':jsonPolygon,
                                'geometryType':'esriGeometryPolygon',
-                               'spatialRelationship':'esriSpatialRelIntersects',
+                               'spatialRelationship':'esriSpatialRelOverlaps',
                                'returnGeometry':'true',
                                'outFields':'*',
                                'token': portalToken['token']})
