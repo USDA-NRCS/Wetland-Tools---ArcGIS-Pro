@@ -43,7 +43,10 @@
 ## - Updated and debugged query server functions that were added on 2/2/2022
 ##
 ## rev. 02/22/2022
-## - Replaced intersects with overlaps in query function.
+## - Replaced intersects with overlaps in server query function.
+##
+## rev. 02/25/2022
+## - Debugged query/download function and related file cleanup
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -129,75 +132,80 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
 ##  Otherwise False is returned
 
     # Run the query
-    try:
-        
-        # Set variables
-        query_url = RESTurl + "/query"
-        jfile = temp_dir + os.sep + "jsonFile.json"
-        wmas_fc = ws + os.sep + "wmas_fc"
-        wmas_dis = ws + os.sep + "wmas_dis_fc"
-        wmas_sr = arcpy.SpatialReference(3857)
-
-        # Convert the input feature class to Web Mercator and to JSON
-        arcpy.management.Project(fc, wmas_fc, wmas_sr)
-        arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
-        jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
-
-        # Setup parameters for query
-        params = urllibEncode({'f': 'json',
-                               'geometry':jsonPolygon,
-                               'geometryType':'esriGeometryPolygon',
-                               'spatialRelationship':'esriSpatialRelOverlaps',
-                               'returnGeometry':'true',
-                               'outFields':'*',
-                               'token': portalToken['token']})
-
+##    try:
     
-        INparams = params.encode('ascii')
-        resp = urllib.request.urlopen(query_url,INparams)
+    # Set variables
+    query_url = RESTurl + "/query"
+    jfile = temp_dir + os.sep + "jsonFile.json"
+    wmas_fc = ws + os.sep + "wmas_fc"
+    wmas_dis = ws + os.sep + "wmas_dis_fc"
+    wmas_sr = arcpy.SpatialReference(3857)
 
-        responseStatus = resp.getcode()
-        responseMsg = resp.msg
-        jsonString = resp.read()
+    # Convert the input feature class to Web Mercator and to JSON
+    arcpy.management.Project(fc, wmas_fc, wmas_sr)
+    arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
+    jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
 
-        # json --> Python; dictionary containing 1 key with a list of lists
-        results = json.loads(jsonString)
+    # Setup parameters for query
+    params = urllibEncode({'f': 'json',
+                           'geometry':jsonPolygon,
+                           'geometryType':'esriGeometryPolygon',
+                           'spatialRelationship':'esriSpatialRelOverlaps',
+                           'returnGeometry':'true',
+                           'outFields':'*',
+                           'token': portalToken['token']})
 
-        # Check for error in results and exit with message if found.
-        if 'error' in results.keys():
-            if results['error']['message'] == 'Invalid Token':
-                AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
-                exit()
-            else:
-                AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
-                AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
-                exit()
-        else:
-            # Convert results to a feature class
-            if not len(results['features']):
-                return False
-            else:
-                with open(jfile, 'w') as outfile:
-                    json.dump(results, outfile)
 
-                arcpy.conversion.JSONToFeatures(jfile, outFC)
-                return outFC
+    INparams = params.encode('ascii')
+    resp = urllib.request.urlopen(query_url,INparams)
 
-            # Cleanup temp stuff from this function
-            files_to_del = [jfile, wmas_fc, wmas_dis]
-            for item in files_to_del:
-                if arcpy.Exists(item):
-                    arcpy.management.Delete(item)
+    responseStatus = resp.getcode()
+    responseMsg = resp.msg
+    jsonString = resp.read()
 
-    except httpErrors as e:
-        if int(e.code) >= 400:
-            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
-            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
-            errorMsg()
+    # json --> Python; dictionary containing 1 key with a list of lists
+    results = json.loads(jsonString)
+
+    # Check for error in results and exit with message if found.
+    if 'error' in results.keys():
+        if results['error']['message'] == 'Invalid Token':
+            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
             exit()
         else:
-            errorMsg()
+            AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
+            AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
+            exit()
+    else:
+        # Convert results to a feature class
+        if not len(results['features']):
             return False
+        else:
+            with open(jfile, 'w') as outfile:
+                json.dump(results, outfile)
+
+            arcpy.conversion.JSONToFeatures(jfile, outFC)
+            arcpy.management.Delete(jfile)
+            arcpy.management.Delete(wmas_fc)
+            arcpy.management.Delete(wmas_dis)
+            return outFC
+
+##        # Cleanup temp stuff from this function
+##        files_to_del = [jfile, wmas_fc, wmas_dis]
+##        for item in files_to_del:
+##            try:
+##                arcpy.management.Delete(item)
+##            except:
+##                pass
+
+##    except httpErrors as e:
+##        if int(e.code) >= 400:
+##            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
+##            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
+##            errorMsg()
+##            exit()
+##        else:
+##            errorMsg()
+##            return False
             
 ## ===============================================================================================================
 #### Import system modules
@@ -206,8 +214,8 @@ from importlib import reload
 import urllib, time, json, random
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError as httpErrors
-global urllibEncode = urllib.parse.urlencode
-global parseQueryString = urllib.parse.parse_qsl
+urllibEncode = urllib.parse.urlencode
+parseQueryString = urllib.parse.parse_qsl
 
 sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
@@ -306,6 +314,7 @@ try:
     wcGDB_path = wetDir + os.sep + wcGDB_name
     wcFD_name = "WC_Data"
     wcFD = wcGDB_path + os.sep + wcFD_name
+    #jfile = wetDir + os.sep + "jsonFile.json"
     
     projectCLU = basedataFD + os.sep + "Site_CLU"
     projectTract = basedataFD + os.sep + "Site_Tract"
@@ -321,7 +330,7 @@ try:
     extentTemp3 = scratchGDB + os.sep + "Extent_temp3_" + projectName
     tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
 
-    intCWD = wcFD + os.sep + "Intersected_CWD"
+    intCWD = wcGDB_path + os.sep + "Intersected_CWD"
     prevCert = wcFD + os.sep + "Previous_CWD"
     prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
     prevCertMulti = scratchGDB + os.sep + "pCertMulti"
@@ -335,7 +344,7 @@ try:
     out_shape = wetDir + os.sep + out_shape_name
     
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [extentTemp1, extentTemp2, extentTemp3, prevCertMulti, prevCertTemp1, tractTest]
+    tempLayers = [extentTemp1, extentTemp2, extentTemp3, prevCertMulti, prevCertTemp1, tractTest, intCWD]
     deleteTempLayers(tempLayers)
 
 
@@ -488,6 +497,32 @@ try:
     arcpy.CalculateField_management(extentTemp2, fieldName, expression, "PYTHON_9.3")
     del expression, fieldName, fieldAlias, fieldLength
 
+##    # Add the acres field and calc it
+##    arcpy.AddField_management(extentTemp2, "acres", "DOUBLE", field_alias = "Acres")
+##    expression = "round(!Shape.Area@acres!,2)"
+##    arcpy.CalculateField_management(extentTemp2, "acres", expression, "PYTHON_9.3")
+##    del expression
+##
+##    # Add the request_date field and set it to current request's request date
+##    if arcpy.Exists(projectTable):
+##        fields = ['request_date']
+##        cursor = arcpy.da.SearchCursor(projectTable, fields)
+##        for row in cursor:
+##            rDate = row[0]
+##            break
+##        del cursor, fields
+##
+##        fields = ['request_date']
+##        cursor = arcpy.da.UpdateCursor(extentTemp2, fields)
+##        for row in cursor:
+##            row[0] = rDate
+##            cursor.updateRow(row)
+##        del cursor, fields
+##        
+##    else:
+##        AddMsgAndPrint("\nProject admin table does not exist. Run Tool A2. Enter Project Info. Exiting...",2)
+##        exit()
+
     # Delete extraneous fields from the extent layer
     existing_fields = []
     for fld in arcpy.ListFields(extentTemp2):
@@ -506,54 +541,65 @@ try:
     arcpy.SetProgressorLabel("Checking for existing CWD data in the Tract...")
 
     query_results_fc = queryIntersect(scratchGDB,wetDir, projectTract,cwdURL,intCWD)
-    
-    if query_results_fc != False:
+
+    if arcpy.Exists(intCWD):
+    #if query_results_fc != False:
         # This section runs if any intersecting geometry is returned from the query
         AddMsgAndPrint("\tPrevious certifications found within current Tract! Processing...",0)
         arcpy.SetProgressorLabel("Previous certifications found within current Tract! Processing...")
         
         # Use intersect to apply current tract data to the intCWD in case FSA CLU administrative info changed over time
         arcpy.Intersect_analysis([projectTract, query_results_fc], prevCertMulti, "NO_FID", "#", "INPUT")
+        result = int(arcpy.GetCount_management(prevCertMulti).getOutput(0))
+        if result > 0:
+            # Explode features into single part
+            arcpy.MultipartToSinglepart_management(prevCertMulti, prevCert)
+            arcpy.Delete_management(prevCertMulti)
 
-        # Explode features into single part
-        arcpy.MultipartToSinglepart_management(prevCertMulti, prevCert)
-        arcpy.Delete_management(prevCertMulti)
+            # Calculate the eval_status field to "Certified-Digital"
+            expression = "\"Certified-Digital\""
+            arcpy.CalculateField_management(prevCert, "eval_status", expression, "PYTHON_9.3")
+            del expression
 
-        # Calculate the eval_status field to "Certified-Digital"
-        expression = "\"Certified-Digital\""
-        arcpy.CacluateField_management(prevCert, "eval_status", expression, "PYTHON_9.3")
-        del expression
-
-        # Transer the job_id_1 attributes to the job_id field
-        fields = ['job_id','job_id_1']
-        cursor = arcpy.da.UpdateCursor(prevCert, fields)
-        for row in cursor:
-            row[0] = row[1]
-            cursor.updateRow(row)
-        del fields
-        del cursor
-        
-        # Create the prevAdmin layer using Dissolve.
-        dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
-        arcpy.Dissolve_management(prevCert, prevAdmin, dis_fields, "", "SINGLE_PART", "")
-        del dis_fields
-
-        # Also Delete excess tabular fields from the prevCert layer
-        existing_fields = []
-        drop_fields = ['job_id_1','admin_state_1','admin_state_name_1','admin_county_1','admin_county_name_1','state_code_1','state_name_1','county_code_1','county_name_1','farm_number_1',
-                       'tract_number_1', 'eval_status_1']
-        
-        for fld in arcpy.ListFields(prevCert):
-            existing_fields.append(fld.name)
-        
-        for fld in drop_fields:
-            if fld not in existing_fields:
-                drop_fields.remove(fld)
-                
-        if len(drop_fields) > 0:
-            arcpy.DeleteField_management(prevCert, drop_fields)
+            # Transer the job_id_1 attributes to the job_id field
+            fields = ['job_id','job_id_1']
+            cursor = arcpy.da.UpdateCursor(prevCert, fields)
+            for row in cursor:
+                row[0] = row[1]
+                cursor.updateRow(row)
+            del fields
+            del cursor
             
-        del drop_fields, existing_fields
+            # Create the prevAdmin layer using Dissolve.
+            dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+            arcpy.Dissolve_management(prevCert, prevAdmin, dis_fields, "", "SINGLE_PART", "")
+            del dis_fields
+
+            # Also Delete excess tabular fields from the prevCert layer
+            existing_fields = []
+            drop_fields = ['job_id_1','admin_state_1','admin_state_name_1','admin_county_1','admin_county_name_1','state_code_1','state_name_1','county_code_1','county_name_1','farm_number_1',
+                           'tract_number_1', 'eval_status_1']
+            
+            for fld in arcpy.ListFields(prevCert):
+                existing_fields.append(fld.name)
+            
+            for fld in drop_fields:
+                if fld not in existing_fields:
+                    drop_fields.remove(fld)
+                    
+            if len(drop_fields) > 0:
+                arcpy.DeleteField_management(prevCert, drop_fields)
+                
+            del drop_fields, existing_fields
+
+            # Delete the intCWD
+            arcpy.management.Delete(intCWD)
+            del result
+            
+        else:
+            # Nothing in the intCWD layer due to boundary intersect. Delete the intCWD.
+            arcpy.management.Delete(intCWD)
+            arcpy.management.Delete(prevCertMulti)
 
     else:
         AddMsgAndPrint("\tNo previous certifications found! Continuing...",0)

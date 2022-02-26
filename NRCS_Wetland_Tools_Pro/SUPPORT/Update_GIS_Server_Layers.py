@@ -98,7 +98,7 @@ def deleteTempLayers(lyrs):
     for lyr in lyrs:
         if arcpy.Exists(lyr):
             try:
-                arcpy.Delete_management(lyr)
+                arcpy.management.Delete(lyr)
             except:
                 pass
 
@@ -108,46 +108,46 @@ def queryCount(sqlQuery, RESTurl):
 ## It returns the count of features as an Int. If no features are found, it returns a count of 0
 ## Any result besides an Int indicates a failed query, generates an error message, and exits
 
-    try:
-        query_url = RESTurl + "/query"
+##    try:
+    query_url = RESTurl + "/query"
 
-        params = urllibEncode({'where':sqlQuery,
-                               'returnCountOnly':'true',
-                               'token': portalToken['token']})
+    params = urllibEncode({'where':sqlQuery,
+                           'returnCountOnly':'true',
+                           'token': portalToken['token']})
 
-        INparams = params.encode('ascii')
-        
-        resp = urllib.request.urlopen(query_url,INparams)
+    INparams = params.encode('ascii')
+    
+    resp = urllib.request.urlopen(query_url,INparams)
 
-        responseStatus = resp.getcode()
-        responseMsg = resp.msg
-        jsonString = resp.read()
-        
-        # json --> Python; dictionary containing 1 key with a list of lists
-        results = json.loads(jsonString)
+    responseStatus = resp.getcode()
+    responseMsg = resp.msg
+    jsonString = resp.read()
+    
+    # json --> Python; dictionary containing 1 key with a list of lists
+    results = json.loads(jsonString)
 
-        # Check for error in results and exit with message if found.
-        if 'error' in results.keys():
-            if results['error']['message'] == 'Invalid Token':
-                AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
-                exit()
-            else:
-                AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
-                AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
-                exit()
-        else:
-            return results['count']
-
-
-    except httpErrors as e:
-        if int(e.code) >= 400:
-            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
-            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
-            errorMsg()
+    # Check for error in results and exit with message if found.
+    if 'error' in results.keys():
+        if results['error']['message'] == 'Invalid Token':
+            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
             exit()
         else:
-            errorMsg()
-            return False
+            AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
+            AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
+            exit()
+    else:
+        return results['count']
+
+
+##    except httpErrors as e:
+##        if int(e.code) >= 400:
+##            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
+##            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
+##            errorMsg()
+##            exit()
+##        else:
+##            errorMsg()
+##            return False
 
 ## ===============================================================================================================
 def del_by_attributes(sqlQuery, RESTurl):
@@ -155,56 +155,59 @@ def del_by_attributes(sqlQuery, RESTurl):
 ## The delete results are grouped whereby if any delete fails, the function exits the script with an error message
 ## If the deletes are successful, the function returns a status of True
 
-    try:
-        delete_url = RESTurl + "/deleteFeatures"
+##    try:
+    delete_url = RESTurl + "/deleteFeatures"
 
-        params = urllibEncode({'f': 'json',
-                               'where': sqlQuery,
-                               'rollbackOnFailure': 'true',
-                               'returnDeleteResults': 'false',
-                               'token': portalToken['token']})
+    params = urllibEncode({'f': 'json',
+                           'where': sqlQuery,
+                           'rollbackOnFailure': 'true',
+                           'returnDeleteResults': 'false',
+                           'token': portalToken['token']})
 
-        INparams = params.encode('ascii')
+    INparams = params.encode('ascii')
 
-        resp = urllib.request.urlopen(delete_url,INparams)
-        
-        responseStatus = resp.getcode()
-        responseMsg = resp.msg
-        jsonString = resp.read()
+    resp = urllib.request.urlopen(delete_url,INparams)
+    
+    responseStatus = resp.getcode()
+    responseMsg = resp.msg
+    jsonString = resp.read()
 
-        # json --> Python; dictionary containing 1 key with a list of lists
-        results = json.loads(jsonString)
+    # json --> Python; dictionary containing 1 key with a list of lists
+    results = json.loads(jsonString)
 
-        # Check for error in results and exit with message if found.
-        if 'error' in results.keys():
-            if results['error']['message'] == 'Invalid Token':
-                AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
-                exit()
-            else:
-                AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
-                AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
-                exit()
-
-        elif 'false' in results.values():
-            AddMsgAndPrint("\nFeatures found but one or more features could not be deleted for replacement. Confirm your write access. Exiting...",2)
-            exit()
-            
-        else:
-            if results.values is None:
-                AddMsgAndPrint("\nNo existing features were found to delete!",0)
-            else:
-                AddMsgAndPrint("\nFeatures were found to delete and replace!",0)
-            return True
-        
-    except httpErrors as e:
-        if int(e.code) >= 400:
-            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
-            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
-            errorMsg()
+    # Check for error in results and exit with message if found.
+    if 'error' in results.keys():
+        if results['error']['message'] == 'Invalid Token':
+            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
             exit()
         else:
-            errorMsg()
-            return False
+            AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
+            AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
+            exit()
+
+    elif 'false' in results.values():
+        AddMsgAndPrint("\nFeatures found but one or more features could not be deleted for replacement. Confirm your write access. Exiting...",2)
+        exit()
+
+    else:
+        return True
+    
+##    else:
+##        if 'true' in results.values():
+##            AddMsgAndPrint("\nNo existing features were found to delete!",0)
+##        else:
+##            AddMsgAndPrint("\nFeatures were found to be deleted and replaced!",0)
+##        return True
+        
+##    except httpErrors as e:
+##        if int(e.code) >= 400:
+##            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
+##            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
+##            errorMsg()
+##            exit()
+##        else:
+##            errorMsg()
+##            return False
 
 ## ===============================================================================================================
 def del_by_intersect(ws, temp_dir, fc, RESTurl):
@@ -212,69 +215,71 @@ def del_by_intersect(ws, temp_dir, fc, RESTurl):
 ## This is only called if intersecting features are known to exist using the returned shapes from queryIntersect
 ## If the deletes are successful, the function returns a status of True, otherwise it gives an error and is false
 
-    try:
-        # Set variables
-        delete_url = RESTurl + "/deleteFeatures"
-        jfile = temp_dir + os.sep + "jsonFile.json"
-        wmas_fc = ws + os.sep + "wmas_fc"
-        wmas_dis = ws + os.sep + "wmas_dis_fc"
-        wmas_sr = arcpy.SpatialReference(3857)
+##    try:
+    # Set variables
+    delete_url = RESTurl + "/deleteFeatures"
+    wmas_fc = ws + os.sep + "wmas_fc"
+    wmas_dis = ws + os.sep + "wmas_dis_fc"
+    wmas_sr = arcpy.SpatialReference(3857)
 
-        # Convert the input feature class to Web Mercator and to JSON
-        arcpy.management.Project(fc, wmas_fc, wmas_sr)
-        arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
-        jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
+    # Convert the input feature class to Web Mercator and to JSON
+    arcpy.management.Project(fc, wmas_fc, wmas_sr)
+    arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
+    jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
 
-        # Setup parameters for deletion
-        params = urllibEncode({'f': 'json',
-                               'geometry':jsonPolygon,
-                               'geometryType':'esriGeometryPolygon',
-                               'spatialRelationship':'esriSpatialRelOverlaps',
-                               'rollbackOnFailure':'true',
-                               'returnDeleteResults':'false',
-                               'token': portalToken['token']})
+    # Setup parameters for deletion
+    params = urllibEncode({'f': 'json',
+                           'geometry':jsonPolygon,
+                           'geometryType':'esriGeometryPolygon',
+                           'spatialRelationship':'esriSpatialRelOverlaps',
+                           'rollbackOnFailure':'true',
+                           'returnDeleteResults':'false',
+                           'token': portalToken['token']})
 
-        INparams = params.encode('ascii')
+    INparams = params.encode('ascii')
 
-        resp = urllib.request.urlopen(delete_url,INparams)
+    resp = urllib.request.urlopen(delete_url,INparams)
 
-        responseStatus = resp.getcode()
-        responseMsg = resp.msg
-        jsonString = resp.read()
+    responseStatus = resp.getcode()
+    responseMsg = resp.msg
+    jsonString = resp.read()
 
-        # json --> Python; dictionary containing 1 key with a list of lists
-        results = json.loads(jsonString)
+    # json --> Python; dictionary containing 1 key with a list of lists
+    results = json.loads(jsonString)
 
-        # Check for error in results and exit with message if found.
-        if 'error' in results.keys():
-            if results['error']['message'] == 'Invalid Token':
-                AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
-                exit()
-            else:
-                AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
-                AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
-                exit()
-
-        elif 'false' in results.values():
-            AddMsgAndPrint("\nFeatures found but one or more features could not be deleted for replacement. Confirm your write access. Exiting...",2)
+    # Check for error in results and exit with message if found.
+    if 'error' in results.keys():
+        if results['error']['message'] == 'Invalid Token':
+            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
             exit()
-            
         else:
-            if results.values is None:
-                AddMsgAndPrint("\nNo existing features were found to delete!",0)
-            else:
-                AddMsgAndPrint("\nFeatures were found to delete and replace!",0)
-            return True
+            AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
+            AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
+            exit()
+
+    elif 'false' in results.values():
+        AddMsgAndPrint("\nFeatures found but one or more features could not be deleted for replacement. Confirm your write access. Exiting...",2)
+        exit()
+
+    else:
+        return True
+    
+##    else:
+##        if 'true' in results.values():
+##            AddMsgAndPrint("\nNo existing features were found to delete!",0)
+##        else:
+##            AddMsgAndPrint("\nFeatures were found to delete and replace!",0)
+##        return True
         
-    except httpErrors as e:
-        if int(e.code) >= 400:
-            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
-            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
-            errorMsg()
-            exit()
-        else:
-            errorMsg()
-            return False
+##    except httpErrors as e:
+##        if int(e.code) >= 400:
+##            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
+##            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
+##            errorMsg()
+##            exit()
+##        else:
+##            errorMsg()
+##            return False
 
 ##  ===============================================================================================================
 def queryIntersect(ws, temp_dir, fc, RESTurl, outFC):
@@ -289,89 +294,88 @@ def queryIntersect(ws, temp_dir, fc, RESTurl, outFC):
 ##  Otherwise False is returned
 
     # Run the query
-    try:
+##    try:
         
-        # Set variables
-        query_url = RESTurl + "/query"
-        jfile = temp_dir + os.sep + "jsonFile.json"
-        wmas_fc = ws + os.sep + "wmas_fc"
-        wmas_dis = ws + os.sep + "wmas_dis_fc"
-        wmas_sr = arcpy.SpatialReference(3857)
+    # Set variables
+    query_url = RESTurl + "/query"
+    jfile = temp_dir + os.sep + "jsonFile.json"
+    wmas_fc = ws + os.sep + "wmas_fc"
+    wmas_dis = ws + os.sep + "wmas_dis_fc"
+    wmas_sr = arcpy.SpatialReference(3857)
 
-        # Convert the input feature class to Web Mercator and to JSON
-        arcpy.management.Project(fc, wmas_fc, wmas_sr)
-        arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
-        jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
+    # Convert the input feature class to Web Mercator and to JSON
+    arcpy.management.Project(fc, wmas_fc, wmas_sr)
+    arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
+    jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
 
-        # Setup parameters for query
-        params = urllibEncode({'f': 'json',
-                               'geometry':jsonPolygon,
-                               'geometryType':'esriGeometryPolygon',
-                               'spatialRelationship':'esriSpatialRelOverlaps',
-                               'returnGeometry':'true',
-                               'outFields':'*',
-                               'token': portalToken['token']})
+    # Setup parameters for query
+    params = urllibEncode({'f': 'json',
+                           'geometry':jsonPolygon,
+                           'geometryType':'esriGeometryPolygon',
+                           'spatialRelationship':'esriSpatialRelOverlaps',
+                           'returnGeometry':'true',
+                           'outFields':'*',
+                           'token': portalToken['token']})
 
-    
-        INparams = params.encode('ascii')
-        resp = urllib.request.urlopen(query_url,INparams)
 
-        responseStatus = resp.getcode()
-        responseMsg = resp.msg
-        jsonString = resp.read()
+    INparams = params.encode('ascii')
+    resp = urllib.request.urlopen(query_url,INparams)
 
-        # json --> Python; dictionary containing 1 key with a list of lists
-        results = json.loads(jsonString)
+    responseStatus = resp.getcode()
+    responseMsg = resp.msg
+    jsonString = resp.read()
 
-        # Check for error in results and exit with message if found.
-        if 'error' in results.keys():
-            if results['error']['message'] == 'Invalid Token':
-                AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
-                exit()
-            else:
-                AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
-                AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
-                exit()
+    # json --> Python; dictionary containing 1 key with a list of lists
+    results = json.loads(jsonString)
+
+    # Check for error in results and exit with message if found.
+    if 'error' in results.keys():
+        if results['error']['message'] == 'Invalid Token':
+            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
+            exit()
         else:
-            # Convert results to a feature class
-            if not len(results['features']):
-                return False
-            else:
-                with open(jfile, 'w') as outfile:
-                    json.dump(results, outfile)
+            AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
+            AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
+            exit()
+    else:
+        # Convert results to a feature class
+        if not len(results['features']):
+            return False
+        else:
+            with open(jfile, 'w') as outfile:
+                json.dump(results, outfile)
 
-                arcpy.conversion.JSONToFeatures(jfile, outFC)
-                return outFC
-
+            arcpy.conversion.JSONToFeatures(jfile, outFC)
             # Cleanup temp stuff from this function
             files_to_del = [jfile, wmas_fc, wmas_dis]
             for item in files_to_del:
                 if arcpy.Exists(item):
                     arcpy.management.Delete(item)
+            return outFC
 
-    except httpErrors as e:
-        if int(e.code) >= 400:
-            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
-            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
-            errorMsg()
-            exit()
-        else:
-            errorMsg()
-            return False
+##    except httpErrors as e:
+##        if int(e.code) >= 400:
+##            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
+##            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
+##            errorMsg()
+##            exit()
+##        else:
+##            errorMsg()
+##            return False
 
 ## ===============================================================================================================
-def update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, proj_pts = '', ptsURL = '', fldmapping=''):
+def update_polys_and_points(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, proj_pts = '', ptsURL = '', fldmapping=''):
 ## Queries polygon layer for intersects. If none found, appends proceed.
 ## If intersection is found, query returns the geometry for local processing to split the old areas from the new.
 ## Once local processing is complete the two pieces are put through Delete intersect and then re-uploaded.
 ## If the related pts and ptsURL variables are populated, the remnant poly data is used to check and move points
 ## as needed to maintain points. This effectively moves the existing points, if they are not completely
-## overwritten, into the remnant poly areas. Also, the points update does not take place if ALL geometry is
-## replaced by the new data (100%+ full area overwrite).
+## overwritten, into the remnant poly areas.
     
 ##    try:
     # set variables
     int_fc = up_ws + os.sep + "int_fc"
+    test_fc = up_ws + os.sep + "test_fc"
     pts_temp = up_ws + os.sep + "pts_temp"
 
     # Manage the local_temp file in case of previous run of tool that had an error or crashed
@@ -379,133 +383,324 @@ def update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, proj_pts =
         # Query local temp against the server to see if data is still there. If nothing returned,
         # then append the local temp to the server to restore "deleted" features
         overlapCheck = queryIntersect(up_ws, up_temp_dir, local_temp, up_RESTurl, int_fc)
-        if overlapCheck == False:
-            # Restore the local_temp onto the server without the field mapping setting (not needed)
-            arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
-            # Also handle proj_pts again to make sure they remain restored on the server if necessary
-            if proj_pts != '':
-                # Convert local temp to points
-                arcpy.management.FeatureToPoint(local_temp, pts_temp, "INSIDE")
-                # Delete server points
-                del_by_intersect(up_ws, up_temp_dir, local_temp, ptsURL)
-                # Append updated server points
-                arcpy.management.Append(pts_temp, ptsURL, "NO_TEST", fldmapping)
-                arcpy.management.Delete(pts_temp)
-            arcpy.management.Delete(local_temp)
+        if arcpy.Exists(int_fc):
+            # Do another intersect to see if there is actual overlap and not just coincident edges
+            arcpy.analysis.Intersect([local_temp,overlapCheck], test_fc, "NO_FID", "#", "INPUT")
+            if int(arcpy.GetCount_management(test_fc).getOutput(0)) == 0:
+                # Features were lost from the server. Restore the local_temp onto the server without the field mapping setting (not needed)
+                # Then delete local temps
+                arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
+                # Also handle proj_pts again to make sure they remain restored on the server if necessary
+                if proj_pts != '':
+                    # Convert local temp to points
+                    arcpy.management.FeatureToPoint(local_temp, pts_temp, "INSIDE")
+                    # Delete server points
+                    del_by_intersect(up_ws, up_temp_dir, local_temp, ptsURL)
+                    # Append updated server points
+                    arcpy.management.Append(pts_temp, ptsURL, "NO_TEST", fldmapping)
+                    arcpy.management.Delete(pts_temp)
+                    arcpy.management.Delete(test_fc)
+                arcpy.management.Delete(local_temp)
+                arcpy.management.Delete(test_fc)
+                arcpy.management.Delete(int_fc)
+            else:
+                # Server features take precedence. Delete local_temp. It will be re-created, if needed, in the next step.
+                arcpy.management.Delete(local_temp)
+                arcpy.management.Delete(test_fc)
+                arcpy.management.Delete(int_fc)
         else:
             # Server features take precedence. Delete local_temp. It will be re-created, if needed, in the next step.
             arcpy.management.Delete(local_temp)
-            arcpy.management.Delete(int_fc)
-
+            
     # Check whether the input project area data overlaps anything on the server
     test_results = queryIntersect(up_ws, up_temp_dir, proj_fc, up_RESTurl, int_fc)
-    if test_results != False:
-        ## Features found. Process the geometry changes locally to prep layers for upload.
-        # Use the proj_fc to erase overlapping area from the downloaded polygons and check results
-        arcpy.analysis.Erase(test_results, proj_fc, poly_multi)
-        result = int(arcpy.management.GetCount(poly_multi).getOutput(0))
-        if result > 0:
-            # Not a 100% replace. Change to single part and update acres
-            arcpy.management.MultipartToSinglepart(poly_multi, poly_single)
-            expression = "round(!Shape.Area@acres!,2)"
-            arcpy.management.CalculateField(poly_single, "acres", expression, "PYTHON_9.3")
-            del expression
-            # Copy the residual features to the local temp layer to be used in re-upload later in the process
-            arcpy.management.CopyFeatures(poly_single, local_temp)
-            ## Also process the points layer if there is overlap
-            if proj_pts != '':
-                # Create a new set of points to upload
-                arcpy.management.FeatureToPoint(local_temp, pts_temp, "INSIDE")
+    if arcpy.Exists(int_fc):
+        # Do another intersect to see if there is actual overlap and not just coincident edges
+        arcpy.analysis.Intersect([proj_fc,test_results], test_fc, "NO_FID", "#", "INPUT")
+        if int(arcpy.GetCount_management(test_fc).getOutput(0)) > 0:
+            ## Features found. Process the geometry changes locally to prep layers for upload.
+            # Use the proj_fc to erase overlapping area from the downloaded polygons and check results
+            arcpy.analysis.Erase(test_results, proj_fc, poly_multi)
+            result = int(arcpy.management.GetCount(poly_multi).getOutput(0))
+            if result > 0:
+                # Not a 100% replace. Change to single part and update acres
+                arcpy.management.MultipartToSinglepart(poly_multi, poly_single)
+                expression = "round(!Shape.Area@acres!,2)"
+                arcpy.management.CalculateField(poly_single, "acres", expression, "PYTHON_9.3")
+                del expression
+                # Copy the residual features to the local temp layer to be used in re-upload later in the process
+                arcpy.management.CopyFeatures(poly_single, local_temp)
+                ## Also process the points layer if there is overlap
+                if proj_pts != '':
+                    # Create a new set of points to upload
+                    arcpy.management.FeatureToPoint(local_temp, pts_temp, "INSIDE")
 
-    ## Handle uploads
-    if test_results != False:
-        # Overlaps exist. First delete server features that overlap the project area
-        del_by_intersect(up_ws, up_temp_dir, proj_fc, up_RESTurl)
-
-        # Restore remnant local temp copy of server features (around the new data)
-        arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
-        arcpy.management.Delete(local_temp)
-
-        # Also restore the points data for remnant polys if those flags are set
-        if proj_pts != ''
-            del_by_intersect(up_ws, up_temp_dir, test_results, ptsURL)
-            if arcpy.Exists(pts_temp):
-                # Not a 100% replace, so upload the remnant points and the new points
+                # Overlaps exist between new features and remnant features. Do deletes and then uploads of both.
+                del_by_intersect(up_ws, up_temp_dir, proj_fc, up_RESTurl)
+                arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
                 if fldmapping != '':
-                    arcpy.management.Append(pts_temp, ptsURL, "NO_TEST", fldmapping)
-                    arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
+                    arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
                 else:
-                    arcpy.management.Append(pts_temp, ptsURL, "NO_TEST")
-                    arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
-                arcpy.management.Delete(pts_temp)
+                    arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+
+                # Also delete and upload remnant and new points if that parameter was called
+                if proj_pts != '':
+                    del_by_intersect(up_ws, up_temp_dir, proj_fc, ptsURL)
+                    if fldmapping != '':
+                        arcpy.management.Append(pts_temp, ptsURL, "NO_TEST", fldmapping)
+                        arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
+                    else:
+                        arcpy.management.Append(pts_temp, ptsURL, "NO_TEST")
+                        arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
             else:
-                # A 100% replace, so upload the new points only
+                # A 100% replace, delete and then do uploads of new features, without remnant features
+                del_by_intersect(up_ws, up_temp_dir, proj_fc, up_RESTurl)
+                if fldmapping != '':
+                    arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+                else:
+                    arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+
+                if proj_pts != '':
+                    del_by_intersect(up_ws, up_temp_dir, proj_fc, ptsURL)
+                    if fldmapping != '':
+                        arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
+                    else:
+                        arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
+
+        else:
+            # No actual overlaps, probably just touching edges. Do the standard upload with no deletes.
+            if fldmapping != '':
+                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+            else:
+                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+            if proj_pts != '':
                 if fldmapping != '':
                     arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
                 else:
                     arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
+            
+    else:
+        # Catch all if the intersect query returns false. Just Append the new data.
+        if fldmapping != '':
+            arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+        else:
+            arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+        if proj_pts != '':
+            if fldmapping != '':
+                arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
+            else:
+                arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
 
-        #Do append of current project data
+    files_to_del = [int_fc, test_fc, local_temp, pts_temp]
+    for item in files_to_del:
+        try:
+            arcpy.management.Delete(item)
+        except:
+            pass
+
+##    except:
+##        AddMsgAndPrint("\nSomething went wrong during upload of " + proj_fc + "!. Exiting...",2)
+##        exit()
+
+## ===============================================================================================================
+def update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, fldmapping=''):
+## Queries polygon layer for intersects. If none found, appends proceed.
+## If intersection is found, query returns the geometry for local processing to split the old areas from the new.
+## Once local processing is complete the two pieces are put through Delete intersect and then re-uploaded.
+    
+##    try:
+    # set variables
+    int_fc = up_ws + os.sep + "int_fc"
+    test_fc = up_ws + os.sep + "test_fc"
+
+    # Manage the local_temp file in case of previous run of tool that had an error or crashed
+    if arcpy.Exists(local_temp):
+        # Query local temp against the server to see if data is still there. If nothing returned,
+        # then append the local temp to the server to restore "deleted" features
+        overlapCheck = queryIntersect(up_ws, up_temp_dir, local_temp, up_RESTurl, int_fc)
+        if arcpy.Exists(int_fc):
+            # Do another intersect to see if there is actual overlap and not just coincident edges
+            arcpy.analysis.Intersect([local_temp,overlapCheck], test_fc, "NO_FID", "#", "INPUT")
+            if int(arcpy.GetCount_management(test_fc).getOutput(0)) == 0:
+                # Features were lost from the server. Restore the local_temp onto the server without the field mapping setting (not needed)
+                # Then delete local temps
+                arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
+                arcpy.management.Delete(local_temp)
+                arcpy.management.Delete(test_fc)
+                arcpy.management.Delete(int_fc)
+            else:
+                # Server features take precedence. Delete local_temp. It will be re-created, if needed, in the next step.
+                arcpy.management.Delete(local_temp)
+                arcpy.management.Delete(test_fc)
+                arcpy.management.Delete(int_fc)
+        else:
+            # Server features take precedence. Delete local_temp. It will be re-created, if needed, in the next step.
+            arcpy.management.Delete(local_temp)
+            
+    # Check whether the input project area data overlaps anything on the server
+    test_results = queryIntersect(up_ws, up_temp_dir, proj_fc, up_RESTurl, int_fc)
+    if arcpy.Exists(int_fc):
+        # Do another intersect to see if there is actual overlap and not just coincident edges
+        arcpy.analysis.Intersect([proj_fc,test_results], test_fc, "NO_FID", "#", "INPUT")
+        if int(arcpy.GetCount_management(test_fc).getOutput(0)) > 0:
+            ## Features found. Process the geometry changes locally to prep layers for upload.
+            # Use the proj_fc to erase overlapping area from the downloaded polygons and check results
+            arcpy.analysis.Erase(test_results, proj_fc, poly_multi)
+            result = int(arcpy.management.GetCount(poly_multi).getOutput(0))
+            if result > 0:
+                # Not a 100% replace. Change to single part and update acres
+                arcpy.management.MultipartToSinglepart(poly_multi, poly_single)
+                expression = "round(!Shape.Area@acres!,2)"
+                arcpy.management.CalculateField(poly_single, "acres", expression, "PYTHON_9.3")
+                del expression
+                # Copy the residual features to the local temp layer to be used in re-upload later in the process
+                arcpy.management.CopyFeatures(poly_single, local_temp)
+
+                # Overlaps exist between new features and remnant features. Do deletes and then uploads of both.
+                del_by_intersect(up_ws, up_temp_dir, proj_fc, up_RESTurl)
+                arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
+                if fldmapping != '':
+                    arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+                else:
+                    arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+            else:
+                # A 100% replace, delete and then do uploads of new features, without remnant features
+                del_by_intersect(up_ws, up_temp_dir, proj_fc, up_RESTurl)
+                if fldmapping != '':
+                    arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+                else:
+                    arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+        else:
+            # No actual overlaps, probably just touching edges. Do the standard upload with no deletes.
+            if fldmapping != '':
+                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+            else:
+                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+    else:
+        # Catch all if the intersect query returns false. Just Append the new data.
         if fldmapping != '':
             arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
         else:
             arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
 
-        arcpy.management.Delete(test_results)
-        if arcpy.Exists(pts_temp):
-            arcpy.management.Delete(pts_temp)
-        
-    else:
-        # No overlaps, just Append the new data.
-        if proj_pts != '':
-            # Append new data and project points.
-            if fldmapping != '':
-                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
-                arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
-            else:
-                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
-                arcpy.management.Append(proj_pts, ptsURL, "NO_TEST")
-        else:
-            if fldmapping != '':
-                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
-            else:
-                arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+    files_to_del = [int_fc, test_fc, local_temp]
+    for item in files_to_del:
+        try:
+            arcpy.management.Delete(item)
+        except:
+            pass
 
 ##    except:
 ##        AddMsgAndPrint("\nSomething went wrong during upload of " + proj_fc + "!. Exiting...",2)
 ##        exit()
-            
-## ===============================================================================================================
-def replace_pts_by_area(up_ws, up_temp_dir, proj_fc, area_fc, up_RESTurl, fldmapping=''):
-## This function will check for intersect of the area_fc via queryIntersect function.
-## If features are returned by the queryIntersect, a delete using the area_fc is called.
-## After deleting intersecting data OR finding no intersecting data, it will append the new data to the target HFS
-    
-    try:
-        # set variables
-        int_fc = up_ws + os.sep + "int_fc"
         
-        # Check whether the input data overlaps anything on the server
-        test_results = queryIntersect(up_ws, up_temp_dir, area_fc, up_RESTurl, int_fc)
-        if test_results != False:
-            # Features found. Delete by intersect and then append
-            del_by_intersect(up_ws, up_temp_dir, area_fc, up_RESTurl)
-            arcpy.management.Delete(test_results)
-            if fldmapping != '':
-                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
-            else:
-                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST")
-        else:
-            # Features not found. Append
-            if fldmapping != '':
-                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
-            else:
-                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST")
+#### ===============================================================================================================
+##def update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, fldmapping=''):
+#### Queries polygon layer for intersects. If none found, appends proceed.
+#### If intersection is found, query returns the geometry for local processing to split the old areas from the new.
+#### Once local processing is complete the two pieces are put through Delete intersect and then re-uploaded.
+##    
+####    try:
+##    # set variables
+##    int_fc = up_ws + os.sep + "int_fc"
+##    test_fc = up_ws + os.sep + "test_fc"
+##
+##    # Manage the local_temp file in case of previous run of tool that had an error or crashed
+##    if arcpy.Exists(local_temp):
+##        # Query local temp against the server to see if data is still there. If nothing returned,
+##        # then append the local temp to the server to restore "deleted" features
+##        overlapCheck = queryIntersect(up_ws, up_temp_dir, local_temp, up_RESTurl, int_fc)
+##        if overlapCheck == False:
+##            # Restore the local_temp onto the server without the field mapping setting (not needed)
+##            arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
+##            arcpy.management.Delete(local_temp)
+##        else:
+##            # Server features take precedence. Delete local_temp. It will be re-created, if needed, in the next step.
+##            arcpy.management.Delete(local_temp)
+##            arcpy.management.Delete(int_fc)
+##
+##    # Check whether the input project area data overlaps anything on the server
+##    test_results = queryIntersect(up_ws, up_temp_dir, proj_fc, up_RESTurl, int_fc)
+##    if arcpy.Exists(int_fc):
+##        ## Features found. Process the geometry changes locally to prep layers for upload.
+##        # Use the proj_fc to erase overlapping area from the downloaded polygons and check results
+##        arcpy.analysis.Erase(test_results, proj_fc, poly_multi)
+##        result = int(arcpy.management.GetCount(poly_multi).getOutput(0))
+##        if result > 0:
+##            # Not a 100% replace. Change to single part and update acres
+##            arcpy.management.MultipartToSinglepart(poly_multi, poly_single)
+##            expression = "round(!Shape.Area@acres!,2)"
+##            arcpy.management.CalculateField(poly_single, "acres", expression, "PYTHON_9.3")
+##            del expression
+##            # Copy the residual features to the local temp layer to be used in re-upload later in the process
+##            arcpy.management.CopyFeatures(poly_single, local_temp)
+##
+##    ## Handle uploads
+##    if arcpy.Exists(int_fc):
+##        # Overlaps exist. First delete server features that overlap the project area
+##        del_by_intersect(up_ws, up_temp_dir, proj_fc, up_RESTurl)
+##
+##        # Restore remnant local temp copy of server features (around the new data)
+##        arcpy.management.Append(local_temp, up_RESTurl, "NO_TEST")
+##        arcpy.management.Delete(local_temp)
+##
+##        #Do append of current project data
+##        if fldmapping != '':
+##            arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+##        else:
+##            arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+##
+##        arcpy.management.Delete(int_fc)
+##        
+##    else:
+##        # No overlaps, just Append the new data.
+##        if fldmapping != '':
+##            arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+##        else:
+##            arcpy.management.Append(proj_fc, up_RESTurl, "NO_TEST")
+##
+##    files_to_del = [int_fc, test_fc, local_temp]
+##    for item in files_to_del:
+##        try:
+##            arcpy.management.Delete(item)
+##        except:
+##            pass
+##        
+####    except:
+####        AddMsgAndPrint("\nSomething went wrong during upload of " + proj_fc + "!. Exiting...",2)
+####        exit()
 
-    except:
-        AddMsgAndPrint("\nSomething went wrong during upload of " + proj_fc + "!. Exiting...",2)
-        exit()
-        
+#### ===============================================================================================================
+##def replace_pts_by_area(up_ws, up_temp_dir, proj_fc, area_fc, up_RESTurl, fldmapping=''):
+#### This function will check for intersect of the area_fc via queryIntersect function.
+#### If features are returned by the queryIntersect, a delete using the area_fc is called.
+#### After deleting intersecting data OR finding no intersecting data, it will append the new data to the target HFS
+##    
+##    try:
+##        # set variables
+##        int_fc = up_ws + os.sep + "int_fc"
+##        
+##        # Check whether the input data overlaps anything on the server
+##        test_results = queryIntersect(up_ws, up_temp_dir, area_fc, up_RESTurl, int_fc)
+##        if test_results != False:
+##            # Features found. Delete by intersect and then append
+##            del_by_intersect(up_ws, up_temp_dir, area_fc, up_RESTurl)
+##            arcpy.management.Delete(test_results)
+##            if fldmapping != '':
+##                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+##            else:
+##                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST")
+##        else:
+##            # Features not found. Append
+##            if fldmapping != '':
+##                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST", fldmapping)
+##            else:
+##                arcpy.Append_management(proj_fc, up_RESTurl, "NO_TEST")
+##
+##    except:
+##        AddMsgAndPrint("\nSomething went wrong during upload of " + proj_fc + "!. Exiting...",2)
+##        exit()
+##        
 ## ===============================================================================================================
 #### Import system modules
 import arcpy, sys, os, traceback, re, shutil, csv
@@ -513,8 +708,8 @@ from importlib import reload
 import urllib, time, json, random
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError as httpErrors
-global urllibEncode = urllib.parse.urlencode
-global parseQueryString = urllib.parse.parse_qsl
+urllibEncode = urllib.parse.urlencode
+parseQueryString = urllib.parse.parse_qsl
 
 sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
@@ -625,8 +820,10 @@ try:
     extentName = "Request_Extent"
     extentPtsName = "Request_Extent_Points"
     projectExtent = basedataFD + os.sep + extentName
-    extPoints = basedataFD + os.sep + extentPtsName
-    ext_server_copy = wcFD + os.sep + "Ext_Server"
+    projectSum = basedataFD + os.sep + "Det_Summary_Areas"
+    projectSumPts = basedataFD + os.sep + "Det_Summary_Points"
+#    extPoints = basedataFD + os.sep + extentPtsName
+    ext_server_copy = wcFD + os.sep + "Sum_Server"
     
     suName = "Site_Sampling_Units"
     projectSU = wcFD + os.sep + suName
@@ -698,17 +895,17 @@ try:
 
     #### Count the features of the input layers.
     # Extent, SU, ROP, CWD, and CLUCWD must have at least 1 feature, else exit.
-    if not arcpy.Exists(projectExtent):
-        AddMsgAndPrint("\tRequest Extent layer does not exist. Exiting...",2)
+    if not arcpy.Exists(projectSum):
+        AddMsgAndPrint("\tSummary Extents layer does not exist. Re-run Create CWD Mapping Layers. Exiting...",2)
         exit()
     else:
-        ext_count = int(arcpy.management.GetCount(projectExtent)[0])
+        ext_count = int(arcpy.management.GetCount(projectSum)[0])
 
-    if not arcpy.Exists(extPoints):
-        AddMsgAndPrint("\tRequest Extent Points layer does not exist. Re-run Create CWD Mapping Layers. Exiting...",2)
+    if not arcpy.Exists(projectSumPts):
+        AddMsgAndPrint("\tSummary Extent Points layer does not exist. Re-run Create CWD Mapping Layers. Exiting...",2)
         exit()
     else:
-        ext_pts_count = int(arcpy.management.GetCount(extPoints)[0])
+        ext_pts_count = int(arcpy.management.GetCount(projectSumPts)[0])
 
     if not arcpy.Exists(projectSU):
         AddMsgAndPrint("\tSampling Units layer does not exist. Exiting...",2)
@@ -801,10 +998,22 @@ try:
     AddMsgAndPrint("\nProcessing matching JobIDs...",0)
     arcpy.SetProgressorLabel("Processing matching JobIDs...")
 
+    AddMsgAndPrint("\nProcessing Matching Request Extents in Archive...",0)
+    arcpy.SetProgressorLabel("Processing Matching Request Extents in Archive...")
     del_by_attributes(job_query, extA_HFS)
+
+    AddMsgAndPrint("\nProcessing Matching Request Extents on Live...",0)
+    arcpy.SetProgressorLabel("Processing Matching Request Extents on Live...")
     del_by_attributes(job_query, ext_HFS)
+
+    AddMsgAndPrint("\nProcessing Matching Request Extent Points in Archive...",0)
+    arcpy.SetProgressorLabel("Processing Matching Request Extent Points in Archive...")
     del_by_attributes(job_query, reqptsA_HFS)
+
+    AddMsgAndPrint("\nProcessing Matching Request Extent Points on Live...",0)
+    arcpy.SetProgressorLabel("Processing Matching Request Extent Points on Live...")
     del_by_attributes(job_query, reqpts_HFS)
+    
     del_by_attributes(job_query, suA_HFS)
     del_by_attributes(job_query, su_HFS)
     del_by_attributes(job_query, ropA_HFS)
@@ -830,8 +1039,8 @@ try:
     AddMsgAndPrint("\nUploading to Archive Layers...",0)
     arcpy.SetProgressorLabel("Uploading to Archive Layers...")
     
-    arcpy.Append_management(projectExtent, extA_HFS, "NO_TEST")
-    arcpy.Append_management(extPoints, reqptsA_HFS, "NO_TEST")
+    arcpy.Append_management(projectSum, extA_HFS, "NO_TEST")
+    arcpy.Append_management(projectSumPts, reqptsA_HFS, "NO_TEST")
     arcpy.Append_management(projectSU, suA_HFS, "NO_TEST", field_mapping_su_to_hfs)
     arcpy.Append_management(projectROP, ropA_HFS, "NO_TEST", field_mapping_rop_to_hfs)
     arcpy.Append_management(projectCWD, cwdA_HFS, "NO_TEST", field_mapping_cwd_to_hfs)
@@ -849,14 +1058,16 @@ try:
     AddMsgAndPrint("\nUploading to Active Layers...",0)
     arcpy.SetProgressorLabel("Uploading to Active Layers...")
     
-    # Polygon find and replace function syntax reference
-    # update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, proj_pts = '', ptsURL = '', fldmapping='')
-    update_polys(scratchGDB, wetDir, projectExtent, ext_HFS, ext_server_copy, extPoints, reqpts_HFS)    # Request Extent Layer and points
+    # Polygon find and replace function syntax references
+    # update_polys(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, fldmapping='')
     update_polys(scratchGDB, wetDir, projectSU, su_HFS, su_server_copy, field_mapping_su_to_hfs)        # Sampling Units Layer
     update_polys(scratchGDB, wetDir, projectCWD, cwd_HFS, cwd_server_copy, field_mapping_cwd_to_hfs)    # CWD Layer
-    update_polys(scratchGDB, wetDir, projectCLUCWD, clucwd_HFS, clucwd_server_copy, cluCWDpts, clucwdpts_HFS, field_mapping_clucwd_to_hfs)  # CLU CWD Layer and points
+    
+    # update_polys_and_points(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp, proj_pts = '', ptsURL = '', fldmapping='')
+    update_polys_and_points(scratchGDB, wetDir, projectSum, ext_HFS, ext_server_copy, projectSumPts, reqpts_HFS)    # Summary Extent Layer and points
+    update_polys_and_points(scratchGDB, wetDir, projectCLUCWD, clucwd_HFS, clucwd_server_copy, cluCWDpts, clucwdpts_HFS, field_mapping_clucwd_to_hfs)  # CLU CWD Layer and points
 
-    #arcpy.Append_management(extPoints, reqpts_HFS, "NO_TEST", field_mapping_ref_to_hfs)         # Request extent points
+    #arcpy.Append_management(projectSumPts, reqpts_HFS, "NO_TEST", field_mapping_ref_to_hfs)         # Summary points
     arcpy.Append_management(projectROP, rop_HFS, "NO_TEST", field_mapping_rop_to_hfs)           # ROPs Layer
     # replace_pts_by_area(scratchGDB, wetDir, projectROP, projectSU, rop_HFS, field_mapping_rop_to_hfs)             # ROPs Layer - can't do it this way due to legacy ramifications (split SUs)
     #arcpy.Append_management(cluCWDpts, clucwdpts_HFS, "NO_TEST", field_mapping_clucwd_to_hfs)   # CLU CWD Points Layer
@@ -886,7 +1097,7 @@ try:
     for fc in fcs:
         if arcpy.Exists(fc):
             try:
-                arcpy.Delete_management(fc)
+                arcpy.management.Delete(fc)
             except:
                 pass
     arcpy.env.workspace = startWorkspace

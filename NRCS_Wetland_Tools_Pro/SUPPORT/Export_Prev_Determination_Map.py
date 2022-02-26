@@ -509,6 +509,11 @@ try:
     clucwd_lyr = m.listLayers(clucwdName)[0]
     prev_cwd_lyr = m.listLayers(prevcwdName)[0]
 
+    try:
+        image_lyr = m.listLayers(imageName)[0]
+    except:
+        image_lyr = ''
+        
     plss_lyr = ''
     if plssPoint:
         plssDesc = arcpy.Describe(plssPoint)

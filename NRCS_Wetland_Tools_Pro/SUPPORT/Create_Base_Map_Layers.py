@@ -32,6 +32,9 @@
 ## rev. 02/22/2022
 ## - Replaced intersects with overlaps in query function.
 ##
+## rev. 02/25/2022
+## - Debugged query/download function and related file cleanup
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -212,34 +215,41 @@ def createSU():
 
         query_url = suURL + "/query"
         query_results_fc = queryIntersect(scratchGDB,wetDir,projectExtent,query_url,intSU)
-        
-        if query_results_fc != False:
+
+        if arcpy.Exists(intSU):
             AddMsgAndPrint("\tPrevious sampling units found within the request extent! Processing...",0)
             arcpy.SetProgressorLabel("Previous sampling units found within the request extent! Processing...")
             
             # Use intersect to update tract numbers.
             arcpy.Intersect_analysis([projectTract, query_results_fc], prevSUmulti, "NO_FID", "#", "INPUT")
-
-            # Transer the job_id_1 attributes to the job_id field (continue to keep the original job IDs for now)
-            fields = ['job_id','job_id_1']
-            cursor = arcpy.da.UpdateCursor(prevSUmulti, fields)
-            for row in cursor:
-                row[0] = row[1]
-                cursor.updateRow(row)
-            del fields
-            del cursor
-            
-            # Incorporate the certified areas into the current SU layer
-            AddMsgAndPrint("\tIntegrating previous Sampling Unit data into new Sampling Unit layer...",0)
-            arcpy.Clip_analysis(prevSUmulti, prevAdminSite, prevSUclip)
-            arcpy.MultipartToSinglepart_management(prevSUclip, prevSU)
-            arcpy.Erase_analysis(projectSUnew, prevAdminSite, suTemp4)
-            arcpy.MultipartToSinglepart_management(suTemp4, suTemp5)
-            arcpy.Delete_management(projectSU)
-            arcpy.CreateFeatureclass_management(wcFD, suName, "POLYGON", templateSU)
-            arcpy.Append_management(suTemp5, projectSU, "NO_TEST")
-            arcpy.Append_management(prevSU, projectSU, "NO_TEST")
-
+            result = int(arcpy.GetCount_management(prevSUMulti).getOutput(0))
+            if result > 0:
+                # Transer the job_id_1 attributes to the job_id field (continue to keep the original job IDs for now)
+                fields = ['job_id','job_id_1']
+                cursor = arcpy.da.UpdateCursor(prevSUmulti, fields)
+                for row in cursor:
+                    row[0] = row[1]
+                    cursor.updateRow(row)
+                del fields
+                del cursor
+                
+                # Incorporate the certified areas into the current SU layer
+                AddMsgAndPrint("\tIntegrating previous Sampling Unit data into new Sampling Unit layer...",0)
+                arcpy.Clip_analysis(prevSUmulti, prevAdminSite, prevSUclip)
+                arcpy.MultipartToSinglepart_management(prevSUclip, prevSU)
+                arcpy.Erase_analysis(projectSUnew, prevAdminSite, suTemp4)
+                arcpy.MultipartToSinglepart_management(suTemp4, suTemp5)
+                arcpy.Delete_management(projectSU)
+                arcpy.CreateFeatureclass_management(wcFD, suName, "POLYGON", templateSU)
+                arcpy.Append_management(suTemp5, projectSU, "NO_TEST")
+                arcpy.Append_management(prevSU, projectSU, "NO_TEST")
+                arcpy.management.Delete(intSU)
+                del result
+            else:
+                AddMsgAndPrint("\tNo previous sampling units found in online data! Continuing...",0)
+                arcpy.SetProgressorLabel("No previous sampling units found in online data! Continuing...")
+                arcpy.management.Delete(intSU)
+                del result
         else:
             AddMsgAndPrint("\tNo previous sampling units found in online data! Continuing...",0)
             arcpy.SetProgressorLabel("No previous sampling units found in online data! Continuing...")
@@ -458,75 +468,78 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
 ##  Otherwise False is returned
 
     # Run the query
-    try:
+##    try:
         
-        # Set variables
-        query_url = RESTurl + "/query"
-        jfile = temp_dir + os.sep + "jsonFile.json"
-        wmas_fc = ws + os.sep + "wmas_fc"
-        wmas_dis = ws + os.sep + "wmas_dis_fc"
-        wmas_sr = arcpy.SpatialReference(3857)
+    # Set variables
+    query_url = RESTurl + "/query"
+    jfile = temp_dir + os.sep + "jsonFile.json"
+    wmas_fc = ws + os.sep + "wmas_fc"
+    wmas_dis = ws + os.sep + "wmas_dis_fc"
+    wmas_sr = arcpy.SpatialReference(3857)
 
-        # Convert the input feature class to Web Mercator and to JSON
-        arcpy.management.Project(fc, wmas_fc, wmas_sr)
-        arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
-        jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
+    # Convert the input feature class to Web Mercator and to JSON
+    arcpy.management.Project(fc, wmas_fc, wmas_sr)
+    arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
+    jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
 
-        # Setup parameters for query
-        params = urllibEncode({'f': 'json',
-                               'geometry':jsonPolygon,
-                               'geometryType':'esriGeometryPolygon',
-                               'spatialRelationship':'esriSpatialRelOverlaps',
-                               'returnGeometry':'true',
-                               'outFields':'*',
-                               'token': portalToken['token']})
+    # Setup parameters for query
+    params = urllibEncode({'f': 'json',
+                           'geometry':jsonPolygon,
+                           'geometryType':'esriGeometryPolygon',
+                           'spatialRelationship':'esriSpatialRelOverlaps',
+                           'returnGeometry':'true',
+                           'outFields':'*',
+                           'token': portalToken['token']})
 
-    
-        INparams = params.encode('ascii')
-        resp = urllib.request.urlopen(query_url,INparams)
 
-        responseStatus = resp.getcode()
-        responseMsg = resp.msg
-        jsonString = resp.read()
+    INparams = params.encode('ascii')
+    resp = urllib.request.urlopen(query_url,INparams)
 
-        # json --> Python; dictionary containing 1 key with a list of lists
-        results = json.loads(jsonString)
+    responseStatus = resp.getcode()
+    responseMsg = resp.msg
+    jsonString = resp.read()
 
-        # Check for error in results and exit with message if found.
-        if 'error' in results.keys():
-            if results['error']['message'] == 'Invalid Token':
-                AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
-                exit()
-            else:
-                AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
-                AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
-                exit()
-        else:
-            # Convert results to a feature class
-            if not len(results['features']):
-                return False
-            else:
-                with open(jfile, 'w') as outfile:
-                    json.dump(results, outfile)
+    # json --> Python; dictionary containing 1 key with a list of lists
+    results = json.loads(jsonString)
 
-                arcpy.conversion.JSONToFeatures(jfile, outFC)
-                return outFC
-
-            # Cleanup temp stuff from this function
-            files_to_del = [jfile, wmas_fc, wmas_dis]
-            for item in files_to_del:
-                if arcpy.Exists(item):
-                    arcpy.management.Delete(item)
-
-    except httpErrors as e:
-        if int(e.code) >= 400:
-            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
-            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
-            errorMsg()
+    # Check for error in results and exit with message if found.
+    if 'error' in results.keys():
+        if results['error']['message'] == 'Invalid Token':
+            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
             exit()
         else:
-            errorMsg()
+            AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that the portal is online. Exiting...",2)
+            AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
+            exit()
+    else:
+        # Convert results to a feature class
+        if not len(results['features']):
             return False
+        else:
+            with open(jfile, 'w') as outfile:
+                json.dump(results, outfile)
+
+            arcpy.conversion.JSONToFeatures(jfile, outFC)
+            arcpy.management.Delete(jfile)
+            arcpy.management.Delete(wmas_fc)
+            arcpy.management.Delete(wmas_dis)
+            return outFC
+
+##        # Cleanup temp stuff from this function
+##        files_to_del = [jfile, wmas_fc, wmas_dis]
+##        for item in files_to_del:
+##            if arcpy.Exists(item):
+##                arcpy.management.Delete(item)
+
+##    except httpErrors as e:
+##        if int(e.code) >= 400:
+##            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
+##            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
+##            errorMsg()
+##            exit()
+##        else:
+##            errorMsg()
+##            return False
         
 ## ===============================================================================================================
 #### Import system modules
@@ -535,8 +548,8 @@ from importlib import reload
 import urllib, time, json, random
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError as httpErrors
-global urllibEncode = urllib.parse.urlencode
-global parseQueryString = urllib.parse.parse_qsl
+urllibEncode = urllib.parse.urlencode
+parseQueryString = urllib.parse.parse_qsl
 
 sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
@@ -647,6 +660,7 @@ try:
     wcGDB_path = wetDir + os.sep + wcGDB_name
     wcFD_name = "WC_Data"
     wcFD = wcGDB_path + os.sep + wcFD_name
+    #jfile = wetDir + os.sep + "jsonFile.json"
     
     projectCLU = basedataFD + os.sep + "Site_CLU"
     projectTract = basedataFD + os.sep + "Site_Tract"
@@ -671,7 +685,7 @@ try:
     prevSUmulti = scratchGDB + os.sep + "prevSUmutli"
     prevSUclip = scratchGDB + os.sep + "prevSUclip"
     prevSU = wcFD + os.sep + "Previous_Sampling_Units"
-    intSU = wcFD + os.sep + "Intersected_SU"
+    intSU = wcGDB_path + os.sep + "Intersected_SU"
 
     ropName = "Site_ROPs"
     projectROP = wcFD + os.sep + ropName
@@ -727,7 +741,7 @@ try:
                         'Add Drainage Farm Number', 'Add Drainage Tract Number']
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [suMulti, suTemp1, suTemp2, suTemp3, suTemp4, suTemp5, prevSUmulti, prevSUclip, prevCertMulti, prevCertTemp1, projectSUnew]
+    tempLayers = [suMulti, suTemp1, suTemp2, suTemp3, suTemp4, suTemp5, prevSUmulti, prevSUclip, prevCertMulti, prevCertTemp1, projectSUnew, intSU]
     deleteTempLayers(tempLayers)
 
 

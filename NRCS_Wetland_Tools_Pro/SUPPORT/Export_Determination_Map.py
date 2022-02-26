@@ -554,6 +554,11 @@ try:
     except:
         dl_lyr = ''
 
+    try:
+        image_lyr = m.listLayers(imageName)[0]
+    except:
+        image_lyr = ''
+        
     plss_lyr = ''
     if plssPoint:
         plssDesc = arcpy.Describe(plssPoint)
@@ -696,7 +701,7 @@ try:
             if includeDL:
                 item.visible = True
                 item.showVisibleFeatures = True
-            else
+            else:
                 item.visible = False
         elif item.name == cwdName:
             item.showVisibleFeatures = True

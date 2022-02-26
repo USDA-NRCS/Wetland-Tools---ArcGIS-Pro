@@ -243,7 +243,8 @@ try:
     extentName = "Request_Extent"
     extentPtsName = "Request_Extent_Points"
     projectExtent = basedataFD + os.sep + extentName
-    extPoints = basedataFD + os.sep + extentPtsName
+    projectSum = basedataFD + os.sep + "Det_Summary_Areas"
+    projectSumPts = basedataFD + os.sep + "Det_Summary_Points"
     
     suName = "Site_Sampling_Units"
     projectSU = wcFD + os.sep + suName
@@ -634,9 +635,17 @@ try:
         arcpy.TableToExcel_conversion(cluCWD028_alt, excel028_alt)
 
 
-    #### Convert CLUCWD and Request Extent to point versions of the layers
+    #### Create determination summary polygon and points layer, as well as a points layer of the CLUCWD layer
+    # Convert CLUCWD to points
     arcpy.management.FeatureToPoint(cluCWD, cluCWDpts, "INSIDE")
-    arcpy.management.FeatureToPoint(projectExtent, extPoints, "INSIDE")
+    
+    # Use Dissolve to create project summary
+    dissolve_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','county_code','county_name','farm_number','tract_number','eval_status','dig_staff','dig_date']
+    stats_fields = [['acres','SUM']]
+    arcpy.management.Dissolve(cluCWD, projectSum, dissolve_fields, stats_fields, "MULTI_PART")
+    
+    # Convert project summary to points
+    arcpy.management.FeatureToPoint(projectSum, projectSumPts, "INSIDE")
 
         
     #### Clean up Temporary Datasets
