@@ -40,6 +40,7 @@ tool_exec <- function(in_params, out_params)
   CLU_CWD_026_Excel_Path <- in_params$CLU_CWD_026_Excel_Path
   CLU_CWD_028_Excel_Path <- in_params$CLU_CWD_028_Excel_Path
   Path_to_the_install_directory <- in_params$Path_to_the_install_directory
+  Consolidate <- in_params$Consolidate
 
 #out_params is output_file + file name 
   Wetlands_Folder_Path <- out_params$Wetlands_Folder_Path

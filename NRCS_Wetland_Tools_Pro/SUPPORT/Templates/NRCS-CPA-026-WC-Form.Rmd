@@ -95,9 +95,17 @@ cdfb
 This certified wetland determination identifies areas subject to the wetland conservation provisions of the 1985 Food Security Act, as amended. See the attached **Definitions of Wetland Labels and Uses** for additional information and currently authorized activities under the Act.  
 
 ```{r wcdet026, echo=FALSE}
-wctable <- read.xlsx(CLU_CWD_026_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_026")
+wctable <- if(is.null(Consolidate) || is.nan(Consolidate)) {
+  read.xlsx(CLU_CWD_026_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_026")
+} else {
+  if(Consolidate == FALSE) {
+    read.xlsx(CLU_CWD_026_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_026")
+  } else {
+    read.xlsx(CLU_CWD_026_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_026_alt")
+  }
+}
 wctable <- wctable[ ,c(4,5,6,8)]
-wctable <- wctable[order(as.numeric(wctable$clu_number)),]
+wctable <- wctable[order(as.character(wctable$clu_number)),]
 wctable$SUM_acres <- round(wctable$SUM_acres, 2)
 wctable$SUM_acres <- as.character(wctable$SUM_acres)
 
