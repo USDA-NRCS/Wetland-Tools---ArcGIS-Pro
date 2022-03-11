@@ -1200,7 +1200,7 @@ try:
                     item.showVisibleFeatures = True
 
             # Update the title
-            soil_title_elm.text = "Ecological Classificaiton"
+            soil_title_elm.text = "Ecological Classification"
 
             # Export the map
             AddMsgAndPrint("\tExporting the Ecological Classification Map to PDF...",0)
