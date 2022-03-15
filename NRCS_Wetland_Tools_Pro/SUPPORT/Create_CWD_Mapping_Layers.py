@@ -640,7 +640,7 @@ try:
     arcpy.management.FeatureToPoint(cluCWD, cluCWDpts, "INSIDE")
     
     # Use Dissolve to create project summary
-    dissolve_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','county_code','county_name','farm_number','tract_number','eval_status','dig_staff','dig_date']
+    dissolve_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status','dig_staff','dig_date']
     stats_fields = [['acres','SUM']]
     arcpy.management.Dissolve(cluCWD, projectSum, dissolve_fields, stats_fields, "MULTI_PART")
     

@@ -42,7 +42,8 @@ cadd <- if (canull == TRUE){
 } else {
   c(caddress1,caddress2)
 }
-
+ostzip <- paste(ostate, ozip)
+stzip <- paste(cstate, czip)
 #knitr::opts_chunk$set(echo = FALSE)
 ```
 `r format(Sys.Date(), "%A, %B %d, %Y")`
@@ -50,13 +51,13 @@ cadd <- if (canull == TRUE){
 ##### CERTIFIED MAIL  
 ##### RETURN RECEIPT REQUESTED  
 `r oaddress`  
-`r c(ocity, ostate, ozip)`  
+`r c(ocity, ostzip)`  
 Phone: `r ophone`  
 Fax: `r ofax`  
 
 `r cname`   
 `r cadd`    
-`r c(ccity, cstate, czip)`
+`r c(ccity, stzip)`
 
 SUBJECT:  Wetland Preliminary Technical Determination
 
@@ -95,8 +96,8 @@ If you are the owner of this tract of land and have a tenant, I urge you to disc
 Sincerely,
 
 
-*`r con_name`*  
-
+<br>  
+<br> 
 
 Enclosures:  
 NRCS-CPA-026-WC  

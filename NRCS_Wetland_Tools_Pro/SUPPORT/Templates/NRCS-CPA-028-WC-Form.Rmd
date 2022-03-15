@@ -39,11 +39,11 @@ cadd <- if (canull == TRUE){
 } else {
   c(caddress1,caddress2)
 }
+stzip <- paste(cstate, czip)
 
 taddress <- data.frame(x1 = cadd,
                  x2 = ccity,
-                 x3= cstate,
-                 x4 = czip)
+                 x3= stzip)
 taddress <- data.frame(taddress)
 
 N <- 2  # total number of rows to preallocate--possibly an overestimate

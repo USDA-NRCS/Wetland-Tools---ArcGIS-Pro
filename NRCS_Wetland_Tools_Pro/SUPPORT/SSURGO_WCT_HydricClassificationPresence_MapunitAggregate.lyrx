@@ -8,7 +8,7 @@
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Hydric Rating by Map Unit",
+      "name" : "Hydric Classification",
       "uRI" : "CIMPATH=map/hydric_classification_presence.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
@@ -39,7 +39,7 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\Determinations\\in001_t0000309_2022_01\\in001_t0000309_2022_01_BaseData.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\Determinations\\in001_t0005378_2022_02\\in001_t0005378_2022_02_BaseData.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "SSURGO_Mapunits",
           "datasetType" : "esriDTFeatureClass"

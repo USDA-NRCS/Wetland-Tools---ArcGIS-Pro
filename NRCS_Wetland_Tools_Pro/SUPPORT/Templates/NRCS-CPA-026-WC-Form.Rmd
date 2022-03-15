@@ -39,11 +39,11 @@ cadd <- if (canull == TRUE){
 } else {
   c(caddress1,caddress2)
 }
+stzip <- paste(cstate, czip)
 
 taddress <- data.frame(x1 = cadd,
                  x2 = ccity,
-                 x3= cstate,
-                 x4 = czip)
+                 x3= stzip)
 taddress <- data.frame(taddress)
 
 N <- 2  # total number of rows to preallocate--possibly an overestimate
@@ -162,7 +162,7 @@ df4 <- data.frame(txt=rep("", N4), txt=rep("", N4),  # as many cols as you need
 df4[1, ] <- list("", format(Sys.Date(), "%m/%d/%Y"))
 
 sid <- flextable(as.data.frame(df4))
-sid <- set_header_labels(sid, txt = "10. Signature Designed Conservationist:", txt.1 = "Date:")
+sid <- set_header_labels(sid, txt = "10. Signature Designated Conservationist:", txt.1 = "Date:")
 sid <- fontsize(sid, size = 11, part = "header")
 sid <- font(sid, fontname = "Times", part = "header")
 sid <- fontsize(sid, size = 11)

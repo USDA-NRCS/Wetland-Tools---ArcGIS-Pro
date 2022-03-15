@@ -34,6 +34,10 @@
 ## - Added SSURGO Metadata report PDF to outputs
 ## - Blocked out annotation related code. Annotation will be handled through training/documentation
 ##
+## rev. 03/15/2022
+## - Adjusted Hydric Rating by Map Unit to be "Hydric Classification" for more consistent terminology
+## - Modified the legend of the Hydric Classification output to show all classes, not just classes of visible items
+##
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
     # Adds tool message to the geoprocessor and text file log.
@@ -97,8 +101,8 @@ def logBasicSettings():
     f.write("\tSSURGO Ecological Classification Map: " + str(eco_map) + "\n")
     f.write("\tSSURGO Flooding Frequency Map: " + str(flood_map) + "\n")
 ##    f.write("\tSSURGO Hydric Condition DCD Map: " + str(hydricCon_map) + "\n")
-    f.write("\tSSURGO Hydric Rating Map Unit Map: " + str(hydricMU_map) + "\n")
-    f.write("\tSSURGO Hydric Rating Component Map: " + str(hydricCOMP_map) + "\n")
+    f.write("\tSSURGO Hydric Classification: " + str(hydricMU_map) + "\n")
+##    f.write("\tSSURGO Hydric Rating Component Map: " + str(hydricCOMP_map) + "\n")
     f.write("\tSSURGO Hydrologic Soil Group DCD Map: " + str(hydrologic_map) + "\n")
     f.write("\tSSURGO Ponding Frequency Class Map: " + str(ponding_map) + "\n")
     f.write("\tSSURGO Water Table Depth Annual Min Map: " + str(wtrtbl_map) + "\n")
@@ -455,7 +459,7 @@ try:
 ##    else:
 ##        hydricCon_map = False
 
-    if "'SSURGO Hydric Rating by Map Unit'" in mapList:
+    if "'SSURGO Hydric Classification'" in mapList:
         hydricMU_map = True
     else:
         hydricMU_map = False
@@ -526,7 +530,7 @@ try:
     wtrtblName = "Water Table Depth - Annual - Minimum"
     pondingName = "Ponding Frequency Class"
     hydrologicName = "Hydrologic Soil Group - Dom. Cond."
-    hydricMuName = "Hydric Rating by Map Unit"
+    hydricMuName = "Hydric Classification"
     hydricCompName = "Hydric Rating by Component"
 ##    hydricConName = "Hydric Condition - Dom. Cond."
     floodName = "Flooding Frequency"
@@ -1309,8 +1313,8 @@ try:
     ############################## HYDRIC RATING BY MAP UNIT MAP START ##################################
     #####################################################################################################
     if hydricMU_map:
-        AddMsgAndPrint("\nCreating the Hydric Rating by Map Unit Map PDF file...",0)
-        arcpy.SetProgressorLabel("Creating Hydric Rating by Map Unit Map...")
+        AddMsgAndPrint("\nCreating the Hydric Classification Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating Hydric Classification Map...")
 
         # Proceed if operational layer(s) actually exist(s) in the map
         if sgroup_lyr != '' and mu_lyr != '' and hydricMu_lyr != '':
@@ -1328,26 +1332,26 @@ try:
             hydricMu_lyr.visible = True
             hydricMu_lyr.showLabels = False
 
-            # Set the legend to only show hydric rating features that are visible in the map
+            # Set the legend to show entire hydric rating symbol range
             soil_leg = soil_lyt.listElements('LEGEND_ELEMENT')[0]
             for item in soil_leg.items:
                 if item.name == hydricMuName:
-                    item.showVisibleFeatures = True
+                    item.showVisibleFeatures = False
 
             # Update the title
-            soil_title_elm.text = "Hydric Rating by Map Unit"
+            soil_title_elm.text = "Hydric Classification"
 
             # Export the map
-            AddMsgAndPrint("\tExporting the Hydric Rating by Map Unit Map to PDF...",0)
-            arcpy.SetProgressorLabel("Exporting Hydric Rating MU Map...")
+            AddMsgAndPrint("\tExporting the Hydric Classification Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting Hydric Classification Map...")
             soil_lyt.exportToPDF(hydricRatMuPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
-            AddMsgAndPrint("\tHydric Rating by Map Unit Map file exported!",0)
+            AddMsgAndPrint("\tHydric Classification Map file exported!",0)
 
             # Reset visibility
             visibility_off(lyr_list)
 
         else:
-            AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Hydric Rating by Map Unit layer not in map. Cannot create Hydric Rating by Map Unit Map PDF. Continuing to next map...",1)
+            AddMsgAndPrint("\nSSURGO Layers group, SSURGO Map Units layer, or Hydric Classification layer not in map. Cannot create Hydric Classification Map PDF. Continuing to next map...",1)
 
 
     #####################################################################################################
@@ -1608,7 +1612,7 @@ try:
 ##            pass
 
     if hydricMU_map:
-        AddMsgAndPrint("\tAppending Hydric Rating by Map Unit map...",0)
+        AddMsgAndPrint("\tAppending Hydric Classification map...",0)
         try:
             finalPDF.appendPages(hydricRatMuPDF)
         except:
