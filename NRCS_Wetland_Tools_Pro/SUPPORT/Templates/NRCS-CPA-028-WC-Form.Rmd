@@ -151,7 +151,6 @@ remk <- theme_box(remk)
 remk <- bg(remk, bg = "light cyan")
 remk
 ```
-   
 \newpage
 # Definitions of Wetland Labels and Uses  
 
