@@ -10,12 +10,19 @@ output:
 ```{r setup, include=FALSE, echo=FALSE}
 
 admin <- read.xlsx(Admin_Excel_Path, sheetIndex = 1, sheetName = "Admin_Table")
+NRCS <- read.xlsx(file.path(Path_to_the_install_directory, "Templates","NRCS_Address.xlsx"), sheetIndex = 1, sheetName = "NRCS_Offices")
+adcounty <- admin[5]
+NRCS_param <- as.data.frame(NRCS_Office)
+FSA_param <- as.data.frame(FSA_Office)
+NRCS2 <- subset(NRCS,NRCSOffice == as.character(NRCS_param) & NRCSCounty == as.character(adcounty))
+FSA <- read.xlsx(file.path(Path_to_the_install_directory, "Templates","NRCS_Address.xlsx"), sheetIndex = 2, sheetName = "FSA_Offices")
+FSA2 <- subset(FSA, FSAOffice==as.character(FSA_param) & FSACounty == as.character(adcounty))
 
-NRCS_FSA <- read.xlsx(file.path(Path_to_the_install_directory, "Templates","NRCS_Address.xlsx"), sheetIndex = 1, sheetName = "NRCS_Address")
+colnames(NRCS2)[colnames(NRCS) == 'NRCSCounty'] <- 'admin_county_name'
+colnames(FSA2)[colnames(FSA) == 'FSACounty'] <- 'admin_county_name'
 
-colnames(NRCS_FSA)[colnames(NRCS_FSA) == 'NRCSCounty'] <- 'admin_county_name'
-
-df <- merge(admin, NRCS_FSA, by='admin_county_name')
+df <- merge(admin, NRCS2, by='admin_county_name')
+df <- merge(df, FSA2, by='admin_county_name')
 
 tract <- df[11]
 cname <- df[12]
@@ -24,16 +31,16 @@ caddress2 <- df[19]
 ccity <- df[20]
 cstate <- df[21]
 czip <- df[22]
-oaddress <- df[30]
-ocity <- df[31]
-ostate <- df[26]
-ozip <- df[27]
-ophone <- df[28]
-ofax <- df[29]
+oaddress <- df[25]
+ocity <- df[26]
+ostate <- df[27]
+ozip <- df[28]
+ophone <- df[29]
+ofax <- df[30]
 adminstate <- df[4]
 admincounty <- df[1]
 wcform <- df[16]
-con_name <- df[14]
+con_name <- df[13]
 rdate <- df[15]
 
 canull <- is.na(df[19])
@@ -128,22 +135,14 @@ colnames(nad)[colnames(nad) == 'STATECD'] <- 'admin_state'
 
 dfnad <- merge(df,nad, by='admin_state' )
 
-fsaco <- paste(dfnad[33], "FSA County Committee")
-fsaadd <- dfnad[38]
-fsacity <- dfnad[39]
+fsaco <- paste(dfnad[2], "FSA County Committee")
+fsaadd <- dfnad[32]
+fsacity <- dfnad[33]
 fsast <- dfnad[34]
 fsazip <- dfnad[35]
 fsaloc <- paste(fsacity,", ", fsast, fsazip)
 fsatel <- paste("Telephone:",dfnad[36])
 fsafax <- paste("Fax:",dfnad[37])
-
-nadadd <- dfnad[42]
-nadcity <- dfnad[43]
-nadst <- dfnad[44]
-nadzip <-dfnad[45]
-nadftfnum <- dfnad[46]
-nadtty <- dfnad[48]
-nadfax <- dfnad[49]
 
 Nfsa <- 2  # total number of rows to preallocate--possibly an overestimate
 
@@ -166,14 +165,14 @@ tfsa
 Or  
 
 ```{r inad, echo=FALSE} 
-nadadd <- dfnad[42]
-nadcity <- dfnad[43]
-nadst <- dfnad[44]
-nadzip <-dfnad[45]
+nadadd <- dfnad[39]
+nadcity <- dfnad[40]
+nadst <- dfnad[41]
+nadzip <-dfnad[42]
 nadloc <- paste(nadcity, ", ", nadst, nadzip)
-nadftfnum <- paste("Toll Free Phone:", dfnad[46])
-nadtty <- paste("TTY:", dfnad[48])
-nadfax <- paste("Fax:", dfnad[49])
+nadftfnum <- paste("Toll Free Phone:", dfnad[43])
+nadtty <- paste("TTY:", dfnad[45])
+nadfax <- paste("Fax:", dfnad[46])
 
 Nnad <- 2  # total number of rows to preallocate--possibly an overestimate
 

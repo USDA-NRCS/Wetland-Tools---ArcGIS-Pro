@@ -543,7 +543,7 @@ try:
             if value not in alt_026_labels:
                 alt_026_labels.append(value)
     # Use the list of labels to search the previous data and create a dictionary of labels to clu fields
-    dict_026_alt = {}            
+    dict_026_alt = {}
     search_fields = ['clu_number','wetland_label','occur_year']
     for item in alt_026_labels:
         with arcpy.da.SearchCursor(cluCWD, search_fields) as cursor:
@@ -565,12 +565,12 @@ try:
                         dict_026_alt[item] = row[0]
                         
     # Dictionary populated with all fields (values) that go with each label + occur year (key)
-    # Examine the values in the dictionary and sort any sets of field numbers
+    # Examine the values in the dictionary, remove duplicate field numbers with each label and sort field numbers
     for key in dict_026_alt.keys():
         v = dict_026_alt[key]
         if ", " in v:
             split_list = v.split(", ")
-            integer_list = sorted(list(map(int, split_list)))
+            integer_list = sorted(list(map(int, set(split_list))))
             string_ints = [str(int) for int in integer_list]
             str_of_ints = ", ".join(string_ints)
             dict_026_alt[key]=str_of_ints
@@ -640,7 +640,7 @@ try:
     arcpy.management.FeatureToPoint(cluCWD, cluCWDpts, "INSIDE")
     
     # Use Dissolve to create project summary
-    dissolve_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status','dig_staff','dig_date']
+    dissolve_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status','deter_method','dig_staff','dig_date']
     stats_fields = [['acres','SUM']]
     arcpy.management.Dissolve(cluCWD, projectSum, dissolve_fields, stats_fields, "MULTI_PART")
     

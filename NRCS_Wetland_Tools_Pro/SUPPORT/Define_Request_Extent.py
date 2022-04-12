@@ -242,8 +242,8 @@ except:
 
 
 #### Check GeoPortal Connection
-#nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
-nrcsPortal = 'https://gis-testing.usda.net/portal/'
+nrcsPortal = 'https://gis-states.sc.egov.usda.gov/portal/'
+#nrcsPortal = 'https://gis-testing.usda.net/portal/'
 portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
 if not portalToken:
     arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")

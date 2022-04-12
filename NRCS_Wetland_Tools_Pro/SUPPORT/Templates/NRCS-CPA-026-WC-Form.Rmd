@@ -13,27 +13,21 @@ output:
 
 admin <- read.xlsx(Admin_Excel_Path, sheetIndex = 1, sheetName = "Admin_Table")
 
-NRCS_FSA <- read.xlsx(file.path(Path_to_the_install_directory, "Templates","NRCS_Address.xlsx"), sheetIndex = 1, sheetName = "NRCS_Address")
+tract <- admin[11]
+cname <- admin[12]
+caddress1 <- admin[18]
+caddress2 <- admin[19]
+ccity <- admin[20]
+cstate <- admin[21]
+czip <- admin[22]
+adminstate <- admin[3]
+admincounty <- admin[5]
+ocounty <- admin[9]
+cfarm <- admin[10]
+ddate <- admin[15]
+wcform <- admin[16]
 
-colnames(NRCS_FSA)[colnames(NRCS_FSA) == 'NRCSCounty'] <- 'admin_county_name'
-
-df <- merge(admin, NRCS_FSA, by='admin_county_name')
-
-tract <- df[11]
-cname <- df[12]
-caddress1 <- df[18]
-caddress2 <- df[19]
-ccity <- df[20]
-cstate <- df[21]
-czip <- df[22]
-adminstate <- df[4]
-admincounty <- df[1]
-ocounty <- df[9]
-cfarm <- df[10]
-ddate <- df[15]
-wcform <- df[16]
-
-canull <- is.na(df[19])
+canull <- is.na(admin[19])
 cadd <- if (canull == TRUE){
   caddress1
 } else {
@@ -173,16 +167,16 @@ sid <- theme_box(sid)
 sid <- bg(sid, bg = "light cyan")
 sid
 ```
-   
 \newpage
-# Definitions of Wetland Labels and Uses  
 
 ```{r wetdef026, echo=FALSE}
+#Definitions of Wetland Labels and Uses  
 wetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","WetlandDefinition.csv"), header = TRUE, sep = ",")
 deftable <- flextable(wetdef, col_keys = c("dummy", "CriteriaDetermination", "AuthorizedUses", "AuthorizedMaintenance")) %>%
   compose(j = "dummy", value = as_paragraph(as_b(Label), Name)) %>%
   set_header_labels(dummy = "Label/Name", CriteriaDetermination = "Criteria for Determination", AuthorizedUses = "Authorized Uses", AuthorizedMaintenance = "Authorized Maintenance")
 deftable <- bold(deftable, part = "header")
+deftable <- add_header_lines(deftable, values = "Definitions of Wetland Labels and Uses")
 deftable <- fontsize(deftable, part = "header", size = 10)
 deftable <- font(deftable, part = "header", fontname = "Times")
 deftable <- fontsize(deftable, size = 9.25)
