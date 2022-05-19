@@ -1,4 +1,5 @@
-Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/bin/pandoc")
+# Updated by Edwin Muniz May 11, 2022
+Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/bin/quarto/bin")
 
 #Set working directory from tool default
 

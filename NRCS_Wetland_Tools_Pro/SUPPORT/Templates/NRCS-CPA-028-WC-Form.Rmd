@@ -90,16 +90,8 @@ cdfb
 This is a consolidated listing of previously issued and final certified wetland determinations for which appeal rights have expired. Each certified wetland determination identifies areas in the Tract subject to the wetland conservation provisions of the 1985 Food Security Act, as amended. See the attached **Definitions of Wetland Labels and Uses** for additional information and currently authorized activities under the Act. This consolidated listing of certified wetland determinations and attached map(s) are provided for your convenience. You should refer to the original certified wetland determinations and maps for the official record which will be used to determine eligibility for USDA programs.  
 
 ```{r wcdet028, echo=FALSE}
-wctable <- if(is.null(Consolidate) || is.nan(Consolidate)) {
-  read.xlsx(CLU_CWD_028_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_028")
-} else {
-  if(Consolidate == FALSE) {
-    read.xlsx(CLU_CWD_028_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_028")
-  } else {
-    read.xlsx(CLU_CWD_028_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_028_alt")
-  }
-}
-wctable <- wctable[ ,c(4,5,6,8,9)]
+wctable <- read.xlsx(CLU_CWD_028_Excel_Path, sheetIndex = 1, sheetName = "CLU_CWD_028")
+wctable <- wctable[ ,c(4,5,6,7,9)]
 wctable <- wctable[order(as.character(wctable$clu_number)),]
 wctable$SUM_acres <- round(wctable$SUM_acres, 2)
 wctable$SUM_acres <- as.character(wctable$SUM_acres)

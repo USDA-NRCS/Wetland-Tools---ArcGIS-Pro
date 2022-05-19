@@ -1,0 +1,17 @@
+New Script
+1. WC_Report_Tool_CPA028 was created for the stand along CPA-028 form generator tool.
+
+WC_Report_Tool.r
+1. Change path for Sys.setenv - this change is needed for the installation of RStudio Version 2022.02.1 +461. All users need to upgrade to R 4.1.3 and RStudio 2022.02.1 +461.
+
+ArcGIS tool for CPA-028
+1. ArcGIS tool - Wetland_Folder_Path direction changed to Output
+2. Load new R script named WC_Report_Tool_CPA028
+
+ArcGIS tool 01. Create Forms and Letters
+1. CLU_CWD path for 028 still show alt table when consolidate option is selected
+2. 028 Alt table path does not refresh when consolidate option is un-check
+
+
+
+

@@ -168,7 +168,6 @@ sid <- bg(sid, bg = "light cyan")
 sid
 ```
 \newpage
-
 ```{r wetdef026, echo=FALSE}
 #Definitions of Wetland Labels and Uses  
 wetdef <- read.csv(file.path(Path_to_the_install_directory, "Templates","WetlandDefinition.csv"), header = TRUE, sep = ",")

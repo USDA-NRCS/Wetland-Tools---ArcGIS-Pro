@@ -20,7 +20,7 @@
 ## - Separated base map layer generation steps from Define Request Extent tool, to create this tool.
 ## - Added functions to create or reset layers on an individual basis, as specified by user input parameters.
 ## - Updated Sampling Unit creation process to blend New Request and Certified-Digital areas by downloading
-##   existing digital SU data within the prevAdminSite layer extent.
+##   existing digital SU data within the origAdmin layer extent.
 ##
 ## rev. 05/10/2021
 ## - Debugging passes to get replacement layers working
@@ -35,8 +35,11 @@
 ## rev. 02/25/2022
 ## - Debugged query/download function and related file cleanup
 ##
+## rev. 04/29/2022
+## - Adjusted previous determination data workflows and corrected related bugs
+##
 ## ===============================================================================================================
-## ===============================================================================================================    
+## ===============================================================================================================
 def AddMsgAndPrint(msg, severity=0):
     # Adds tool message to the geoprocessor and text file log.
     
@@ -94,13 +97,6 @@ def logBasicSettings():
     del f
 
 ## ===============================================================================================================
-def changeSource(cur_lyr, new_ws, new_fc):
-    cp = cur_lyr.connectionProperties
-    cp['connection_info']['database'] = new_ws
-    cp['dataset'] = new_fc
-    cur_lyr.updateConnectionProperties(cur_lyr.connectionProperties, cp)
-
-## ===============================================================================================================
 def deleteTempLayers(lyrs):
     for lyr in lyrs:
         if arcpy.Exists(lyr):
@@ -152,7 +148,6 @@ def removeFCs(fc_list, wc='', ws ='', in_topos=''):
             except:
                 pass
 
-
 ## ===============================================================================================================
 def createSU():
     #### Remove existing sampling unit related layers from the Pro maps
@@ -189,26 +184,13 @@ def createSU():
 
     arcpy.Compact_management(wcGDB_path)
     
-            
     #### Create the Sampling Unit Layer
     AddMsgAndPrint("\nCreating the Sampling Units layer...\n",0)
     # Create an empty Sampling Unit feature class
     arcpy.CreateFeatureclass_management(wcFD, suNewName, "POLYGON", templateSU)
 
-    # Create the SU layer by intersecting the Reqeust Extent with the CLU
-    arcpy.Intersect_analysis([projectExtent, projectCLU], suMulti, "NO_FID", "#", "INPUT")
-    arcpy.MultipartToSinglepart_management(suMulti, suTemp1)
-
-    # Dissolve out field lines if that option was selected
-    if keepFields == "No":
-        dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
-        arcpy.Dissolve_management(suTemp1, suTemp2, dis_fields, "", "SINGLE_PART", "")
-        arcpy.Append_management(suTemp2, projectSUnew, "NO_TEST")
-    else:
-        arcpy.Append_management(suTemp1, projectSUnew, "NO_TEST")
-
-    # Incorporate existing sampling unit data if previous certifications fall within the tract
-    if arcpy.Exists(prevAdminSite):
+    # Download existing sampling unit data if previous certifications exist
+    if arcpy.Exists(origAdmin):
         
         # Download the existing sampling units data in the tract
         AddMsgAndPrint("\tDownloading previous Sampling Unit data...",0)
@@ -222,46 +204,63 @@ def createSU():
             
             # Use intersect to update tract numbers.
             arcpy.Intersect_analysis([projectTract, query_results_fc], prevSUmulti, "NO_FID", "#", "INPUT")
-            result = int(arcpy.GetCount_management(prevSUMulti).getOutput(0))
-            if result > 0:
-                # Transer the job_id_1 attributes to the job_id field (continue to keep the original job IDs for now)
-                fields = ['job_id','job_id_1']
-                cursor = arcpy.da.UpdateCursor(prevSUmulti, fields)
-                for row in cursor:
-                    row[0] = row[1]
-                    cursor.updateRow(row)
-                del fields
-                del cursor
-                
-                # Incorporate the certified areas into the current SU layer
-                AddMsgAndPrint("\tIntegrating previous Sampling Unit data into new Sampling Unit layer...",0)
-                arcpy.Clip_analysis(prevSUmulti, prevAdminSite, prevSUclip)
-                arcpy.MultipartToSinglepart_management(prevSUclip, prevSU)
-                arcpy.Erase_analysis(projectSUnew, prevAdminSite, suTemp4)
-                arcpy.MultipartToSinglepart_management(suTemp4, suTemp5)
-                arcpy.Delete_management(projectSU)
-                arcpy.CreateFeatureclass_management(wcFD, suName, "POLYGON", templateSU)
-                arcpy.Append_management(suTemp5, projectSU, "NO_TEST")
-                arcpy.Append_management(prevSU, projectSU, "NO_TEST")
-                arcpy.management.Delete(intSU)
-                del result
+            # Transer the job_id_1 attributes to the job_id field (continue to keep the original job IDs for now) and set Certified-Digital status
+            fields = ['job_id','job_id_1','eval_status']
+            cursor = arcpy.da.UpdateCursor(prevSUmulti, fields)
+            for row in cursor:
+                row[0] = row[1]
+                row[2] = "Certified-Digital"
+                cursor.updateRow(row)
+            del fields
+            del cursor
+            
+            # Trim the previous sampling units by the request extent
+            AddMsgAndPrint("\tIntegrating previous Sampling Unit data into new Sampling Unit layer...",0)
+            arcpy.Clip_analysis(prevSUmulti, projectExtent, prevSUclip)
+            arcpy.MultipartToSinglepart_management(prevSUclip, prevSU)
+
+            # Use erase on the projectExtent to reduce the area to be turned into sampling units
+            arcpy.Erase_analysis(projectExtent, prevSU, extentTemp1)
+            erased_results = int(arcpy.GetCount_management(extentTemp1).getOutput(0))
+            if erased_results == 0:
+                # Entire request extent filled by prevSU. Convert entire prevSU to the suNew layer.
+                arcpy.Append_management(prevSU, projectSUnew, "NO_TEST")
             else:
-                AddMsgAndPrint("\tNo previous sampling units found in online data! Continuing...",0)
-                arcpy.SetProgressorLabel("No previous sampling units found in online data! Continuing...")
-                arcpy.management.Delete(intSU)
-                del result
+                # Partial Extent of Previous and Partial New
+                arcpy.Intersect_analysis([extentTemp1, projectCLU], suMulti, "NO_FID", "#", "INPUT")
+                arcpy.MultipartToSinglepart_management(suMulti, suTemp1)
+
+                if keepFields == "No":
+                    dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+                    arcpy.Dissolve_management(suTemp1, suTemp2, dis_fields, "", "SINGLE_PART", "")
+                    arcpy.Append_management(suTemp2, projectSUnew, "NO_TEST")
+                    arcpy.Append_management(prevSU, projectSUnew, "NO_TEST")
+                else:
+                    arcpy.Append_management(suTemp1, projectSUnew, "NO_TEST")
+                    arcpy.Append_management(prevSU, projectSUnew, "NO_TEST")
         else:
             AddMsgAndPrint("\tNo previous sampling units found in online data! Continuing...",0)
             arcpy.SetProgressorLabel("No previous sampling units found in online data! Continuing...")
+
+    else:
+        # Create the SU layer by intersecting the Reqeust Extent with the CLU
+        arcpy.Intersect_analysis([projectExtent, projectCLU], suMulti, "NO_FID", "#", "INPUT")
+        arcpy.MultipartToSinglepart_management(suMulti, suTemp1)
+
+        # Dissolve out field lines if that option was selected
+        if keepFields == "No":
+            dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+            arcpy.Dissolve_management(suTemp1, suTemp2, dis_fields, "", "SINGLE_PART", "")
+            arcpy.Append_management(suTemp2, projectSUnew, "NO_TEST")
+        else:
+            arcpy.Append_management(suTemp1, projectSUnew, "NO_TEST")
+
 
     #### Assign domains to the SU layer
     arcpy.AssignDomainToField_management(projectSUnew, "eval_status", "Evaluation Status")
     arcpy.AssignDomainToField_management(projectSUnew, "three_factors", "YN")
     arcpy.AssignDomainToField_management(projectSUnew, "request_type", "Request Type")
     arcpy.AssignDomainToField_management(projectSUnew, "deter_method", "Method")
-
-    #### Update SU layer attributes
-##    # job_id and eval_status are now inherited from the Extent layer
 
     # Update calculated acres
     expression = "round(!Shape.Area@acres!,2)"
@@ -293,13 +292,15 @@ def createSU():
                 row[5] = digDate
             cursor.updateRow(row)
         del cursor, fields
+    else:
+        AddMsgAndPrint("\nCould not find project table. Rerun Enter Basic info. Exiting...",2)
+        exit()
 
     # Rename to get final correct version of layer
     arcpy.Rename_management(projectSUnew, projectSU)
 
-
-    #### Import attribute rules
-#    arcpy.ImportAttributeRules_management(projectSU, rules_su)
+##    #### Import attribute rules
+##    arcpy.ImportAttributeRules_management(projectSU, rules_su)
 
 ## ===============================================================================================================
 def createROP():
@@ -335,23 +336,54 @@ def createROP():
     removeFCs(datasetsToRemove, wildcard, wkspace)
     del datasetsToRemove, wildcard, wkspace
 
-    #arcpy.Compact_management(wcGDB_path)
-    
-            
+
     #### Create the ROPs Layer
     AddMsgAndPrint("\nCreating the ROPs layer...\n",0)
     arcpy.CreateFeatureclass_management(wcFD, ropName, "POINT", templateROP)
 
-##    # Incorporate existing ROPs data if previous certifications fall within the request extent
-##    if arcpy.Exists(prevAdminSite):
-##        if arcpy.Exsists(existingROP):
-##            AddMsgAndPrint("\tDownloading previous ROPs data...",0)
-##            # Download the existing ROPs data. Use intersect to update tract numbers.
-##            arcpy.Intersect_analysis([projectExtent, existingROP], prevROPs, "NO_FID", "#", "INPUT")
-##            arcpy.Append_management(prevROPs, projectROPs, "NO_TEST")
+##    # Check for existing ROP data if previous determinations are associated to the site and append them if found
+##    if arcpy.Exists(origAdmin):
+##
+##        # Download ROPs
+##        AddMsgAndPrint("\tDownloading previous ROPs data...",0)
+##
+##        query_url = ropURL + "/query"
+##        query_results_fc = queryIntersect(scratchGDB,wetDir,projectExtent,query_url,intROP)
+##
+##        if arcpy.Exists(intROP):
+##            AddMsgAndPrint("\tPrevious ROPs found within the request extent! Processing...",0)
+##            arcpy.SetProgressorLabel("Previous ROPs found within the request extent! Processing...")
+##
+##            # Use intersect to update tract numbers.
+##            arcpy.Intersect_analysis([projectTract, query_results_fc], prevROP, "NO_FID", "#", "INPUT")
+##            result = int(arcpy.GetCount_management(prevROP).getOutput(0))
+##            if result > 0:
+##                # Transer the job_id_1 attributes to the job_id field (continue to keep the original job IDs for now)
+##                fields = ['job_id','job_id_1']
+##                cursor = arcpy.da.UpdateCursor(prevROP, fields)
+##                for row in cursor:
+##                    row[0] = row[1]
+##                    cursor.updateRow(row)
+##                del fields
+##                del cursor
+##
+##                # Incorporate the certified areas into the current SU layer
+##                AddMsgAndPrint("\tIntegrating previous ROPs data into new ROPs layer...",0)
+##                arcpy.Clip_analysis(prevROP, origAdmin, prevROPclip)
+##                clipped_results = int(arcpy.GetCount_management(prevROPclip).getOutput(0))
+##                if clipped_results > 0:
+##                    # ROPs found in the previous area, specifically. Append these to the ROPs layer
+##                    arcpy.Append_management(prevROPclip, projectROP, "NO_TEST")
+##                    arcpy.Delete_management(intROP)
+##            else:
+##                AddMsgAndPrint("\tNo previous ROPs found within request extent! Continuing...",0)
+##                arcpy.SetProgressorLabel("No previous ROPs found within request extent! Continuing...")
+##                arcpy.Delete_management(intROP)
+##        else:
+##            AddMsgAndPrint("\tNo previous ROPs found within request extent! Continuing...",0)
+##            arcpy.SetProgressorLabel("No previous ROPs found within request extent! Continuing...")
 
-
-    #### Import Attribute Rules
+##    #### Import Attribute Rules
 ##    arcpy.ImportAttributeRules_management(projectROP, rules_rops)
     
 ## ===============================================================================================================
@@ -580,7 +612,7 @@ except:
 nrcsPortal = 'https://gis-testing.usda.net/portal/'
 portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
 if not portalToken:
-    arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
+    arcpy.AddError("Could not generate Portal token! Please login to GIS Testing Portal! Exiting...")
     exit()
     
 
@@ -596,6 +628,7 @@ try:
     resetREF = arcpy.GetParameterAsText(4)
     resetDrains = arcpy.GetParameterAsText(5)
     suURL = arcpy.GetParameterAsText(6)
+    ropURL = arcpy.GetParameterAsText(7)
 ####    existingSU = arcpy.GetParameterAsText(6)
 ####    existingROP = arcpy.GetParameterAsText(7)
 ####    existingREF = arcpy.GetParameterAsText(8)
@@ -627,17 +660,6 @@ try:
         exit()
 
 
-##    #### Do not run if an unsaved edits exist in the target workspace
-##    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
-##    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
-##    workspace = basedataGDB_path
-##    edit = arcpy.da.Editor(workspace)
-##    if edit.isEditing:
-##        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
-##        exit()
-##    del workspace, edit
-
-
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
     arcpy.SetProgressorLabel("Setting variables...")
@@ -660,7 +682,6 @@ try:
     wcGDB_path = wetDir + os.sep + wcGDB_name
     wcFD_name = "WC_Data"
     wcFD = wcGDB_path + os.sep + wcFD_name
-    #jfile = wetDir + os.sep + "jsonFile.json"
     
     projectCLU = basedataFD + os.sep + "Site_CLU"
     projectTract = basedataFD + os.sep + "Site_Tract"
@@ -684,40 +705,35 @@ try:
     suTemp5 = scratchGDB + os.sep + "SU_Temp5_" + projectName
     prevSUmulti = scratchGDB + os.sep + "prevSUmutli"
     prevSUclip = scratchGDB + os.sep + "prevSUclip"
-    prevSU = wcFD + os.sep + "Previous_Sampling_Units"
+    prevSU = scratchGDB + os.sep + "Previous_Sampling_Units"
     intSU = wcGDB_path + os.sep + "Intersected_SU"
+    prevROP = scratchGDB + os.sep + "prevROP"
+    prevROPclip = scratchGDB + os.sep + "prevROPclip"
+    intROP = wcGDB_path + os.sep + "Intersected_ROP"
 
     ropName = "Site_ROPs"
     projectROP = wcFD + os.sep + ropName
-##    prevROPs = wcFD + os.sep + "Previous_ROPs"
 
     refName = "Site_Reference_Points"
     projectREF = wcFD + os.sep + refName
-##    prevREF = wcFD + os.sep + "Previous_Reference_Points"
 
     drainName = "Site_Drainage_Lines"
     projectLines = wcFD + os.sep + drainName
-##    prevLines = wcFD + os.sep + "Previous_Drainage_Lines"
 
     extentName = "Request_Extent"
     projectExtent = basedataFD + os.sep + extentName
-##    extTempName = "Extent_temp1_" + projectName
-##    extentTemp1 = scratchGDB + os.sep + extTempName
-##    extentTemp2 = scratchGDB + os.sep + "Extent_temp2_" + projectName
-##    extentTemp3 = scratchGDB + os.sep + "Extent_temp3_" + projectName
-##    tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
+    extentTemp1 = scratchGDB + os.sep + "Extent_temp1"
 
     suTopoName = "Sampling_Units_Topology"
     suTopo = wcFD + os.sep + suTopoName
 
-    prevCert = wcFD + os.sep + "Previous_CWD"
-    prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
-    prevCertMulti = scratchGDB + os.sep + "pCertMulti"
-    prevCertTemp1 = scratchGDB + os.sep + "pCertTemp"
+    origCert = wcFD + os.sep + "Previous_CLU_CWD_Original"
+    origAdmin = wcFD + os.sep + "Previous_CLU_CWD_Admin_Original"
+    origAdminTemp = scratchGDB + os.sep + "OrigAdminTemp"
+    
+    prevCertName = "Site_Previous_CLU_CWD"
+    prevCert = wcFD + os.sep + prevCertName
     prevAdmin = wcFD + os.sep + "Previous_Admin"
-    prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
-    updatedCert = wcFD + os.sep + "Updated_Cert"
-    updatedAdmin = wcFD + os.sep + "Updated_Admin"
     
     # Attribute rule files and lists
     rules_su = os.path.join(os.path.dirname(sys.argv[0]), "Rules_SU.csv")
@@ -741,7 +757,7 @@ try:
                         'Add Drainage Farm Number', 'Add Drainage Tract Number']
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [suMulti, suTemp1, suTemp2, suTemp3, suTemp4, suTemp5, prevSUmulti, prevSUclip, prevCertMulti, prevCertTemp1, projectSUnew, intSU]
+    tempLayers = [suMulti, suTemp1, suTemp2, suTemp3, suTemp4, suTemp5, prevSU, prevSUmulti, prevSUclip, projectSUnew, intSU, intROP, prevROP, prevROPclip, extentTemp1]
     deleteTempLayers(tempLayers)
 
 
@@ -811,57 +827,85 @@ try:
         arcpy.AlterDomain_management(wcGDB_path, "YN", "", "", "DUPLICATE")
 
     del descGDB, domains
-    
+
+
+    #### Remove any other project layers in the map that are found in the project's WC geodatabase to prevent locks while importing attributes.
+    #### Layers will be re-added at the end of the process.
+    mapLayersToRemove = [prevCertName]
+    try:
+        for maps in aprx.listMaps():
+            for lyr in maps.listLayers():
+                if lyr.name in mapLayersToRemove:
+                    maps.removeLayer(lyr)
+    except:
+        pass
+
     
     #### Create or Reset the Sampling Units layer
     if not arcpy.Exists(projectSU):
+        AddMsgAndPrint("\nCreating Sampling Units layer...\n",0)
         arcpy.SetProgressorLabel("Creating Sampling Units layer...")
         createSU()
         AddMsgAndPrint("\nImporting Attribute Rules to the Sampling Units layer...\n",0)
+        arcpy.SetProgressorLabel("Importing Attribute Rules to the Sampling Units layer...")
         arcpy.ImportAttributeRules_management(projectSU, rules_su)
     if resetSU == "Yes":
-        createSU()
+        AddMsgAndPrint("\nCreating Sampling Units layer...\n",0)
         arcpy.SetProgressorLabel("Creating Sampling Units layer...")
+        createSU()
         AddMsgAndPrint("\nImporting Attribute Rules to the Sampling Units layer...\n",0)
+        arcpy.SetProgressorLabel("Importing Attribute Rules to the Sampling Units layer...")
         arcpy.ImportAttributeRules_management(projectSU, rules_su)
 
 
     #### Create or Reset the ROPs Layer
     if not arcpy.Exists(projectROP):
+        AddMsgAndPrint("\nCreating ROPs layer...",0)
         arcpy.SetProgressorLabel("Creating ROPs layer...")
         createROP()
         AddMsgAndPrint("\nImporting Attribute Rules to the ROPs layer...\n",0)
+        arcpy.SetProgressorLabel("Importing Attribute Rules to the ROPs layer...")
         arcpy.ImportAttributeRules_management(projectROP, rules_rops)
     if resetROPs == "Yes":
+        AddMsgAndPrint("\nCreating ROPs layer...",0)
         arcpy.SetProgressorLabel("Creating ROPs layer...")
         createROP()
         AddMsgAndPrint("\nImporting Attribute Rules to the ROPs layer...\n",0)
+        arcpy.SetProgressorLabel("Importing Attribute Rules to the ROPs layer...")
         arcpy.ImportAttributeRules_management(projectROP, rules_rops)
 
 
     #### Create or Reset the Reference Points Layer
     if not arcpy.Exists(projectREF):
+        AddMsgAndPrint("\nCreating Reference Points layer...",0)
         arcpy.SetProgressorLabel("Creating Reference Points layer...")
         createREF()
         AddMsgAndPrint("\nImporting Attribute Rules to the Reference Points layer...\n",0)
+        arcpy.SetProgressorLabel("Importing Attribute Rules to the Reference Points layer...")
         arcpy.ImportAttributeRules_management(projectREF, rules_refs)
     if resetREF == "Yes":
+        AddMsgAndPrint("\nCreating Reference Points layer...",0)
         arcpy.SetProgressorLabel("Creating Reference Points layer...")
         createREF()
         AddMsgAndPrint("\nImporting Attribute Rules to the Reference Points layer...\n",0)
+        arcpy.SetProgressorLabel("Importing Attribute Rules to the Reference Points layer...")
         arcpy.ImportAttributeRules_management(projectREF, rules_refs)
 
 
     #### Create or Reset the Drainage Lines Layer
     if not arcpy.Exists(projectLines):
+        AddMsgAndPrint("\nCreating Drainage Lines layer...",0)
         arcpy.SetProgressorLabel("Creating Drainage Lines layer...")
         createDRAIN()
         AddMsgAndPrint("\nImporting Attribute Rules to the Drainage Lines layer...\n",0)
+        arcpy.SetProgressorLabel("Importing Attribute Rules to the Drainage Lines layer...")
         arcpy.ImportAttributeRules_management(projectLines, rules_lines)
     if resetDrains == "Yes":
+        AddMsgAndPrint("\nCreating Drainage Lines layer...",0)
         arcpy.SetProgressorLabel("Creating Drainage Lines layer...")
         createDRAIN()
         AddMsgAndPrint("\nImporting Attribute Rules to the Drainage Lines layer...\n",0)
+        arcpy.SetProgressorLabel("Importing Attribute Rules to the Drainage Lines layer...")
         arcpy.ImportAttributeRules_management(projectLines, rules_lines)
 
 
@@ -949,6 +993,11 @@ try:
         drainLyr_cp['dataset'] = drainName
         drainLyr.updateConnectionProperties(drainLyr.connectionProperties, drainLyr_cp)
         m.addLayer(drainLyr)
+
+
+    #### Re-add other business layers that are created previous to this point
+    if arcpy.Exists(prevCert):
+        arcpy.SetParameterAsText(8, prevCert)
 
     
     #### Adjust visibility of layers to aid in moving to the next step in the process

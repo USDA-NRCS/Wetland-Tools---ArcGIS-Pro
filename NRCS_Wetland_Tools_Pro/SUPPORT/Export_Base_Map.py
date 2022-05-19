@@ -565,10 +565,10 @@ try:
     for elm in bm_lyt.listElements():
         if elm.name == "Imagery Text Box":
             bm_imagery_elm = elm
-            
-    # Find annotation for the typical layers, if any
-    lyrs = m.listLayers()
     
+##    # Find annotation for the typical layers, if any
+##    lyrs = m.listLayers()
+##    
 ##    su_anno_list = []
 ##    for lyr in lyrs:
 ##        if lyr.name.startswith(suName + "Anno"):
@@ -633,6 +633,9 @@ try:
         cam.setExtent(ext)
         cam.scale *= 1.25
         del lyr
+
+    # Set a definition query on the su layer
+    su_lyr.definitionQuery = "eval_status IN ('New Request', 'Revision')"
     
     # Set required layers and corresponding annotation or labels to be visible
     su_lyr.visible = True
@@ -696,6 +699,9 @@ try:
     #### MAINTENANCE
     AddMsgAndPrint("\tRunning cleanup...",0)
     arcpy.SetProgressorLabel("Running cleanup...")
+
+    # Clear the definition query on su layer
+    su_lyr.definitionQuery = None
     
     ## Reset image text on each layout to be blank
     # Define the imagery text box elements
