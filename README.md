@@ -1,7 +1,82 @@
 # Wetland-Tools---ArcGIS-Pro
 NRCS wetlands conservation compliance tools for creating determination products in ArcGIS Pro
 
-Version 1.0.4 (4/12/2022; Production Release):
+Version 1.0.5 (5/19/2022; Production Release):
+
+State Tool Administrators should download the new version, customize it (per the guidance in the State Administrator Guide), and the provide their customized version to users in their state.
+	
+Close any ArcGIS Pro projects for the WC Tools before installing the new version.
+	
+APRX Templates from v1.0.4 or later are compatible with this new release. Make a copy of your existing custom APRX templates outside of the install folder, install the new version, and then restore your custom templates to the appropriate folder(s) within the new install.
+	
+The NRCS Address spreadsheet's format from 1.0.4 or later has NOT changed. You can use your existing 1.0.4 NRCS Address spreadsheet if you've already customized it. Make a copy of your existing NRCS Address spreadsheet outside of the install folder, install the new version, and then restore your custom NRCS Address spreadsheet in the standard location within the install folder.
+	
+APRX templates or spreadsheets from version 1.0.3 or earlier should not be brought forward into this version and should instead be rebuilt using the template files provided by the latest install.
+	
+R and RStudio have updated.  Please install R for Windows 4.1.3 and RStudio 2022.02.1 + 461.  Then please complete the R package installation instructions again (found in the Configure R section of the updated User Guide).  Finally, confirm that the arcgisbinding has been configured in ArcGIS Pro (found in the Configure arcgisbinding in ArcGIS Pro section of the updated User Guide)
+	
+New features include:
+All tools have been updated to show Help info when hovering over the "i" marker for parameters in the tools.
+		
+The previously determined map and report workflow has been fully enabled and documented and will function for determinations previously digitized by this tool, only. Determinations that are not digitized in this tool cannot be used in this process.
+		
+The revisions workflow has been fully enabled and documented. Determinations that are not digitized in this tool cannot be used in this process.
+		
+The creation of an NWI layer at the project site has been restored to the workflow.  The NWI layer now downloads to the local project by intersecting the Tract boundary with the NWI feature service on GeoPortal.  This takes place automatically during Create Wetlands Project.  If no features are found during the intersect, or if the NWI data service is offline or not responsive, then NWI data will not download but Create Wetlands Project will still run to complete its normal functions.  If NWI data does not download, view the results messages after running the Create Wetlands Project tool to determine if no data was found at the site, or if the download had an error.
+		
+A standalone Download NWI Data tool has been added to the Utilities toolset as a redundant option if the initial download during project creation fails (such as if the NWI data service is offline when the project is created).
+		
+The NWI map option has been re-enabled in the Export Reference Maps tool.
+		
+The parameters for the Create CWD Map Layers tool have been slightly altered to accommodate an NRCS-CPA-028 Report only option (such as if previously digitized determinations cover the entire tract).  The changes have no impact on the normal workflow for requests in new areas.
+		
+Layer files for read-only copies of the national WC Tool web layers have been added to the install directory under the Reference Layers folder. All such files contain the word "View" in their name.  These layers could be useful for viewing in the background of any given site project, as needed, particularly when snapping to work on adjacent tracts.
+		
+Corrected a typo in preliminary letter on the Appeals Information page.
+		
+Disabled the ability to consolidate records by label for the NRCS-CPA-028 form due to complications presented by grouping by certification date in addition to the label.  The capability to consolidate records by label still remains for the NRCS-CPA-026 form.
+		
+Added template Style sheets for State Tool Administrators to use to create custom styles.
+		
+Changed the default symbology for the Site Previous CLU CWD layer.
+		
+Created read-only views of the live data services and used them to create an Operations Dashboard on the GIS-States Portal. Only production data will upload to these layers, views, and the dashboard.  As this release is new, only a tiny amount of test data is currently present in the dashboard until states begin using the tool. 
+		
+The read-only views from the previous bullet point have been shared with the entire Organization. As such, the URLs for those views can be streamed into other secure maps or apps, such as Conservation Desktop. The views (if searching by name on GIS States) are:
+
+			
+NRCS Sampling Units RO View
+			
+NRCS ROPs RO View
+			
+NRCS WC Reference Points RO View
+			
+NRCS WC Drains RO View
+			
+NRCS PJW RO View
+			
+NRCS CWD RO View
+			
+NRCS CLU CWD Points RO View
+			
+NRCS CLU CWD RO View
+			
+NRCS CWD Summary Points RO View
+			
+NRCS CWD Summary Areas RO View
+		
+		
+		
+The WC Tool State Administrator Guide has been updated and taken out of draft status. Further edits may be made, but the core structure and concepts are in place.
+		
+The WC Tool User Guide has been updated and taken out of draft status. Further edits may be made, but the core structure and concepts are in place.
+
+
+
+
+Version History:
+
+v 1.0.4 (4/12/2022; Production Release):
 Released production version that connects with data services on GIS States.
 Split Templates and Toolboxes into Training and Live Versions.
 New templates released as a result; all existing projects should be completed prior to upgrading and all templates should be rebuilt.
@@ -14,9 +89,6 @@ Added new tool to import the NRCS_Address table to the toolboxes.
 Updated Form and Letter templates and processing in R.
 Corrected an issue with field numbers repeating when using the consolidate by label option to generate the form.
 Removed development Task files to reduce confusion for workflow.
-
-
-Version History:
 
 v 1.0.3 (3/22/2022; Training Version):
 Updated Form templates due to new R libraries to correct formatting issues.
