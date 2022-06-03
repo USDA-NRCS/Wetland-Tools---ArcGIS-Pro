@@ -755,8 +755,8 @@ except:
 nrcsPortal = 'https://gis-states.sc.egov.usda.gov/portal/'     # GeoPortal States Production 10.8.1
 portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
 if not portalToken:
-arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GeoPortal States 10.8.1! Exiting...")
-exit()
+    arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GeoPortal States 10.8.1! Exiting...")
+    exit()
 
 #nrcsPortal = 'https://gis-testing.usda.net/portal/'     # GeoPortal Sandbox Testing 10.8.1
 #portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
