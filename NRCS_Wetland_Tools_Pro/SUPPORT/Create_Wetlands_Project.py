@@ -151,7 +151,7 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
     params = urllibEncode({'f': 'json',
                            'geometry':jsonPolygon,
                            'geometryType':'esriGeometryPolygon',
-                           'spatialRelationship':'esriSpatialRelOverlaps',
+                           'spatialRelationship':'esriSpatialRelIntersects',
                            'returnGeometry':'true',
                            'outFields':'*',
                            'token': portalToken['token']})
