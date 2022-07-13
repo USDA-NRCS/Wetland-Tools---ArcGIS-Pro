@@ -1,7 +1,12 @@
 # Wetland-Tools---ArcGIS-Pro
 NRCS wetlands conservation compliance tools for creating determination products in ArcGIS Pro
 
-Version 1.0.6 (6/23/2022; Production Release):
+Version 1.0.7 (7/13/2022; Production Release):
+
+New features include:
+Corrected a bug in the Export Reference Maps tool.
+Updated user guides for new installation versions of ArcGIS Pro and R for Windows.
+
 
 State Tool Administrators should download the new version, customize it (per the guidance in the State Administrator Guide), and the provide their customized version to users in their state.
 	
@@ -14,14 +19,16 @@ The NRCS Address spreadsheet's format from 1.0.4 or later has NOT changed. You c
 APRX templates or spreadsheets from version 1.0.3 or earlier should not be brought forward into this version and should instead be rebuilt using the template files provided by the latest install.
 	
 R and RStudio have updated.  Please install R for Windows 4.1.3 and RStudio 2022.02.1 + 461.  Then please complete the R package installation instructions again (found in the Configure R section of the updated User Guide).  Finally, confirm that the arcgisbinding has been configured in ArcGIS Pro (found in the Configure arcgisbinding in ArcGIS Pro section of the updated User Guide)
-	
-New features include:
+
+
+Version History:
+
+Version 1.0.6 (6/23/2022; Production Release):
+
 Moved training data from GIS Testing to GIS States and updated all relevant training templates, tools, and documentation accordingly.
 Corrected NWI symbology in the production toolbox references to the NWI layer.
 Corrected minor typos in the user guide.
 
-
-Version History:
 
 v 1.0.5 (5/19/2022; Production Release):
 All tools have been updated to show Help info when hovering over the "i" marker for parameters in the tools.
