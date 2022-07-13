@@ -1666,12 +1666,13 @@ try:
     arcpy.SetProgressorLabel("Running cleanup...")
     # Delete the individual maps if they aren't being kept separately
     if multiLayouts == False:
-        AddMsgAndPrint("\tDeleting temporary PDF maps...",0)
-        for item in PDFlist:
-            try:
-                os.remove(item)
-            except:
-                pass
+        if owLayouts == True:
+            AddMsgAndPrint("\tDeleting temporary PDF maps...",0)
+            for item in PDFlist:
+                try:
+                    os.remove(item)
+                except:
+                    pass
 
     # Reset Elevation Layout Title
     elev_title_elm.text = "Elevation"
