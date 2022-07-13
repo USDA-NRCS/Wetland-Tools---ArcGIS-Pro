@@ -579,6 +579,10 @@ try:
     wtrtblPDF = wetDir + os.sep + "Water_Table_" + projectName + ".pdf"
     metadataPDF = wetDir + os.sep + "SSURGO_Metadata_" + projectName + ".pdf"
 
+    PDFlist = [sitePDF, ctrPDF, demPDF, depthPDF, slopePDF, nwiPDF, soilPDF, drainPDF, ecoPDF,
+               floodPDF, hydricRatMuPDF, hydricRatCompPDF, hydrologicPDF, pondingPDF, wtrtblPDF,
+               metadataPDF]
+    
     if owLayouts == False:
         if os.path.exists(outPDF):
             count = 1
