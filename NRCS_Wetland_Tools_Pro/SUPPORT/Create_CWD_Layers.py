@@ -100,7 +100,7 @@ def removeLayers(layer_list):
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in layer_list:
+                if lyr.longName in layer_list:
                     maps.removeLayer(lyr)
     except:
         pass
@@ -161,7 +161,7 @@ def createCWD():
     for maps in aprx.listMaps():
         for anno in anno_list:
             for lyr in maps.listLayers(anno):
-                mapLayersToRemove.append(lyr.name)
+                mapLayersToRemove.append(lyr.longName)
 
     # Remove the layers
     removeLayers(mapLayersToRemove)
@@ -684,7 +684,7 @@ try:
     lyr_list = m.listLayers()
     lyr_name_list = []
     for lyr in lyr_list:
-        lyr_name_list.append(lyr.name)
+        lyr_name_list.append(lyr.longName)
 
     if pjwName not in lyr_name_list:
         pjwLyr_cp = pjwLyr.connectionProperties
@@ -744,7 +744,7 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in off_names:
-                if name in lyr.name:
+                if name in lyr.longName:
                     lyr.visible = False
 
     # Turn on layers for current steps
@@ -752,7 +752,7 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in on_names:
-                if (lyr.name).startswith(name):
+                if (lyr.longName).startswith(name):
                     lyr.visible = True
 
     

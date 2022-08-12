@@ -281,7 +281,7 @@ try:
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in mapLayersToRemove:
+                if lyr.longName in mapLayersToRemove:
                     maps.removeLayer(lyr)
     except:
         pass

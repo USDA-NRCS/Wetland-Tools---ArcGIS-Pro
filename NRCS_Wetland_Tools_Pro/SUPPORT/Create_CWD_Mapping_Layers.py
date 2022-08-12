@@ -102,7 +102,7 @@ def removeLayers(layer_list):
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in layer_list:
+                if lyr.longName in layer_list:
                     maps.removeLayer(lyr)
     except:
         pass
@@ -474,7 +474,7 @@ try:
         for maps in aprx.listMaps():
             for anno in anno_list:
                 for lyr in maps.listLayers(anno):
-                    mapLayersToRemove.append(lyr.name)
+                    mapLayersToRemove.append(lyr.longName)
         removeLayers(mapLayersToRemove)
         del mapLayersToRemove, anno_list
 

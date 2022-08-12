@@ -111,7 +111,7 @@ def removeLayers(layer_list):
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in layer_list:
+                if lyr.longName in layer_list:
                     maps.removeLayer(lyr)
     except:
         pass
@@ -167,7 +167,7 @@ def createSU():
     suAnnoString = "Site_Sampling_Units" + "Anno*"
     for maps in aprx.listMaps():
         for lyr in maps.listLayers(suAnnoString):
-            mapLayersToRemove.append(lyr.name)
+            mapLayersToRemove.append(lyr.longName)
 
     # Remove the layers
     removeLayers(mapLayersToRemove)
@@ -322,7 +322,7 @@ def createROP():
     ropAnnoString = "Site_ROPs" + "Anno*"
     for maps in aprx.listMaps():
         for lyr in maps.listLayers(ropAnnoString):
-            mapLayersToRemove.append(lyr.name)
+            mapLayersToRemove.append(lyr.longName)
 
     # Remove the layers
     removeLayers(mapLayersToRemove)
@@ -405,7 +405,7 @@ def createREF():
     refAnnoString = "Site_Reference_Points" + "Anno*"
     for maps in aprx.listMaps():
         for lyr in maps.listLayers(refAnnoString):
-            mapLayersToRemove.append(lyr.name)
+            mapLayersToRemove.append(lyr.longName)
 
     # Remove the layers
     removeLayers(mapLayersToRemove)
@@ -457,7 +457,7 @@ def createDRAIN():
     drainAnnoString = "Site_Drainage_Lines" + "Anno*"
     for maps in aprx.listMaps():
         for lyr in maps.listLayers(drainAnnoString):
-            mapLayersToRemove.append(lyr.name)
+            mapLayersToRemove.append(lyr.longName)
 
     # Remove the layers
     removeLayers(mapLayersToRemove)
@@ -835,7 +835,7 @@ try:
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in mapLayersToRemove:
+                if lyr.longName in mapLayersToRemove:
                     maps.removeLayer(lyr)
     except:
         pass
@@ -964,7 +964,7 @@ try:
     lyr_list = m.listLayers()
     lyr_name_list = []
     for lyr in lyr_list:
-        lyr_name_list.append(lyr.name)
+        lyr_name_list.append(lyr.longName)
         
     if suName not in lyr_name_list:
         suLyr_cp = suLyr.connectionProperties
@@ -1006,7 +1006,7 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in off_names:
-                if name in lyr.name:
+                if name in lyr.longName:
                     lyr.visible = False
 
     # Turn on the Site SU, ROP, Reference Points, and Drainage Lines layers
@@ -1014,7 +1014,7 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in on_names:
-                if (lyr.name).startswith(name):
+                if (lyr.longName).startswith(name):
                     lyr.visible = True
 
     

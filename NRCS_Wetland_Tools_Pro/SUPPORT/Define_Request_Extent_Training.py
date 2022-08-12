@@ -416,7 +416,7 @@ try:
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in mapLayersToRemove:
+                if lyr.longName in mapLayersToRemove:
                     maps.removeLayer(lyr)
     except:
         pass
@@ -659,7 +659,7 @@ try:
     lyr_list = m.listLayers()
     lyr_name_list = []
     for lyr in lyr_list:
-        lyr_name_list.append(lyr.name)
+        lyr_name_list.append(lyr.longName)
 
     if extentName not in lyr_name_list:
         extentLyr_cp = extentLyr.connectionProperties
@@ -684,7 +684,7 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in off_names:
-                if name in lyr.name:
+                if name in lyr.longName:
                     lyr.visible = False
 
     # Turn on Request Extent layer
@@ -692,7 +692,7 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in on_names:
-                if (lyr.name).startswith(name):
+                if (lyr.longName).startswith(name):
                     lyr.visible = True
 
 
