@@ -48,6 +48,9 @@
 ## rev. 02/25/2022
 ## - Debugged query/download function and related file cleanup
 ##
+## rev. 05/02/2022
+## - Updated Previously Certified data processing steps
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -102,13 +105,6 @@ def logBasicSettings():
     f.write("\tSelected Fields or Subfields?: " + str(selectFields) + "\n")
     f.close
     del f
-
-## ===============================================================================================================
-def changeSource(cur_lyr, new_ws, new_fc):
-    cp = cur_lyr.connectionProperties
-    cp['connection_info']['database'] = new_ws
-    cp['dataset'] = new_fc
-    cur_lyr.updateConnectionProperties(cur_lyr.connectionProperties, cp)
 
 ## ===============================================================================================================
 def deleteTempLayers(lyrs):
@@ -246,7 +242,7 @@ except:
 nrcsPortal = 'https://gis-testing.usda.net/portal/'
 portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
 if not portalToken:
-    arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
+    arcpy.AddError("Could not generate Portal token! Please login to GIS Testing Portal! Exiting...")
     exit()
     
 
@@ -285,17 +281,6 @@ try:
         exit()
 
 
-##    #### Do not run if an unsaved edits exist in the target workspace
-##    # Pro opens an edit session when any edit has been made and stays open until edits are committed with Save Edits.
-##    # Check for uncommitted edits and exit if found, giving the user a message directing them to Save or Discard them.
-##    workspace = basedataGDB_path
-##    edit = arcpy.da.Editor(workspace)
-##    if edit.isEditing:
-##        arcpy.AddError("\nYou have an active edit session. Please Save or Discard Edits and then run this tool again. Exiting...")
-##        exit()
-##    del workspace, edit
-
-
     #### Define Variables
     arcpy.AddMessage("Setting variables...\n")
     arcpy.SetProgressorLabel("Setting variables...")
@@ -314,7 +299,6 @@ try:
     wcGDB_path = wetDir + os.sep + wcGDB_name
     wcFD_name = "WC_Data"
     wcFD = wcGDB_path + os.sep + wcFD_name
-    #jfile = wetDir + os.sep + "jsonFile.json"
     
     projectCLU = basedataFD + os.sep + "Site_CLU"
     projectTract = basedataFD + os.sep + "Site_Tract"
@@ -331,20 +315,27 @@ try:
     tractTest = scratchGDB + os.sep + "Tract_Test_" + projectName
 
     intCWD = wcGDB_path + os.sep + "Intersected_CWD"
-    prevCert = wcFD + os.sep + "Previous_CWD"
-    prevCertSite = wcFD + os.sep + "Site_Previous_CWD"
-    prevCertMulti = scratchGDB + os.sep + "pCertMulti"
-    prevCertTemp1 = scratchGDB + os.sep + "pCertTemp"
+
+    origCert = wcFD + os.sep + "Previous_CLU_CWD_Original"
+    origAdmin = wcFD + os.sep + "Previous_CLU_CWD_Admin_Original"
+    origAdminTemp = scratchGDB + os.sep + "OrigAdminTemp"
+    
+    prevCertName = "Site_Previous_CLU_CWD"
+    prevCert = wcFD + os.sep + prevCertName
     prevAdmin = wcFD + os.sep + "Previous_Admin"
-    prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
+
     updatedCert = wcFD + os.sep + "Updated_Cert"
     updatedAdmin = wcFD + os.sep + "Updated_Admin"
+
+    prevCertMulti = scratchGDB + os.sep + "pCertMulti"
+    prevCertSingle = scratchGDB + os.sep + "pCertSingle"
+    prevCertTemp1 = scratchGDB + os.sep + "pCertTemp"
 
     out_shape_name = "Request_Extent.shp"
     out_shape = wetDir + os.sep + out_shape_name
     
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [extentTemp1, extentTemp2, extentTemp3, prevCertMulti, prevCertTemp1, tractTest, intCWD]
+    tempLayers = [extentTemp1, extentTemp2, extentTemp3, prevCertMulti, prevCertSingle, prevCertTemp1, tractTest, intCWD, origAdminTemp]
     deleteTempLayers(tempLayers)
 
 
@@ -414,29 +405,29 @@ try:
     del descGDB, domains
     
 
-    #### Remove existing sampling unit related layers from the Pro maps
-    AddMsgAndPrint("\nRemoving layers from project maps, if present...\n",0)
-    arcpy.SetProgressorLabel("Removing layers from project maps, if present...")
+    #### Remove existing extent layer from the Pro maps
+    AddMsgAndPrint("\nRemoving extent layer from project maps, if present...\n",0)
+    arcpy.SetProgressorLabel("Removing extent layer from project maps, if present...")
     
     # Set starting layers to be removed
-    mapLayersToRemove = [extentName]
+    mapLayersToRemove = [extentName, prevCertName]
     
     # Remove the layers in the list
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in mapLayersToRemove:
+                if lyr.longName in mapLayersToRemove:
                     maps.removeLayer(lyr)
     except:
         pass
 
 
-    #### Remove existing sampling unit related layers from the geodatabase
-    AddMsgAndPrint("\nRemoving layers from project database, if present...\n",0)
-    arcpy.SetProgressorLabel("Removing layers from project database, if present...")
+    #### Remove existing extent layer from the geodatabase
+    AddMsgAndPrint("\nRemoving extent layer from project database, if present...\n",0)
+    arcpy.SetProgressorLabel("Removing extent layer from project database, if present...")
     
     # Set starting datasets to remove
-    datasetsToRemove = [projectExtent]
+    datasetsToRemove = [projectExtent, origCert, origAdmin, prevCert, prevAdmin]
 
     # Remove the datasets in the list
     for dataset in datasetsToRemove:
@@ -497,32 +488,6 @@ try:
     arcpy.CalculateField_management(extentTemp2, fieldName, expression, "PYTHON_9.3")
     del expression, fieldName, fieldAlias, fieldLength
 
-##    # Add the acres field and calc it
-##    arcpy.AddField_management(extentTemp2, "acres", "DOUBLE", field_alias = "Acres")
-##    expression = "round(!Shape.Area@acres!,2)"
-##    arcpy.CalculateField_management(extentTemp2, "acres", expression, "PYTHON_9.3")
-##    del expression
-##
-##    # Add the request_date field and set it to current request's request date
-##    if arcpy.Exists(projectTable):
-##        fields = ['request_date']
-##        cursor = arcpy.da.SearchCursor(projectTable, fields)
-##        for row in cursor:
-##            rDate = row[0]
-##            break
-##        del cursor, fields
-##
-##        fields = ['request_date']
-##        cursor = arcpy.da.UpdateCursor(extentTemp2, fields)
-##        for row in cursor:
-##            row[0] = rDate
-##            cursor.updateRow(row)
-##        del cursor, fields
-##        
-##    else:
-##        AddMsgAndPrint("\nProject admin table does not exist. Run Tool A2. Enter Project Info. Exiting...",2)
-##        exit()
-
     # Delete extraneous fields from the extent layer
     existing_fields = []
     for fld in arcpy.ListFields(extentTemp2):
@@ -543,92 +508,107 @@ try:
     query_results_fc = queryIntersect(scratchGDB,wetDir, projectTract,cwdURL,intCWD)
 
     if arcpy.Exists(intCWD):
-    #if query_results_fc != False:
         # This section runs if any intersecting geometry is returned from the query
         AddMsgAndPrint("\tPrevious certifications found within current Tract! Processing...",0)
         arcpy.SetProgressorLabel("Previous certifications found within current Tract! Processing...")
         
-        # Use intersect to apply current tract data to the intCWD in case FSA CLU administrative info changed over time
-        arcpy.Intersect_analysis([projectTract, query_results_fc], prevCertMulti, "NO_FID", "#", "INPUT")
-        result = int(arcpy.GetCount_management(prevCertMulti).getOutput(0))
-        if result > 0:
-            # Explode features into single part
-            arcpy.MultipartToSinglepart_management(prevCertMulti, prevCert)
-            arcpy.Delete_management(prevCertMulti)
+        # Use intersect to apply current clu data to the intCWD in case FSA CLU administrative info changed over time
+        arcpy.Intersect_analysis([projectCLU, query_results_fc], prevCertMulti, "NO_FID", "#", "INPUT")
 
-            # Calculate the eval_status field to "Certified-Digital"
-            expression = "\"Certified-Digital\""
-            arcpy.CalculateField_management(prevCert, "eval_status", expression, "PYTHON_9.3")
-            del expression
+        # Explode features into single part
+        arcpy.MultipartToSinglepart_management(prevCertMulti, prevCertSingle)
+        arcpy.Delete_management(prevCertMulti)
 
-            # Transer the job_id_1 attributes to the job_id field
-            fields = ['job_id','job_id_1']
-            cursor = arcpy.da.UpdateCursor(prevCert, fields)
-            for row in cursor:
-                row[0] = row[1]
-                cursor.updateRow(row)
-            del fields
-            del cursor
-            
-            # Create the prevAdmin layer using Dissolve.
-            dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
-            arcpy.Dissolve_management(prevCert, prevAdmin, dis_fields, "", "SINGLE_PART", "")
-            del dis_fields
+        # Transer the job_id_1 attributes to the job_id field
+        fields = ['job_id','job_id_1']
+        cursor = arcpy.da.UpdateCursor(prevCertSingle, fields)
+        for row in cursor:
+            row[0] = row[1]
+            cursor.updateRow(row)
+        del fields
+        del cursor
 
-            # Also Delete excess tabular fields from the prevCert layer
-            existing_fields = []
-            drop_fields = ['job_id_1','admin_state_1','admin_state_name_1','admin_county_1','admin_county_name_1','state_code_1','state_name_1','county_code_1','county_name_1','farm_number_1',
-                           'tract_number_1', 'eval_status_1']
-            
-            for fld in arcpy.ListFields(prevCert):
-                existing_fields.append(fld.name)
-            
-            for fld in drop_fields:
-                if fld not in existing_fields:
-                    drop_fields.remove(fld)
-                    
-            if len(drop_fields) > 0:
-                arcpy.DeleteField_management(prevCert, drop_fields)
-                
-            del drop_fields, existing_fields
+        # Temporarily calc acres to zero to retain the field through the next dissolve
+        arcpy.CalculateField_management(prevCertSingle, "acres", 0, "PYTHON_9.3")
 
-            # Delete the intCWD
-            arcpy.management.Delete(intCWD)
-            del result
-            
-        else:
-            # Nothing in the intCWD layer due to boundary intersect. Delete the intCWD.
-            arcpy.management.Delete(intCWD)
-            arcpy.management.Delete(prevCertMulti)
+        # Dissolve the layer to potentially clean up slivers caused by old and new field lines (also removes all the "_1" and other extraneous fields)
+        dis_fields = ['job_id', 'admin_state', 'admin_state_name', 'admin_county', 'admin_county_name', 'state_code', 'state_name', 'county_code', 'county_name',
+                      'farm_number', 'tract_number', 'clu_number', 'eval_status', 'wetland_label', 'occur_year', 'acres', 'three_factors', 'request_date', 'request_type',
+                      'deter_method', 'deter_staff', 'dig_staff', 'dig_date', 'cwd_comments', 'cert_date']
+        arcpy.Dissolve_management(prevCertSingle, origCert, dis_fields, "", "SINGLE_PART", "")
+        del dis_fields
+
+        # Calculate the eval_status field to "Certified-Digital"
+        expression = "\"Certified-Digital\""
+        arcpy.CalculateField_management(origCert, "eval_status", expression, "PYTHON_9.3")
+        del expression
+
+        # Update the acres in the resulting layer
+        expression = "round(!Shape.Area@acres!,2)"
+        arcpy.CalculateField_management(origCert, "acres", expression, "PYTHON_9.3")
+
+        # Delete the orig_id field
+        drop_fields = ['ORIG_ID']
+        existing_fields = []
+        for fld in arcpy.ListFields(origCert):
+            existing_fields.append(fld.name)
+        for fld in drop_fields:
+            if fld not in existing_fields:
+                drop_fields.remove(fld)
+        if len(drop_fields) > 0:
+            arcpy.DeleteField_management(origCert, drop_fields)
+        del drop_fields, existing_fields
+        
+        # Create the origAdmin layer using Dissolve (drop anything from the Clu field or the wetland label level).
+        dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+        arcpy.Dissolve_management(origCert, origAdmin, dis_fields, "", "SINGLE_PART", "")
+        del dis_fields
+
+        # Also Delete orig_id field from the origAdmin layer
+        drop_fields = ['ORIG_ID']
+        existing_fields = []
+        for fld in arcpy.ListFields(origAdmin):
+            existing_fields.append(fld.name)
+        for fld in drop_fields:
+            if fld not in existing_fields:
+                drop_fields.remove(fld)
+        if len(drop_fields) > 0:
+            arcpy.DeleteField_management(origAdmin, drop_fields)
+        del drop_fields, existing_fields
+
+        # Create prevCert and prevAdmin layers
+        arcpy.CopyFeatures_management(origCert, prevCert)
+        arcpy.CopyFeatures_management(origAdmin, prevAdmin)
 
     else:
         AddMsgAndPrint("\tNo previous certifications found! Continuing...",0)
         arcpy.SetProgressorLabel("No previous certifications found! Continuing...")
-        if arcpy.Exists(prevAdmin):
+        if arcpy.Exists(origAdmin):
             try:
+                arcpy.Delete_management(origAdmin)
+                arcpy.Delete_management(origCert)
                 arcpy.Delete_management(prevAdmin)
                 arcpy.Delete_management(prevCert)
             except:
                 pass
 
 
-    #### Use the prevAdmin areas to update the request extent if there is overlap between them
-    if arcpy.Exists(prevAdmin):
+    #### Use the origAdmin areas to update the request extent if there is overlap between them
+    if arcpy.Exists(origAdmin):
         AddMsgAndPrint("Checking Request Extent relative to existing CWDs...",0)
         arcpy.SetProgressorLabel("Checking Request Extent relative to existing CWDs...")
 
-        # Clip the prevAdmin layer with the extent (also do a clip to create prevCertSite for future steps while we're at it)
-        arcpy.Clip_analysis(prevAdmin, extentTemp2, prevAdminSite)
-        arcpy.Clip_analysis(prevCert, extentTemp2, prevCertSite)
+        # Clip the origAdmin layer with the extent
+        arcpy.Clip_analysis(origAdmin, extentTemp2, origAdminTemp)
         
         # Check for any actual overlap
-        result = int(arcpy.GetCount_management(prevAdminSite).getOutput(0))
+        result = int(arcpy.GetCount_management(origAdminTemp).getOutput(0))
         if result > 0:
             AddMsgAndPrint("Existing CWDs found within Request Extent! Integrating CWD extents to the Request Extent...",0)
             arcpy.SetProgressorLabel("Existing CWDs found within Request Extent! Integrating CWD extents to the Request Extent...")
             # Previous CWDs overlap the Request Extent. Erase the prevAdmin from the new extent and use Append combine them
-            arcpy.Erase_analysis(extentTemp2, prevAdminSite, extentTemp3)
-            arcpy.Append_management(prevAdminSite, extentTemp3, "NO_TEST")
+            arcpy.Erase_analysis(extentTemp2, origAdminTemp, extentTemp3)
+            arcpy.Append_management(origAdminTemp, extentTemp3, "NO_TEST")
             arcpy.FeatureClassToFeatureClass_conversion(extentTemp3, basedataFD, extentName)
         else:
             # Previous CWDs do not overlap the Request Extent.
@@ -639,6 +619,8 @@ try:
         # There are no previous CWDs. Just use the newly defined extent.
         arcpy.FeatureClassToFeatureClass_conversion(extentTemp2, basedataFD, extentName)
 
+    # Transfer temporary extent layers into the request extent layer
+    arcpy.FeatureClassToFeatureClass_conversion(extentTemp2, basedataFD, extentName)
 
     #### Export Request Extent shapefile for users to have for external uses (e.g. WSS Reports)
     if arcpy.Exists(out_shape):
@@ -677,7 +659,7 @@ try:
     lyr_list = m.listLayers()
     lyr_name_list = []
     for lyr in lyr_list:
-        lyr_name_list.append(lyr.name)
+        lyr_name_list.append(lyr.longName)
 
     if extentName not in lyr_name_list:
         extentLyr_cp = extentLyr.connectionProperties
@@ -685,16 +667,9 @@ try:
         extentLyr_cp['dataset'] = extentName
         extentLyr.updateConnectionProperties(extentLyr.connectionProperties, extentLyr_cp)
         m.addLayer(extentLyr)
-    
-##    m.addLayer(extentLyr)
-##
-##    # Replace data sources of layer files from installed layers to the project layers
-##    # First get the current layers in the map
-##    extentNew = m.listLayers(extentName)[0]
-##
-##    # Call the function to change the data source via CIM
-##    changeSource(extentNew, basedataGDB_path, extentName)
 
+    if arcpy.Exists(prevCert):
+        arcpy.SetParameterAsText(5, prevCert)
 
     #### Clear selections from source AOI layer if it was used with selections
     if selectFields == 'Yes':
@@ -709,7 +684,7 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in off_names:
-                if name in lyr.name:
+                if name in lyr.longName:
                     lyr.visible = False
 
     # Turn on Request Extent layer
@@ -717,7 +692,7 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in on_names:
-                if (lyr.name).startswith(name):
+                if (lyr.longName).startswith(name):
                     lyr.visible = True
 
 

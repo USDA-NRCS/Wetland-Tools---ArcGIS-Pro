@@ -523,7 +523,7 @@ try:
     slopeName = "Site_Slope_Pct"
     hillName = "Site_Hillshade"
     depthName = "Site_Depth_Grid"
-    nwiName = "USFWS National Wetland Inventory"
+    nwiName = "Site_NWI"
     ssurgoGroup = "SSURGO Layers"
     muName = "SSURGO Mapunits"
     ecoName = "Ecological Classification Name"
@@ -579,6 +579,10 @@ try:
     wtrtblPDF = wetDir + os.sep + "Water_Table_" + projectName + ".pdf"
     metadataPDF = wetDir + os.sep + "SSURGO_Metadata_" + projectName + ".pdf"
 
+    PDFlist = [sitePDF, ctrPDF, demPDF, depthPDF, slopePDF, nwiPDF, soilPDF, drainPDF, ecoPDF,
+               floodPDF, hydricRatMuPDF, hydricRatCompPDF, hydrologicPDF, pondingPDF, wtrtblPDF,
+               metadataPDF]
+    
     if owLayouts == False:
         if os.path.exists(outPDF):
             count = 1
@@ -836,20 +840,24 @@ try:
         
     ## Setup the SSURGO Date text string on the soil map layout
     # Search the first row of the map units layer for the saversion and surveyareadate attributes
-    field_names = ['saversion','surveyareadate']
-    with arcpy.da.SearchCursor(project_soils, field_names) as cursor:
-        for row in cursor:
-            ssa_ver = str(row[0])
-            ver_date = row[1]
-            break
+    if arcpy.Exists(project_soils):
+        field_names = ['saversion','surveyareadate']
+        with arcpy.da.SearchCursor(project_soils, field_names) as cursor:
+            for row in cursor:
+                ssa_ver = str(row[0])
+                ver_date = row[1]
+                break
 
-    # Set the version string
-    if ssa_ver != '':
-        if ver_date != '':
-            fmt_ver_date = ver_date[5:7] + """/""" + ver_date[8:] + """/""" + ver_date[0:4]
-            version_string = "Survey Version: " + ssa_ver + ", " + fmt_ver_date
+        # Set the version string
+        if ssa_ver != '':
+            if ver_date != '':
+                fmt_ver_date = ver_date[5:7] + """/""" + ver_date[8:] + """/""" + ver_date[0:4]
+                version_string = "Survey Version: " + ssa_ver + ", " + fmt_ver_date
+            else:
+                version_string = "Survey Version: <Data missing>"
         else:
             version_string = "Survey Version: <Data missing>"
+
     else:
         version_string = "Survey Version: <Data missing>"
 
@@ -1662,12 +1670,13 @@ try:
     arcpy.SetProgressorLabel("Running cleanup...")
     # Delete the individual maps if they aren't being kept separately
     if multiLayouts == False:
-        AddMsgAndPrint("\tDeleting temporary PDF maps...",0)
-        for item in PDFlist:
-            try:
-                os.remove(item)
-            except:
-                pass
+        if owLayouts == True:
+            AddMsgAndPrint("\tDeleting temporary PDF maps...",0)
+            for item in PDFlist:
+                try:
+                    os.remove(item)
+                except:
+                    pass
 
     # Reset Elevation Layout Title
     elev_title_elm.text = "Elevation"

@@ -247,36 +247,6 @@ try:
         AddMsgAndPrint("\tAt least one ROP must exist in the Site ROPs layer!",2)
         AddMsgAndPrint("\tPlease digitize ROPs and then try again. Exiting...",2)
         exit()
-
-##    #### Delete attribute rules of SU & ROPs before processing.
-##    AddMsgAndPrint("\nDeleting attribute rules...",0)
-##    arcpy.SetProgressorLabel("Deleting attribute rules...")
-##    # Get a list of layers
-##    lyr_list = m.listLayers()
-##    
-##    # Get SU and ROP layer objects
-##    su_lyr = ''
-##    for lyr in lyr_list:
-##        if lyr.name == suName:
-##            su_lyr = lyr
-##    
-##    rop_lyr = ''
-##    for lyr in lyr_list:
-##        if lyr.name == ropName:
-##            rop_lyr = lyr
-##    
-##    # Delete the attribute rules
-##    if su_lyr != '':
-##        su_rule_delete = deleteRules(su_lyr, rules_su_names)
-##        if su_rule_delete == False:
-##            AddMsgAndPrint("\nCould not delete Sampling Unit layer rules. Exiting...",2)
-##            exit()
-##
-##    if rop_lyr != '':
-##        rop_rule_delete = deleteRules(rop_lyr, rules_rop_names)
-##        if rop_rule_delete == False:
-##            AddMsgAndPrint("\nCould not delete ROP layer rules. Exiting...",2)
-##            exit()
             
         
 ##    #### Remove the topology from the Pro maps, if present
@@ -658,9 +628,10 @@ try:
         AddMsgAndPrint("\tAt least one ROP does not have a ROP number assigned. Please correct and re-run. Exiting...\n",2)
         exit()
     
-    # No repeated ROP Numbers
+    # No repeated ROP Numbers on New Request and Revision SUs
     rop_list = []
     fields = ['rop_number']
+##    whereClause = "\"eval_status\" IN ('New Request', 'Revision')"
     cursor = arcpy.da.SearchCursor(projectROP, fields)
     for row in cursor:
         if row[0] not in rop_list:

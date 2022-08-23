@@ -86,7 +86,7 @@ def logBasicSettings():
         f.write("\tShow PLSS Location Text Box: True\n")
     else:
         f.write("\tShow PLSS Location Text Box: False\n")
-    if owLayout:
+    if owDetLayout:
         f.write("\tOverwrite Previous Determinations Map: True\n")
     else:
         f.write("\tOverwrite Previous Determinations Map: False\n")

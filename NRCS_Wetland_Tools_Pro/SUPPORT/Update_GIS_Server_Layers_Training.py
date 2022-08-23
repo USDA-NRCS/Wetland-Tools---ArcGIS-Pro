@@ -227,11 +227,15 @@ def del_by_intersect(ws, temp_dir, fc, RESTurl):
     arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
     jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
 
+    #Logic types for spatial relationship for testing:
+    #'spatialRelationship':'esriSpatialRelOverlaps',
+    #'spatialRelationship':'esriSpatialRelIntersects',
+
     # Setup parameters for deletion
     params = urllibEncode({'f': 'json',
                            'geometry':jsonPolygon,
                            'geometryType':'esriGeometryPolygon',
-                           'spatialRelationship':'esriSpatialRelOverlaps',
+                           'spatialRelationship':'esriSpatialRelIntersects',
                            'rollbackOnFailure':'true',
                            'returnDeleteResults':'false',
                            'token': portalToken['token']})
@@ -308,11 +312,15 @@ def queryIntersect(ws, temp_dir, fc, RESTurl, outFC):
     arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
     jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
 
+    #Logic types for spatial relationship for testing:
+    #'spatialRelationship':'esriSpatialRelOverlaps',
+    #'spatialRelationship':'esriSpatialRelIntersects',
+    
     # Setup parameters for query
     params = urllibEncode({'f': 'json',
                            'geometry':jsonPolygon,
                            'geometryType':'esriGeometryPolygon',
-                           'spatialRelationship':'esriSpatialRelOverlaps',
+                           'spatialRelationship':'esriSpatialRelIntersects',
                            'returnGeometry':'true',
                            'outFields':'*',
                            'token': portalToken['token']})
@@ -445,7 +453,10 @@ def update_polys_and_points(up_ws, up_temp_dir, proj_fc, up_RESTurl, local_temp,
 
                 # Also delete and upload remnant and new points if that parameter was called
                 if proj_pts != '':
+                    # Delete any points in the new areas (to be replaced)
                     del_by_intersect(up_ws, up_temp_dir, proj_fc, ptsURL)
+                    # Delete any points in the remnant areas (to be restored from pts_temp)
+                    del_by_intersect(up_ws, up_temp_dir, local_temp, ptsURL)
                     if fldmapping != '':
                         arcpy.management.Append(pts_temp, ptsURL, "NO_TEST", fldmapping)
                         arcpy.management.Append(proj_pts, ptsURL, "NO_TEST", fldmapping)
@@ -853,17 +864,6 @@ try:
     projectCLUCWD = wcFD + os.sep + cluCwdName
     cluCWDpts = wcFD + os.sep + cluCwdPtsName
     clucwd_server_copy = wcFD + os.sep + "CLUCWD_Server"
-    
-    prevCert = wcFD + os.sep + "Previous_CWD"
-    pcs_name = "Site_Previous_CWD"
-    prevCertSite = wcFD + os.sep + pcs_name
-    pccsName = "Site_Previous_CLU_CWD"
-    prevCluCertSite = wcFD + os.sep + pccsName
-
-    prevAdmin = wcFD + os.sep + "Previous_Admin"
-    prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
-    updatedCert = wcFD + os.sep + "Updated_Cert"
-    updatedAdmin = wcFD + os.sep + "Updated_Admin"
 
     poly_multi = scratchGDB + os.sep + "poly_multi"
     poly_single = scratchGDB + os.sep + "poly_single"

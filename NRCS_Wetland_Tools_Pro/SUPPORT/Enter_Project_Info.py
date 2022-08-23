@@ -370,6 +370,7 @@ try:
         arcpy.CreateFeatureDataset_management(wcGDB_path, "WC_Data", sr)
 
     # Copy the administrative table into the wetlands database for use with the attribute rules during digitizing
+    AddMsgAndPrint("\nUpdating administrative table in GDB...",0)
     if arcpy.Exists(wetDetTable):
         arcpy.Delete_management(wetDetTable)
     arcpy.TableToTable_conversion(projectTable, wcGDB_path, wetDetTableName)
@@ -377,11 +378,12 @@ try:
 
     #### Adjust layer visibility in maps
     # Turn off CLU layer
+    AddMsgAndPrint("\nUpdating layer visibility to off...",0)
     off_names = [cluName]
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in off_names:
-                if name in lyr.name:
+                if name in lyr.longName:
                     lyr.visible = False
 
     # Turn on DAOI layer
@@ -389,8 +391,9 @@ try:
     for maps in aprx.listMaps():
         for lyr in maps.listLayers():
             for name in on_names:
-                if (lyr.name).startswith(name):
+                if name in lyr.longName:
                     lyr.visible = True
+
 
     #### Compact FGDB
     try:

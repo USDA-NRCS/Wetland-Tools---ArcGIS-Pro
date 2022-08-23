@@ -29,6 +29,10 @@
 ## rev. 02/18/2022
 ## - Added steps to create Request Points and CLU CWD Points layers for the project for use in later upload steps
 ##
+## rev. 05/06/2022
+## - Adjusted processing to process new and previous determinations or previous determinations only
+## - Removed the process to create an 028 Alternate (aggregated) table due to complications presented by cert date
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -98,7 +102,7 @@ def removeLayers(layer_list):
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in layer_list:
+                if lyr.longName in layer_list:
                     maps.removeLayer(lyr)
     except:
         pass
@@ -135,17 +139,131 @@ def removeFCs(fc_list, wc='', ws ='', in_topos=''):
             except:
                 pass
 
+## ===============================================================================================================
+def build028(previous_cwds):
+    # Function to create tables to support creating 028 forms
 
+    # Do summary stats to make an acres table for use with the 028
+    AddMsgAndPrint("\nGenerating Previous CWD summary tables...\n",0)
+    arcpy.SetProgressorLabel("Generating Previous CWD summary tables...")
+    case_fields = ["farm_number", "tract_number", "clu_number", "wetland_label", "occur_year","cert_date"]
+    stats_fields = [['acres', 'SUM']]
+    arcpy.Statistics_analysis(previous_cwds, cluCWD028_unsort, stats_fields, case_fields)
+
+    # Sort the results
+    AddMsgAndPrint("\nSorting Previous CWD summary tables...\n",0)
+    arcpy.SetProgressorLabel("Sorting Previous CWD summary tables...")
+    sort_fields = [["clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
+    arcpy.management.Sort(cluCWD028_unsort, cluCWD028, sort_fields)
+    arcpy.management.Delete(cluCWD028_unsort)
+    del sort_fields
+
+##    # Do summary stats to make an alternate table that combines fields with matching labels for the 028
+##    AddMsgAndPrint("\nGenerating Previous CWD summary alternate tables...\n",0)
+##    arcpy.SetProgressorLabel("Generating Previous CWD summary alternate tables...")
+##    case_fields = ["farm_number", "tract_number", "wetland_label", "occur_year","cert_date"]
+##    stats_fields = [['clu_number','FIRST'],['acres', 'SUM']]
+##    arcpy.Statistics_analysis(previous_cwds, cluCWD028_unsort, stats_fields, case_fields)
+##
+##    # Sort the results
+##    AddMsgAndPrint("\nSorting Previous CWD alternate summary tables...\n",0)
+##    arcpy.SetProgressorLabel("Sorting Previous CWD atlernate summary tables...")
+##    sort_fields = [["FIRST_clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
+##    arcpy.management.Sort(cluCWD028_unsort, cluCWD028_temp, sort_fields)
+##    arcpy.management.Delete(cluCWD028_unsort)
+##    del sort_fields
+##    
+##    # Make a list of the labels in the new table
+##    AddMsgAndPrint("\nMaking a list of labels...\n",0)
+##    arcpy.SetProgressorLabel("Making a list of labels...")
+##    alt_028_labels = []
+##    search_fields = ['wetland_label','occur_year']
+##    with arcpy.da.SearchCursor(cluCWD028_temp, search_fields) as cursor:
+##        for row in cursor:
+##            if row[1] is None:
+##                value = row[0]
+##            else:
+##                value = row[0] + row[1]
+##            if value not in alt_028_labels:
+##                alt_028_labels.append(value)
+##
+##    # Use the list of labels to search the previous data and create a dictionary of labels to clu fields
+##    AddMsgAndPrint("\nMaking a dictionary of labels...\n",0)
+##    arcpy.SetProgressorLabel("Making a dictionary of labels...")
+##    dict_028_alt = {}            
+##    search_fields = ['clu_number','wetland_label','occur_year']
+##    for item in alt_028_labels:
+##        with arcpy.da.SearchCursor(previous_cwds, search_fields) as cursor:
+##            for row in cursor:
+##                if row[2] is None:
+##                    value = row[1]
+##                else:
+##                    value = row[1] + row[2]
+##                if item == value:
+##                    # This row has a field with the wetland label + occur year being searched. Add it to the dictionary
+##                    # check if the item is in the dict keys already
+##                    if item in dict_028_alt.keys():
+##                        # label is in dictionary, check if clu field is already in dictionary for that label and add if not
+##                        if (item, row[2]) not in dict_028_alt.items():
+##                            #append the current row's field
+##                            dict_028_alt[item] = dict_028_alt[item] + ", " + row[0]
+##                    else:
+##                        # label not in keys yet, add key and first field
+##                        dict_028_alt[item] = row[0]
+##                        
+##    # Dictionary populated with all fields (values) that go with each label + occur year (key)
+##    # Examine the values in the dictionary and sort any sets of field numbers
+##    AddMsgAndPrint("\nSorting dictionary...\n",0)
+##    arcpy.SetProgressorLabel("Sorting dictionary...")
+##    for key in dict_028_alt.keys():
+##        v = dict_028_alt[key]
+##        if ", " in v:
+##            split_list = v.split(", ")
+##            integer_list = sorted(list(map(int, split_list)))
+##            string_ints = [str(int) for int in integer_list]
+##            str_of_ints = ", ".join(string_ints)
+##            dict_028_alt[key]=str_of_ints
+##    
+##    # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
+##    AddMsgAndPrint("\nTransferring values back to table...\n",0)
+##    arcpy.SetProgressorLabel("Transferring values back to table...")
+##    arcpy.management.AddField(cluCWD028_temp, "clu_number", 'TEXT', '', '', 512)
+##    field_names = ['wetland_label','occur_year','clu_number']
+##    with arcpy.da.UpdateCursor(cluCWD028_temp, field_names) as cursor:
+##        for row in cursor:
+##            if row[1] is None:
+##                value = row[0]
+##            else:
+##                value = row[0] + row[1]
+##            row[2] = dict_028_alt[value]
+##            cursor.updateRow(row)
+##
+####    # Delete excess fields
+####    existing_fields = []
+####    for fld in arcpy.ListFields(cluCWD028_temp):
+####        existing_fields.append(fld.name)
+####    drop_fields = ['FIRST_clu_number']
+####    for fld in drop_fields:
+####        if fld not in existing_fields:
+####            drop_fields.remove(fld)
+####    if len(drop_fields) > 0:
+####        arcpy.DeleteField_management(cluCWD028_temp, drop_fields)
+####    del drop_fields, existing_fields
+####
+####    return cluCWD028_temp
+##
+##    # Convert the table
+##    AddMsgAndPrint("\nConverting the table...\n",0)
+##    arcpy.SetProgressorLabel("Converting the table...")
+##    field_mapping="farm_number \"Farm Number\" true true false 7 Text 0 0,First,#,CLU_CWD_028_temp,farm_number,0,7;tract_number \"Tract Number\" true true false 7 Text 0 0,First,#,CLU_CWD_028_temp,tract_number,0,7;clu_number \"clu_number\" true true false 512 Text 0 0,First,#,CLU_CWD_028_temp,clu_number,0,512;wetland_label \"Wetland Label\" true true false 12 Text 0 0,First,#,CLU_CWD_028_temp,wetland_label,0,12;occur_year \"Occurrence Year\" true true false 4 Text 0 0,First,#,CLU_CWD_028_temp,occur_year,0,4;cert_date \"Certification Date\" true true false 8 Double 0 0,First,#,CLU_CWD_028_temp,cert_date,-1,-1;FREQUENCY \"FREQUENCY\" true true false 4 Long 0 0,First,#,CLU_CWD_028_temp,FREQUENCY,-1,-1;SUM_acres \"SUM_acres\" true true false 8 Double 0 0,First,#,CLU_CWD_028_temp,SUM_acres,-1,-1"
+##    arcpy.TableToTable_conversion(cluCWD028_temp, wcGDB_path, name028_alt, "", field_mapping)
+##
+##    # Delete the temp table
+##    arcpy.management.Delete(cluCWD028_temp)
+    
 ## ===============================================================================================================
 #### Import system modules
 import arcpy, sys, os, traceback, re, shutil, csv
-from importlib import reload
-sys.dont_write_bytecode=True
-scriptPath = os.path.dirname(sys.argv[0])
-sys.path.append(scriptPath)
-
-import extract_CLU_by_Tract
-reload(extract_CLU_by_Tract)
 
 
 #### Update Environments
@@ -164,43 +282,49 @@ except:
     exit()
 
 
-###### Check GeoPortal Connection
-###nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
-##nrcsPortal = 'https://gis-testing.usda.net/portal/'
-##portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
-##if not portalToken:
-##    arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
-##    exit()
-    
-
 #### Main procedures
 try:
     #### Inputs
     arcpy.AddMessage("Reading inputs...\n")
     arcpy.SetProgressorLabel("Reading inputs...")
     sourceCWD = arcpy.GetParameterAsText(0)
+    PrevOnly = arcpy.GetParameter(3)
+    sourcePrevCWD = arcpy.GetParameterAsText(4)
     
 
-    #### Initial Validations
+    #### Initial Validations and set base path
     arcpy.AddMessage("Verifying inputs...\n")
     arcpy.SetProgressorLabel("Verifying inputs...")
-    # If CWD or PJW layers have features selected, clear the selections so that all features from it are processed.
-    try:
-        clear_lyr1 = m.listLayers(sourceCWD)[0]
-        clear_lyr2 = m.listLayers("Site_PJW")[0]
-        arcpy.SelectLayerByAttribute_management(clear_lyr1, "CLEAR_SELECTION")
-        arcpy.SelectLayerByAttribute_management(clear_lyr2, "CLEAR_SELECTION")
-    except:
-        pass
     
-                
-    #### Set base path
-    sourceCWD_path = arcpy.Describe(sourceCWD).CatalogPath
-    if sourceCWD_path.find('.gdb') > 0 and sourceCWD_path.find('Determinations') > 0 and sourceCWD_path.find('Site_CWD') > 0:
-        wcGDB_path = sourceCWD_path[:sourceCWD_path.find('.gdb')+4]
+    if PrevOnly == True:
+        if len(sourcePrevCWD) > 0:
+            sourceCWD_path = arcpy.Describe(sourcePrevCWD).CatalogPath
+            if sourceCWD_path.find('.gdb') > 0 and sourceCWD_path.find('Determinations') > 0 and sourceCWD_path.find('Site_Previous_CLU_CWD') > 0:
+                wcGDB_path = sourceCWD_path[:sourceCWD_path.find('.gdb')+4]
+            else:
+                arcpy.AddError("\nSelected Site Previous CLU CWD layer is not from a Determinations project folder. Exiting...")
+                exit()
+        else:
+            arcpy.AddError("\nSelected 028 Report only option, but did not select Site Previous CLU CWD layer in the dropdown added dropdown. Exiting...")
+            exit()
     else:
-        arcpy.AddError("\nSelected CWD layer is not from a Determinations project folder. Exiting...")
-        exit()
+        if len(sourceCWD) > 0:
+            sourceCWD_path = arcpy.Describe(sourceCWD).CatalogPath
+            if sourceCWD_path.find('.gdb') > 0 and sourceCWD_path.find('Determinations') > 0 and sourceCWD_path.find('Site_CWD') > 0:
+                wcGDB_path = sourceCWD_path[:sourceCWD_path.find('.gdb')+4]
+            else:
+                arcpy.AddError("\nSelected CWD layer is not from a Determinations project folder. Exiting...")
+                exit()
+            try:
+                clear_lyr1 = m.listLayers(sourceCWD)[0]
+                clear_lyr2 = m.listLayers("Site_PJW")[0]
+                arcpy.SelectLayerByAttribute_management(clear_lyr1, "CLEAR_SELECTION")
+                arcpy.SelectLayerByAttribute_management(clear_lyr2, "CLEAR_SELECTION")
+            except:
+                pass
+        else:
+            arcpy.AddError("\nSite CWD layer not selected from the first dropdown. Exiting...")
+            exit()
 
 
     #### Define Variables
@@ -264,18 +388,16 @@ try:
     clucwd_multi = scratchGDB + os.sep + "clucwd_multi"
     clucwd_single = scratchGDB + os.sep + "clucwd_single"
     cluCWDpts = wcFD + os.sep + cluCwdPtsName
-    
-    prevCert = wcFD + os.sep + "Previous_CWD"
-    psc_name = "Site_Previous_CWD"
-    prevCertSite = wcFD + os.sep + psc_name
-    pccsName = "Site_Previous_CLU_CWD"
-    prevCluCertSite = wcFD + os.sep + pccsName
-    pccs_multi = scratchGDB + "pccs_multi"
-    pccs_single = scratchGDB + "pccs_single"
+
+    origCert = wcFD + os.sep + "Previous_CLU_CWD_Original"
+    origAdmin = wcFD + os.sep + "Previous_CLU_CWD_Admin_Original"
+
+    prevCertName = "Site_Previous_CLU_CWD"
+    prevCert = wcFD + os.sep + prevCertName
     prevAdmin = wcFD + os.sep + "Previous_Admin"
-    prevAdminSite = wcFD + os.sep + "Site_Previous_Admin"
-    updatedCert = wcFD + os.sep + "Updated_Cert"
-    updatedAdmin = wcFD + os.sep + "Updated_Admin"
+
+    updatedCert = scratchGDB + os.sep + "Updated_Cert"
+    updatedAdmin = scratchGDB + os.sep + "Updated_Admin"
 
     name026_unsort = "CLU_CWD_026_unsorted"
     name026 = "CLU_CWD_026"
@@ -302,7 +424,7 @@ try:
     excel028_alt = wetDir + os.sep + "CLU_CWD_028_alt.xlsx"
 
     # Temp layers list for cleanup at the start and at the end
-    tempLayers = [clucwd_multi, clucwd_single, pccs_multi, pccs_single, cluCWD026_unsort, cluCWD028_unsort]
+    tempLayers = [clucwd_multi, clucwd_single, updatedCert, updatedAdmin, cluCWD026_unsort, cluCWD028_unsort]
     deleteTempLayers(tempLayers)
 
 
@@ -341,273 +463,186 @@ try:
         break
     del cursor, fields
 
+    if PrevOnly == False:
+        #### Remove existing layers from the map and database to be regenerated
+        # Set layers to remove from the map
+        AddMsgAndPrint("\nRemoving CLU CWD layers from map...\n",0)
+        arcpy.SetProgressorLabel("Removing CLU CWD layers from map...")
+        mapLayersToRemove = [cluCwdName]
+        clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
+        anno_list = [clucwdAnnoString]
+        for maps in aprx.listMaps():
+            for anno in anno_list:
+                for lyr in maps.listLayers(anno):
+                    mapLayersToRemove.append(lyr.longName)
+        removeLayers(mapLayersToRemove)
+        del mapLayersToRemove, anno_list
 
-    #### Remove existing layers from the map and database to be regenerated
-    # Set layers to remove from the map
-    AddMsgAndPrint("\nRemoving CLU_CWD related layers from project maps, if present...\n",0)
-    arcpy.SetProgressorLabel("Removing map finishing layers, if present...")
-    mapLayersToRemove = [cluCwdName, psc_name]
-    clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
-    prevAnnoString = "Site_Previous_CLU_CWD" + "Anno*"
-    anno_list = [clucwdAnnoString, prevAnnoString]
-    for maps in aprx.listMaps():
-        for anno in anno_list:
-            for lyr in maps.listLayers(anno):
-                mapLayersToRemove.append(lyr.name)
-    removeLayers(mapLayersToRemove)
-    del mapLayersToRemove, anno_list
-
-    AddMsgAndPrint("\nRemoving CLU_CWD related layers from project database, if present...\n",0)
-    datasetsToRemove = [cluCWD, prevCertSite]
-    #toposToRemove = []
-    wildcard = '*CLU_CWD*'
-    wkspace = wcGDB_path
-    removeFCs(datasetsToRemove, wildcard, wkspace)
-    del datasetsToRemove, wildcard, wkspace
+        AddMsgAndPrint("\nRemoving CLU CWD layers from project database...\n",0)
+        datasetsToRemove = [cluCWD, cluCWDpts, projectSum, projectSumPts]
+        #toposToRemove = []
+        wildcard = '*CLU_CWD*'
+        wkspace = wcGDB_path
+        removeFCs(datasetsToRemove, wildcard, wkspace)
+        del datasetsToRemove, wildcard, wkspace
     
     
-    #### Main data processing sequence
-    ## Handle previously certified layers, if present.
-    # Check for a previously certified layer and intersect it with CLUs to get a layer/table suitable for 028 maps and forms
-    if arcpy.Exists(prevAdmin):
-        AddMsgAndPrint("\nProcessing previously certified areas...\n",0)
-        arcpy.SetProgressorLabel("Processing previous CWD areas...")
-        if arcpy.Exists(updatedAdmin):
-            # Use the updatedCert to create a previous certifications layer with current clu fields
-            if arcpy.Exists(prevCluCertSite):
-                arcpy.Delete_management(prevCluCertSite)
-            arcpy.CreateFeatureclass_management(wcFD, pccsName, "POLYGON", templatePrevCLUCWD)
-            arcpy.Intersect_analysis([projectCLU, updatedCert], pccs_multi, "NO_FID", "#", "INPUT")
-            arcpy.MultipartToSinglepart_management(pccs_multi, pccs_single)
-            arcpy.Append_management(pccs_single, prevCluCertSite, "NO_TEST")
+    #### Handle previously certified layers, if present
+    # Check for previously certified layers in the project (from Define Request Extent, or subsequent process step updates)
+    if arcpy.Exists(origAdmin):        
+        # Confirm updated acres
+        if arcpy.Exists(prevCert):
+            # Previous Cert exists and should be used to set the 028
+            AddMsgAndPrint("\nProcessing previously certified areas...\n",0)
+            arcpy.SetProgressorLabel("Processing previously certified areas...")
+
+            # Update acres
+            expression = "round(!Shape.Area@acres!,2)"
+            arcpy.CalculateField_management(prevCert, "acres", expression, "PYTHON_9.3")
+            del expression
+
+            # Build an 028 Form
+            AddMsgAndPrint("\nUsing Site Previous CLU CWD layer...\n",0)
+            arcpy.SetProgressorLabel("Using Site Previous CLU CWD layer...")
+            build028(prevCert)
+
+            
         else:
-            # Use the prevcert to create a previous certifications layer with current clu fields
-            if arcpy.Exists(prevCluCertSite):
-                arcpy.Delete_management(prevCluCertSite)
-            arcpy.CreateFeatureclass_management(wcFD, pccsName, "POLYGON", templatePrevCLUCWD)
-            arcpy.Intersect_analysis([projectCLU, prevCert], pccs_multi, "NO_FID", "#", "INPUT")
-            arcpy.MultipartToSinglepart_management(pccs_multi, pccs_single)
-            arcpy.Append_management(pccs_single, prevCluCertSite, "NO_TEST")
+            # Previous Cert doesn't exist or was replaced fully. Original Cert would be used for an 028, if needed.
+            if arcpy.Exists(origCert):
 
-        # Update acres
-        expression = "round(!Shape.Area@acres!,2)"
-        arcpy.CalculateField_management(prevCluCertSite, "acres", expression, "PYTHON_9.3")
-        del expression
+                # Update acres
+                expression = "round(!Shape.Area@acres!,2)"
+                arcpy.CalculateField_management(origCert, "acres", expression, "PYTHON_9.3")
+                del expression
 
-        # Do summary stats to make an acres table for use with the 028
-        AddMsgAndPrint("\nGenerating Previous_CLU_CWD summary tables...\n",0)
-        arcpy.SetProgressorLabel("Generating Previous CWD summary tables...")
-        case_fields = ["farm_number", "tract_number", "clu_number", "wetland_label", "occur_year","cert_date"]
-        stats_fields = [['acres', 'SUM']]
-        arcpy.Statistics_analysis(prevCluCertSite, cluCWD028_unsort, stats_fields, case_fields)
-        # Sort the results
-        sort_fields = [["clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
-        arcpy.management.Sort(cluCWD028_unsort, cluCWD028, sort_fields)
-        arcpy.management.Delete(cluCWD028_unsort)
-        del sort_fields
-
-        # Do summary stats to make an alternate table that combines fields with matching labels for the 028
-        case_fields = ["farm_number", "tract_number", "wetland_label", "occur_year","cert_date"]
-        stats_fields = [['clu_number','FIRST'],['acres', 'SUM']]
-        arcpy.Statistics_analysis(prevCluCertSite, cluCWD028_unsort, stats_fields, case_fields)
-        # Sort the results
-        sort_fields = [["clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
-        arcpy.management.Sort(cluCWD028_unsort, cluCWD028_temp, sort_fields)
-        arcpy.management.Delete(cluCWD028_unsort)
-        del sort_fields
-        
-        # Make a list of the labels in the new table
-        alt_028_labels = []
-        search_fields = ['wetland_label','occur_year']
-        with arcpy.da.SearchCursor(cluCWD028_temp, search_fields) as cursor:
-            for row in cursor:
-                if row[1] is None:
-                    value = row[0]
-                else:
-                    value = row[0] + row[1]
-                if value not in alt_028_labels:
-                    alt_028_labels.append(value)
-        # Use the list of labels to search the previous data and create a dictionary of labels to clu fields
-        dict_028_alt = {}            
-        search_fields = ['clu_number','wetland_label','occur_year']
-        for item in alt_028_labels:
-            with arcpy.da.SearchCursor(prevCluCertSite, search_fields) as cursor:
-                for row in cursor:
-                    if row[2] is None:
-                        value = row[1]
-                    else:
-                        value = row[1] + row[2]
-                    if item == value:
-                        # This row has a field with the wetland label + occur year being searched. Add it to the dictionary
-                        # check if the item is in the dict keys already
-                        if item in dict_028_alt.keys():
-                            # label is in dictionary, check if clu field is already in dictionary for that label and add if not
-                            if (item, row[2]) not in dict_028_alt.items():
-                                #append the current row's field
-                                dict_028_alt[item] = dict_028_alt[item] + ", " + row[0]
-                        else:
-                            # label not in keys yet, add key and first field
-                            dict_028_alt[item] = row[0]
-                            
-        # Dictionary populated with all fields (values) that go with each label + occur year (key)
-        # Examine the values in the dictionary and sort any sets of field numbers
-        for key in dict_028_alt.keys():
-            v = dict_028_alt[key]
-            if ", " in v:
-                split_list = v.split(", ")
-                integer_list = sorted(list(map(int, split_list)))
-                string_ints = [str(int) for int in integer_list]
-                str_of_ints = ", ".join(string_ints)
-                dict_028_alt[key]=str_of_ints
-        
-        # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
-        arcpy.management.AddField(cluCWD028_temp, "clu_number", 'TEXT', '', '', 512)
-        field_names = ['wetland_label','occur_year','clu_number']
-        with arcpy.da.UpdateCursor(cluCWD028_temp, field_names) as cursor:
-            for row in cursor:
-                if row[1] is None:
-                    value = row[0]
-                else:
-                    value = row[0] + row[1]
-                row[2] = dict_028_alt[value]
-                cursor.updateRow(row)
-
-        # Convert the temp table to the final alt table, then delete the temp table
-##        # Build field mapping for the conversion
-##        fm = arcpy.FieldMap()
-##        fms = arcpy.FieldMappings()
-##        fm.addInputField(cluCWD028_temp, 'farm_number')
-##        fm.addInputField(cluCWD028_temp, 'tract_number')
-##        fm.addInputField(cluCWD028_temp, 'clu_number')
-##        fm.addInputField(cluCWD028_temp, 'wetland_label')
-##        fm.addInputField(cluCWD028_temp, 'occur_year')
-##        fm.addInputField(cluCWD028_temp, 'cert_date')
-##        fm.addInputField(cluCWD028_temp, 'FREQUENCY')
-##        fm.addInputField(cluCWD028_temp, 'SUM_acres')
-##        fms.addFieldMap(fm)
-        # Convert the table
-        field_mapping="farm_number \"Farm Number\" true true false 7 Text 0 0,First,#,CLU_CWD_028_temp,farm_number,0,7;tract_number \"Tract Number\" true true false 7 Text 0 0,First,#,CLU_CWD_028_temp,tract_number,0,7;clu_number \"clu_number\" true true false 512 Text 0 0,First,#,CLU_CWD_028_temp,clu_number,0,512;wetland_label \"Wetland Label\" true true false 12 Text 0 0,First,#,CLU_CWD_028_temp,wetland_label,0,12;occur_year \"Occurrence Year\" true true false 4 Text 0 0,First,#,CLU_CWD_028_temp,occur_year,0,4;FREQUENCY \"FREQUENCY\" true true false 4 Long 0 0,First,#,CLU_CWD_028_temp,FREQUENCY,-1,-1;SUM_acres \"SUM_acres\" true true false 8 Double 0 0,First,#,CLU_CWD_028_temp,SUM_acres,-1,-1"
-        arcpy.TableToTable_conversion(cluCWD028_temp, wcGDB_path, name028_alt, fms)
-        # Delete the temp table
-        arcpy.management.Delete(cluCWD028_temp)
-        
-
-    ## Create the CLU CWD layer suitable for 026 maps and forms
-    AddMsgAndPrint("\nCreating CLU_CWD Layer...\n",0)
-    arcpy.SetProgressorLabel("Creating CLU CWD layer...")
-        
-    # Intersect the projectCLU and projectCWD layers
-    if arcpy.Exists(cluCWD):
-        arcpy.Delete_management(cluCWD)
-    arcpy.CreateFeatureclass_management(wcFD, cluCwdName, "POLYGON", templateCLUCWD)
-    arcpy.Intersect_analysis([projectCLU, projectCWD], clucwd_multi, "NO_FID", "#", "INPUT")
-    arcpy.MultipartToSinglepart_management(clucwd_multi, clucwd_single)
-    arcpy.Append_management(clucwd_single, cluCWD, "NO_TEST")
-
-    # Update acres
-    expression = "round(!Shape.Area@acres!,2)"
-    arcpy.CalculateField_management(cluCWD, "acres", expression, "PYTHON_9.3")
-    del expression
-
-    # Do summary stats to make an acres table for use with the 026
-    AddMsgAndPrint("\nGenerating CLU_CWD summary tables...\n",0)
-    arcpy.SetProgressorLabel("Generating CLU CWD summary tables...")
-    case_fields = ["farm_number","tract_number","clu_number", "wetland_label", "occur_year"]
-    stats_fields = [['acres', 'SUM']]
-    arcpy.Statistics_analysis(cluCWD, cluCWD026_unsort, stats_fields, case_fields)
-    # Sort the results
-    sort_fields = [["clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
-    arcpy.management.Sort(cluCWD026_unsort, cluCWD026, sort_fields)
-    arcpy.management.Delete(cluCWD026_unsort)
-    del sort_fields
-
-    # Do summary stats to make an alternate table that combines fields with matching labels for the 026
-    case_fields = ["farm_number", "tract_number", "wetland_label", "occur_year"]
-    stats_fields = [['clu_number','FIRST'],['acres', 'SUM']]
-    arcpy.Statistics_analysis(cluCWD, cluCWD026_unsort, stats_fields, case_fields)
-    # Sort the results
-    sort_fields = [["FIRST_clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
-    arcpy.management.Sort(cluCWD026_unsort, cluCWD026_temp, sort_fields)
-    arcpy.management.Delete(cluCWD026_unsort)
-    del sort_fields
-    
-    # Make a list of the labels in the new table
-    alt_026_labels = []
-    search_fields = ['wetland_label','occur_year']
-    with arcpy.da.SearchCursor(cluCWD026_temp, search_fields) as cursor:
-        for row in cursor:
-            if row[1] is None:
-                value = row[0]
-            else:
-                value = row[0] + row[1]
-            if value not in alt_026_labels:
-                alt_026_labels.append(value)
-    # Use the list of labels to search the previous data and create a dictionary of labels to clu fields
-    dict_026_alt = {}
-    search_fields = ['clu_number','wetland_label','occur_year']
-    for item in alt_026_labels:
-        with arcpy.da.SearchCursor(cluCWD, search_fields) as cursor:
-            for row in cursor:
-                if row[2] is None:
-                    value = row[1]
-                else:
-                    value = row[1] + row[2]
-                if item == value:
-                    # This row has a field with the wetland label + occur year being searched. Add it to the dictionary
-                    # check if the item is in the dict keys already
-                    if item in dict_026_alt.keys():
-                        # label is in dictionary, check if clu field is already in dictionary for that label and add if not
-                        if (item, row[2]) not in dict_026_alt.items():
-                            #append the current row's field
-                            dict_026_alt[item] = dict_026_alt[item] + ", " + row[0]
-                    else:
-                        # label not in keys yet, add key and first field
-                        dict_026_alt[item] = row[0]
-                        
-    # Dictionary populated with all fields (values) that go with each label + occur year (key)
-    # Examine the values in the dictionary, remove duplicate field numbers with each label and sort field numbers
-    for key in dict_026_alt.keys():
-        v = dict_026_alt[key]
-        if ", " in v:
-            split_list = v.split(", ")
-            integer_list = sorted(list(map(int, set(split_list))))
-            string_ints = [str(int) for int in integer_list]
-            str_of_ints = ", ".join(string_ints)
-            dict_026_alt[key]=str_of_ints
+                # Build an 028 Form
+                AddMsgAndPrint("\nUsing Original Previous CLU CWD layer...\n",0)
+                arcpy.SetProgressorLabel("Using Origial Previous CLU CWD layer...")
+                build028(origCert)
                 
-    # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
-    arcpy.management.AddField(cluCWD026_temp, "clu_number", 'TEXT', '', '', 512)
-    field_names = ['wetland_label','occur_year','clu_number']
-    with arcpy.da.UpdateCursor(cluCWD026_temp, field_names) as cursor:
-        for row in cursor:
-            if row[1] is None:
-                value = row[0]
-            else:
-                value = row[0] + row[1]
-            row[2] = dict_026_alt[value]
-            cursor.updateRow(row)
 
-    # Convert the temp table to the final alt table, then delete the temp table
-##    # Build field mapping for the conversion
-##    fm = arcpy.FieldMap()
-##    fms = arcpy.FieldMappings()
-##    fm.addInputField(cluCWD026_temp, 'farm_number')
-##    fm.addInputField(cluCWD026_temp, 'tract_number')
-##    fm.addInputField(cluCWD026_temp, 'clu_number')
-##    fm.addInputField(cluCWD026_temp, 'wetland_label')
-##    fm.addInputField(cluCWD026_temp, 'occur_year')
-##    fm.addInputField(cluCWD026_temp, 'FREQUENCY')
-##    fm.addInputField(cluCWD026_temp, 'SUM_acres')
-##    fms.addFieldMap(fm)
-    # Convert the table
-    field_mapping="farm_number \"Farm Number\" true true false 7 Text 0 0,First,#,CLU_CWD_026_temp,farm_number,0,7;tract_number \"Tract Number\" true true false 7 Text 0 0,First,#,CLU_CWD_026_temp,tract_number,0,7;clu_number \"clu_number\" true true false 512 Text 0 0,First,#,CLU_CWD_026_temp,clu_number,0,512;wetland_label \"Wetland Label\" true true false 12 Text 0 0,First,#,CLU_CWD_026_temp,wetland_label,0,12;occur_year \"Occurrence Year\" true true false 4 Text 0 0,First,#,CLU_CWD_026_temp,occur_year,0,4;FREQUENCY \"FREQUENCY\" true true false 4 Long 0 0,First,#,CLU_CWD_026_temp,FREQUENCY,-1,-1;SUM_acres \"SUM_acres\" true true false 8 Double 0 0,First,#,CLU_CWD_026_temp,SUM_acres,-1,-1"
-    arcpy.TableToTable_conversion(cluCWD026_temp, wcGDB_path, name026_alt, "", field_mapping)
-    # Delete the temp table
-    arcpy.management.Delete(cluCWD026_temp)
-    
-    # Update the extent characteristics of the Site_CLU_CWD layer
-    arcpy.RecalculateFeatureClassExtent_management(cluCWD)
-    
+    #### Create current CLU CWD if the parameter and data exist
+    if PrevOnly == False:
+        if len(sourceCWD) > 0:
+            if arcpy.Exists(projectCWD):
+            
+                # Create a CLU CWD layer suitable for 026 maps and forms
+                AddMsgAndPrint("\nCreating CLU_CWD Layer...\n",0)
+                arcpy.SetProgressorLabel("Creating CLU CWD layer...")
+            
+                # Intersect the projectCLU and projectCWD layers and then append them to a newly created cluCWD layer
+                arcpy.CreateFeatureclass_management(wcFD, cluCwdName, "POLYGON", templateCLUCWD)
+                arcpy.Intersect_analysis([projectCLU, projectCWD], clucwd_multi, "NO_FID", "#", "INPUT")
+                arcpy.MultipartToSinglepart_management(clucwd_multi, clucwd_single)
+                arcpy.Append_management(clucwd_single, cluCWD, "NO_TEST")
+
+                # Update acres
+                expression = "round(!Shape.Area@acres!,2)"
+                arcpy.CalculateField_management(cluCWD, "acres", expression, "PYTHON_9.3")
+                del expression
+
+                # Do summary stats to make an acres table for use with the 026
+                AddMsgAndPrint("\nGenerating CLU_CWD summary tables...\n",0)
+                arcpy.SetProgressorLabel("Generating CLU CWD summary tables...")
+                case_fields = ["farm_number","tract_number","clu_number", "wetland_label", "occur_year"]
+                stats_fields = [['acres', 'SUM']]
+                arcpy.Statistics_analysis(cluCWD, cluCWD026_unsort, stats_fields, case_fields)
+                # Sort the results
+                sort_fields = [["clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
+                arcpy.management.Sort(cluCWD026_unsort, cluCWD026, sort_fields)
+                arcpy.management.Delete(cluCWD026_unsort)
+                del sort_fields
+
+                # Do summary stats to make an alternate table that combines fields with matching labels for the 026
+                case_fields = ["farm_number", "tract_number", "wetland_label", "occur_year"]
+                stats_fields = [['clu_number','FIRST'],['acres', 'SUM']]
+                arcpy.Statistics_analysis(cluCWD, cluCWD026_unsort, stats_fields, case_fields)
+                # Sort the results
+                sort_fields = [["FIRST_clu_number", "ASCENDING"], ["wetland_label", "ASCENDING"]]
+                arcpy.management.Sort(cluCWD026_unsort, cluCWD026_temp, sort_fields)
+                arcpy.management.Delete(cluCWD026_unsort)
+                del sort_fields
+                
+                # Make a list of the labels in the new table
+                alt_026_labels = []
+                search_fields = ['wetland_label','occur_year']
+                with arcpy.da.SearchCursor(cluCWD026_temp, search_fields) as cursor:
+                    for row in cursor:
+                        if row[1] is None:
+                            value = row[0]
+                        else:
+                            value = row[0] + row[1]
+                        if value not in alt_026_labels:
+                            alt_026_labels.append(value)
+
+                # Use the list of labels to search the previous data and create a dictionary of labels to clu fields
+                dict_026_alt = {}
+                search_fields = ['clu_number','wetland_label','occur_year']
+                for item in alt_026_labels:
+                    with arcpy.da.SearchCursor(cluCWD, search_fields) as cursor:
+                        for row in cursor:
+                            if row[2] is None:
+                                value = row[1]
+                            else:
+                                value = row[1] + row[2]
+                            if item == value:
+                                # This row has a field with the wetland label + occur year being searched. Add it to the dictionary
+                                # check if the item is in the dict keys already
+                                if item in dict_026_alt.keys():
+                                    # label is in dictionary, check if clu field is already in dictionary for that label and add if not
+                                    if (item, row[2]) not in dict_026_alt.items():
+                                        #append the current row's field
+                                        dict_026_alt[item] = dict_026_alt[item] + ", " + row[0]
+                                else:
+                                    # label not in keys yet, add key and first field
+                                    dict_026_alt[item] = row[0]
+                                    
+                # Dictionary populated with all fields (values) that go with each label + occur year (key)
+                # Examine the values in the dictionary, remove duplicate field numbers with each label and sort field numbers
+                for key in dict_026_alt.keys():
+                    v = dict_026_alt[key]
+                    if ", " in v:
+                        split_list = v.split(", ")
+                        integer_list = sorted(list(map(int, set(split_list))))
+                        string_ints = [str(int) for int in integer_list]
+                        str_of_ints = ", ".join(string_ints)
+                        dict_026_alt[key]=str_of_ints
+                            
+                # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
+                arcpy.management.AddField(cluCWD026_temp, "clu_number", 'TEXT', '', '', 512)
+                field_names = ['wetland_label','occur_year','clu_number']
+                with arcpy.da.UpdateCursor(cluCWD026_temp, field_names) as cursor:
+                    for row in cursor:
+                        if row[1] is None:
+                            value = row[0]
+                        else:
+                            value = row[0] + row[1]
+                        row[2] = dict_026_alt[value]
+                        cursor.updateRow(row)
+
+                # Convert the table
+                field_mapping="farm_number \"Farm Number\" true true false 7 Text 0 0,First,#,CLU_CWD_026_temp,farm_number,0,7;tract_number \"Tract Number\" true true false 7 Text 0 0,First,#,CLU_CWD_026_temp,tract_number,0,7;clu_number \"clu_number\" true true false 512 Text 0 0,First,#,CLU_CWD_026_temp,clu_number,0,512;wetland_label \"Wetland Label\" true true false 12 Text 0 0,First,#,CLU_CWD_026_temp,wetland_label,0,12;occur_year \"Occurrence Year\" true true false 4 Text 0 0,First,#,CLU_CWD_026_temp,occur_year,0,4;FREQUENCY \"FREQUENCY\" true true false 4 Long 0 0,First,#,CLU_CWD_026_temp,FREQUENCY,-1,-1;SUM_acres \"SUM_acres\" true true false 8 Double 0 0,First,#,CLU_CWD_026_temp,SUM_acres,-1,-1"
+                arcpy.TableToTable_conversion(cluCWD026_temp, wcGDB_path, name026_alt, "", field_mapping)
+
+                # Delete the temp table
+                arcpy.management.Delete(cluCWD026_temp)
+                
+                # Update the extent characteristics of the Site_CLU_CWD layer
+                arcpy.RecalculateFeatureClassExtent_management(cluCWD)
+
+                #### Create determination summary polygon and points layer, as well as a points layer of the CLUCWD layer
+                # Convert CLUCWD to points
+                arcpy.management.FeatureToPoint(cluCWD, cluCWDpts, "INSIDE")
+                
+                # Use Dissolve to create project summary
+                dissolve_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status','deter_method','dig_staff','dig_date']
+                stats_fields = [['acres','SUM']]
+                arcpy.management.Dissolve(cluCWD, projectSum, dissolve_fields, stats_fields, "MULTI_PART")
+                
+                # Convert project summary to points
+                arcpy.management.FeatureToPoint(projectSum, projectSumPts, "INSIDE")
+        
 
     #### Export Excel Tables to get ready for forms and letters tool.
     AddMsgAndPrint("\nExporting Excel table(s)...\n",0)
@@ -618,34 +653,23 @@ try:
     
     if arcpy.Exists(excel026):
         arcpy.Delete_management(excel026)
-    arcpy.TableToExcel_conversion(cluCWD026, excel026)
+    if PrevOnly == False:
+        arcpy.TableToExcel_conversion(cluCWD026, excel026)
     
     if arcpy.Exists(excel026_alt):
         arcpy.Delete_management(excel026_alt)
-    arcpy.TableToExcel_conversion(cluCWD026_alt, excel026_alt)
+    if PrevOnly == False:
+        arcpy.TableToExcel_conversion(cluCWD026_alt, excel026_alt)
 
     if arcpy.Exists(excel028):
         arcpy.Delete_management(excel028)
     if arcpy.Exists(cluCWD028):
         arcpy.TableToExcel_conversion(cluCWD028, excel028)
 
-    if arcpy.Exists(excel028_alt):
-        arcpy.Delete_management(excel028_alt)
-    if arcpy.Exists(cluCWD028_alt):
-        arcpy.TableToExcel_conversion(cluCWD028_alt, excel028_alt)
-
-
-    #### Create determination summary polygon and points layer, as well as a points layer of the CLUCWD layer
-    # Convert CLUCWD to points
-    arcpy.management.FeatureToPoint(cluCWD, cluCWDpts, "INSIDE")
-    
-    # Use Dissolve to create project summary
-    dissolve_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status','deter_method','dig_staff','dig_date']
-    stats_fields = [['acres','SUM']]
-    arcpy.management.Dissolve(cluCWD, projectSum, dissolve_fields, stats_fields, "MULTI_PART")
-    
-    # Convert project summary to points
-    arcpy.management.FeatureToPoint(projectSum, projectSumPts, "INSIDE")
+##    if arcpy.Exists(excel028_alt):
+##        arcpy.Delete_management(excel028_alt)
+##    if arcpy.Exists(cluCWD028_alt):
+##        arcpy.TableToExcel_conversion(cluCWD028_alt, excel028_alt)
 
         
     #### Clean up Temporary Datasets
@@ -699,9 +723,10 @@ try:
     # Use starting reference layer files from the tool installation to add layers with automatic placement
     AddMsgAndPrint("\nAdding layers to the map...\n",0)
     arcpy.SetProgressorLabel("Adding layers to the map...")
-    arcpy.SetParameterAsText(1, cluCWD)
-    if arcpy.Exists(prevCertSite):
-        arcpy.SetParameterAsText(2, prevCertSite)
+    if arcpy.Exists(cluCWD):
+        arcpy.SetParameterAsText(1, cluCWD)
+    if arcpy.Exists(prevCert):
+        arcpy.SetParameterAsText(2, prevCert)
 
     
     #### Compact FGDB

@@ -93,7 +93,7 @@ def removeLayers(layer_list):
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
-                if lyr.name in layer_list:
+                if lyr.longName in layer_list:
                     maps.removeLayer(lyr)
     except:
         pass
@@ -236,7 +236,7 @@ try:
     annoStrings = [suAnnoString, ropAnnoString, refAnnoString, drainAnnoString, cwdAnnoString]
     for aString in annoStrings:
         for lyr in m.listLayers(aString):
-            mapLayersToRemove.append(lyr.name)
+            mapLayersToRemove.append(lyr.longName)
 
     # Remove the layers
     AddMsgAndPrint("\Remove old layers from the map...",0)
@@ -264,7 +264,7 @@ try:
 ##    annoStrings = [suAnnoString, ropAnnoString, refAnnoString, drainAnnoString, cwdAnnoString]
 ##    for aString in annoStrings:
 ##        for lyr in m.listLayers(aString):
-##            mapLayersToRemove.append(lyr.name)
+##            mapLayersToRemove.append(lyr.longName)
 ##
 ##    # Remove the layers
 ##    AddMsgAndPrint("\Remove old layers from the map...",0)
@@ -279,7 +279,7 @@ try:
     lyr_list = m.listLayers()
     lyr_name_list = []
     for lyr in lyr_list:
-        lyr_name_list.append(lyr.name)
+        lyr_name_list.append(lyr.longName)
 
     if suName not in lyr_name_list:
         suLyr_cp = suLyr.connectionProperties
@@ -345,7 +345,7 @@ try:
     off_names = [suName, ropName, refName, drainName, cwdName, pjwName]
     for lyr in m.listLayers():
         for name in off_names:
-            if name in lyr.name:
+            if name in lyr.longName:
                 lyr.visible = False
 
     
