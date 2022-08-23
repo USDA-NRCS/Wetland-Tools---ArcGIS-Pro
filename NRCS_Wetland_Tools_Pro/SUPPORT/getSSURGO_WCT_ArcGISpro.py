@@ -50,6 +50,11 @@
 #   Nemecek's and WSS interp
 # - Updated Console messages to honor hard returns and tabs by adding a '.'
 
+# ==========================================================================================
+# Updated  8/23/2022 - Adolfo Diaz
+# - Updated the AddSSURGOLayersToArcGISPro function to replace the .name method with the
+#   .longName method.  Using .name to query a layer that was part of a group caused problems.
+
 
 #-------------------------------------------------------------------------------
 
@@ -1365,7 +1370,7 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
         # 'SSURGO Layers' group layer object
         groupLayerPath = os.path.join(scriptPath,r'SSURGO_WCT_EmptySSURGOGroupLayer.lyrx')
         groupLayerObject = arcpy.mp.LayerFile(groupLayerPath).listLayers()[0]
-        groupLayerName = groupLayerObject.name  # 'SSURGO Layers'
+        groupLayerName = groupLayerObject.longName  # 'SSURGO Layers'
 
         # Boolean to determine if 'SSURGO Layers' group exists in ArcGIS Pro Session
         bGroupLayerExists = False
@@ -1380,7 +1385,7 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
 
                 # 'SSURGO Layers' group exists in Pro Session
                 # Add the layers in lyrxToAddToArcPro list to ArcPro
-                if mapLyr.name == groupLayerName and mapLyr.isGroupLayer:
+                if mapLyr.longName == groupLayerName and mapLyr.isGroupLayer:
                     bGroupLayerExists = True
                     mapObject = map
 
@@ -1420,7 +1425,7 @@ def AddSSURGOLayersToArcGISPro(ssurgoFC,listOfProperties):
             # This is the 'SSURGO Layers' Group
             # iterate through the nested layers and up
             # the symbology
-            if lyr.name == groupLayerName and lyr.isGroupLayer:
+            if lyr.longName == groupLayerName and lyr.isGroupLayer:
                 for newLayer in lyr.listLayers():
                     UpdateLyrxSymbology(newLayer)
 
