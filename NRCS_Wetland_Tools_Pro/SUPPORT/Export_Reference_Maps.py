@@ -536,6 +536,8 @@ try:
     floodName = "Flooding Frequency"
     drainName = "Drainage Class Dom. Cond."
     imageName = imagery
+    if '\\' in imageName:
+        imageName = imageName.split('\\')[-1]
 
     project_soils = basedataGDB_path + os.sep + "SSURGO_Mapunits"
     
@@ -817,12 +819,12 @@ try:
 
     visibility_off(lyr_list)
 
-    # Turn on the visibility of the specified image layer
-    try:
-        image_lyr.visible = True
-    except:
-        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
-        exit()
+##    # Turn on the visibility of the specified image layer
+##    try:
+##        image_lyr.visible = True
+##    except:
+##        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
+##        exit()
 
     # There is no check to set the order for the image layer. If users run it wrong, results should be self evident, they should re-arrange and re-run.
 

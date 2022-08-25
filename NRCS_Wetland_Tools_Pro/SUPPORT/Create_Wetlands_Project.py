@@ -119,6 +119,80 @@ def deleteTempLayers(lyrs):
                 arcpy.Delete_management(lyr)
             except:
                 pass
+
+##  ===============================================================================================================
+def queryIntersectNWI(ws,temp_dir,fc,RESTurl,outFC):
+##  This function uses a REST API query to retrieve geometry from that overlap an input feature class from a
+##  hosted feature service.
+##  Relies on a global variable of portalToken to exist and be active (checked before running this function)
+##  ws is a file geodatabase workspace to store temp files for processing
+##  fc is the input feature class. Should be a polygon feature class, but technically shouldn't fail if other types
+##  RESTurl is the url for the query where the target hosted data resides
+##  Example: """https://gis-testing.usda.net/server/rest/services/Hosted/CWD_Training/FeatureServer/0/query"""
+##  outFC is the output feature class path/name that is return if the function succeeds AND finds data
+##  Otherwise False is returned
+
+    # Run the query
+##    try:
+    
+    # Set variables
+    query_url = RESTurl + "/query"
+    jfile = temp_dir + os.sep + "jsonFile.json"
+    wmas_fc = ws + os.sep + "wmas_fc"
+    wmas_dis = ws + os.sep + "wmas_dis_fc"
+    wmas_sr = arcpy.SpatialReference(3857)
+
+    # Convert the input feature class to Web Mercator and to JSON
+    arcpy.management.Project(fc, wmas_fc, wmas_sr)
+    arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
+    jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
+
+    # Setup parameters for query
+    params = urllibEncode({'f': 'json',
+                           'geometry':jsonPolygon,
+                           'geometryType':'esriGeometryPolygon',
+                           'spatialRelationship':'esriSpatialRelIntersects',
+                           'returnGeometry':'true',
+                           'outFields':'*'})
+
+
+    INparams = params.encode('ascii')
+    resp = urllib.request.urlopen(query_url,INparams)
+
+    responseStatus = resp.getcode()
+    responseMsg = resp.msg
+    jsonString = resp.read()
+
+    if responseStatus > 200:
+        AddMsgAndPrint("\nHost Feature Service " + RESTurl + " may be inaccessible or query may be invalid.",1)
+        AddMsgAndPrint("\nReturning to mainline functions...",1)
+        return False
+
+    # json --> Python; dictionary containing 1 key with a list of lists
+    results = json.loads(jsonString)
+
+    # Check for error in results and exit with message if found.
+    if 'error' in results.keys():
+        if results['error']['message'] == 'Invalid Token':
+            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
+            exit()
+        else:
+            AddMsgAndPrint("\nUnknown error encountered. Host Feature Service " + RESTurl + " may be inaccessible or query may be invalid. Continuing...",1)
+            AddMsgAndPrint("\nResponse status code: " + str(responseStatus),1)
+            return False
+    else:
+        # Convert results to a feature class
+        if not len(results['features']):
+            return False
+        else:
+            with open(jfile, 'w') as outfile:
+                json.dump(results, outfile)
+
+            arcpy.conversion.JSONToFeatures(jfile, outFC)
+            arcpy.management.Delete(jfile)
+            arcpy.management.Delete(wmas_fc)
+            arcpy.management.Delete(wmas_dis)
+            return outFC
             
 ##  ===============================================================================================================
 def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):

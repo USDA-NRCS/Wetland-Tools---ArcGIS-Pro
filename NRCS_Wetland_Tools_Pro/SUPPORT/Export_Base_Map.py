@@ -426,7 +426,9 @@ try:
     rpName = "Site_Reference_Points"
     drainName = "Site_Drainage_Lines"
     imageName = imagery
-
+    if '\\' in imageName:
+        imageName = imageName.split('\\')[-1]
+        
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
@@ -554,12 +556,12 @@ try:
             except:
                 plss_lyr = ''
 
-    # Turn on the visibility of the specified image layer
-    try:
-        image_lyr.visible = True
-    except:
-        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
-        exit()
+##    # Turn on the visibility of the specified image layer
+##    try:
+##        image_lyr.visible = True
+##    except:
+##        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
+##        exit()
 
     # Get the imagery text box element for use in subsequent reset steps
     for elm in bm_lyt.listElements():

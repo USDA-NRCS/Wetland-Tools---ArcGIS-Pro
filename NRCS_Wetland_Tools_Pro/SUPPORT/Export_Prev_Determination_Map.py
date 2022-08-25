@@ -402,6 +402,8 @@ try:
     clucwdName = "Site_CLU_CWD"
     prevcwdName = "Site_Previous_CLU_CWD"
     imageName = imagery
+    if '\\' in imageName:
+        imageName = imageName.split('\\')[-1]
 
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
@@ -523,16 +525,16 @@ try:
             except:
                 plss_lyr = ''
 
-    # Turn on the visibility of the specified image layer
-    try:
-        image_lyr.visible = True
-    except:
-        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
-        exit()
-        
-    # Find annotation for the typical layers, if any
-    lyrs = m.listLayers()
-
+##    # Turn on the visibility of the specified image layer
+##    try:
+##        image_lyr.visible = True
+##    except:
+##        AddMsgAndPrint("\nCannot make specified imagery layer visible. Please run again and select an image layer from within the map contents. Exiting...",2)
+##        exit()
+##        
+##    # Find annotation for the typical layers, if any
+##    lyrs = m.listLayers()
+##
 ##    prev_cwd_anno_list = []
 ##    for lyr in lyrs:
 ##        if lyr.name.startswith(prevcwdName + "Anno"):
