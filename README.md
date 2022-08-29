@@ -4,7 +4,7 @@ NRCS wetlands conservation compliance tools for creating determination products 
 Version 1.0.9 (8/29/2022; Production Release):
 
 New features include:
-Replaced the NWI data service with a new, higher performing service. Previous versions of the service will be retired, so you must update to at least this version of the tool to retain NWI download functions during the Create Wetlands Projet step.
+Replaced the NWI data service with a new, higher performing service. Previous versions of the service will be retired, so you must update to at least this version of the tool to retain NWI download functions during the Create Wetlands Project step.
 Updated State Administrator Guide and User Guide to be in sync with the current tool version number.
 Added an Appendix describing the Wetland Determinations Dashboard to the documentation guides.
 Corrected a bug in the Download Soil Data step to better handle groups of layers being used in the map frame.
