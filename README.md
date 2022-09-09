@@ -3,13 +3,13 @@ NRCS wetlands conservation compliance tools for creating determination products 
 
 ## **Version 1.1.0 (9/9/2022; Production Release):**
 
-**New Features/Changes**
+### **New Features/Changes**
 - Updated the NAD Address Spreadsheet.
 - Updated the LibraryInstall.R file to mitigate errors and execution failures of the Create Forms and Letters tool.
 - Updated the WC_Report_Tool.r file to mitigate errors and execution failures of the Create Forms and Letters tool.
 - Updated Install Base Software section and the Configure R section of the state administrator guide and user guide.
 
-**Changed Files**
+### **Changed Files**
 - ..\NRCS_Wetland_Tools_Pro\LibraryInstall.R
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.docx
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.pdf
