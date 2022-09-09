@@ -22,7 +22,7 @@ APRX templates or spreadsheets from version 1.0.3 or earlier should not be broug
 
 **Version History:**
 
-Version 1.0.9 (8/29/2022; Production Release):
+v 1.0.9 (8/29/2022; Production Release):
 
 Replaced the NWI data service with a new, higher performing service. Previous versions of the service will be retired, so you must update to at least this version of the tool to retain NWI download functions during the Create Wetlands Project step.
 Updated State Administrator Guide and User Guide to be in sync with the current tool version number.
@@ -30,17 +30,19 @@ Added an Appendix describing the Wetland Determinations Dashboard to the documen
 Corrected a bug in the Download Soil Data step to better handle groups of layers being used in the map frame.
 Added further refinements to multiple scripts when groups of layers were being used in the map frame.
 
-Version 1.0.8 (8/13/2022; Production Release):
+
+v 1.0.8 (8/13/2022; Production Release):
 Updated contact information in State Tool Administrator Guide to the Central Region GIS Specialist.
 Corrected a bug that affected layer names in scripts when groups were being used in maps.
 Deleted a redundant (bad) copy of a tool that was empty.
 
-Version 1.0.7 (7/13/2022; Production Release):
+
+v 1.0.7 (7/13/2022; Production Release):
 Corrected a bug in the Export Reference Maps tool.
 Updated user guides for new installation versions of ArcGIS Pro and R for Windows.
 
 
-Version 1.0.6 (6/23/2022; Production Release):
+v 1.0.6 (6/23/2022; Production Release):
 Moved training data from GIS Testing to GIS States and updated all relevant training templates, tools, and documentation accordingly.
 Corrected NWI symbology in the production toolbox references to the NWI layer.
 Corrected minor typos in the user guide.
@@ -90,14 +92,18 @@ Updated Form and Letter templates and processing in R.
 Corrected an issue with field numbers repeating when using the consolidate by label option to generate the form.
 Removed development Task files to reduce confusion for workflow.
 
+
 v 1.0.3 (3/22/2022; Training Version):
 Updated Form templates due to new R libraries to correct formatting issues.
+
 
 v 1.0.2 (3/15/2022; Training Version):
 Corrections to typos and terminology throughout the tool for greater consistency.
 
+
 v 1.0.1 (3/11/2022; Training Version):
 Adjustments to GIS data uploads to server and dashboard.
+
 
 v 1.0.0 (3/5/2022; Training Version):
 Initial release. Training Version.
