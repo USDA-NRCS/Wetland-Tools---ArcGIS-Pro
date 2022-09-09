@@ -1,7 +1,7 @@
 # Wetland-Tools---ArcGIS-Pro
 NRCS wetlands conservation compliance tools for creating determination products in ArcGIS Pro
 
-**Version 1.1.0 (9/9/2022; Production Release):**
+##**Version 1.1.0 (9/9/2022; Production Release):**
 
 New Features/Changes:
 -Updated the NAD Address Spreadsheet.
