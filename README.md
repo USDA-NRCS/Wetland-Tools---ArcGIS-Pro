@@ -8,6 +8,7 @@ NRCS wetlands conservation compliance tools for creating determination products 
 - Updated the LibraryInstall.R file to mitigate errors and execution failures of the Create Forms and Letters tool.
 - Updated the WC_Report_Tool.r file to mitigate errors and execution failures of the Create Forms and Letters tool.
 - Updated Install Base Software section and the Configure R section of the state administrator guide and user guide.
+- Updated the labeling expressions for Sampling Units, CWD, CLU CWD, and Previous CLU CWD to round acres to the hundredths.
 
 ### **Changed Files**
 - ..\NRCS_Wetland_Tools_Pro\LibraryInstall.R
