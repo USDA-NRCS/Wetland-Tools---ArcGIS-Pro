@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.6.0",
-  "build" : 24783,
+  "version" : "2.9.0",
+  "build" : 32739,
   "layers" : [
     "CIMPATH=data_templates/master_cwd.xml"
   ],
@@ -19,18 +19,20 @@
       "description" : "master_cwd",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}"
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
       },
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : true,
+      "visibility" : false,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
       "serviceLayerID" : -1,
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "allowDrapingOnIntegratedMesh" : true,
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
@@ -282,7 +284,7 @@
         },
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in001_t0000309_2021_08\\Wetlands\\in001_t0000309_2021_08_WC.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in001_t0000309_2022_09\\Wetlands\\in001_t0000309_2022_09_WC.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "Site_CWD",
           "datasetType" : "esriDTFeatureClass"
@@ -295,17 +297,23 @@
           "type" : "CIMFeatureTemplate",
           "name" : "Site_CWD",
           "tags" : "Polygon",
-          "toolProgID" : "00000000-0000-0000-0000-000000000000"
+          "toolProgID" : "8f79967b-66a0-4a1c-b884-f44bc7e26921",
+          "toolFilter" : [
+            "6c6970a7-5ca9-448c-9c7d-0d716cd2ac64",
+            "a281e635-0f22-47d4-a438-e4d29b920e22",
+            "d304243a-5c3a-4ccc-b98b-93684b15fd83"
+          ]
         }
       ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
       "displayFiltersType" : "ByScale",
+      "featureBlendingMode" : "Alpha",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "if(IsEmpty($feature.occur_year)) {\r\n    return Text($feature.wetland_label) + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return Text($feature.wetland_label) + Text($feature.occur_year) + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\r\n}",
+          "expression" : "if(IsEmpty($feature.occur_year)) {\r\n    return Text($feature.wetland_label) + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return Text($feature.wetland_label) + Text($feature.occur_year) + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -350,7 +358,8 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ]
+              ],
+              "trimStackingSeparators" : true
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",
@@ -417,14 +426,15 @@
             "thinningDistanceUnit" : "Point",
             "truncationMarkerCharacter" : ".",
             "truncationMinimumLength" : 1,
-            "truncationPreferredCharacters" : "aeiou"
+            "truncationPreferredCharacters" : "aeiou",
+            "polygonAnchorPointPerimeterInsetUnit" : "Point"
           },
           "name" : "Class 1",
           "priority" : -1,
           "standardLabelPlacementProperties" : {
             "type" : "CIMStandardLabelPlacementProperties",
             "featureType" : "Line",
-            "featureWeight" : "Low",
+            "featureWeight" : "None",
             "labelWeight" : "High",
             "numLabelsOption" : "OneLabelPerName",
             "lineLabelPosition" : {
@@ -597,7 +607,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+      "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [

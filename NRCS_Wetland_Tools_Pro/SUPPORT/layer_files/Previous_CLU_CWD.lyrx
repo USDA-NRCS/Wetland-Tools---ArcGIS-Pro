@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.7.0",
-  "build" : 26828,
+  "version" : "2.9.0",
+  "build" : 32739,
   "layers" : [
     "CIMPATH=Determinations/9960ada26adc45a6aadcea5be7286143.xml"
   ],
@@ -18,12 +18,12 @@
       "description" : "Site_Previous_CLU_CWD",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{B0D9DE10-DD62-4A93-9B56-EF4BA8261A57}"
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
       },
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -31,6 +31,7 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
+      "allowDrapingOnIntegratedMesh" : true,
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
@@ -69,7 +70,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "if(!IsEmpty($feature.occur_year)) {\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\n}\nelse {\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + $feature.occur_year + TextFormatting.NewLine + Text($feature.acres, '#.00') + \" ac\"\n}",
+          "expression" : "if(!IsEmpty($feature.occur_year)) {\r\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + $feature.occur_year + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -114,7 +115,8 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ]
+              ],
+              "trimStackingSeparators" : true
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",
@@ -189,7 +191,7 @@
           "standardLabelPlacementProperties" : {
             "type" : "CIMStandardLabelPlacementProperties",
             "featureType" : "Line",
-            "featureWeight" : "Low",
+            "featureWeight" : "None",
             "labelWeight" : "High",
             "numLabelsOption" : "OneLabelPerName",
             "lineLabelPosition" : {
@@ -386,6 +388,27 @@
         ],
         "useSymbolLayerDrawing" : true
       }
+    }
+  ],
+  "elevationSurfaces" : [
+    {
+      "type" : "CIMMapElevationSurface",
+      "elevationMode" : "BaseGlobeSurface",
+      "name" : "Ground",
+      "verticalExaggeration" : 1,
+      "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}",
+      "color" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          255,
+          255,
+          255,
+          100
+        ]
+      },
+      "surfaceTINShadingMode" : "Smooth",
+      "visibility" : true,
+      "expanded" : true
     }
   ],
   "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
