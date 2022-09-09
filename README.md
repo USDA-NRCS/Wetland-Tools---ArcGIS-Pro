@@ -20,7 +20,7 @@ The NRCS Address spreadsheet's format from 1.0.4 or later has NOT changed. You c
 APRX templates or spreadsheets from version 1.0.3 or earlier should not be brought forward into this version and should instead be rebuilt using the template files provided by the latest install.
 
 
-**Version History:**
+## **Version History:**
 
 v 1.0.9 (8/29/2022; Production Release):
 
