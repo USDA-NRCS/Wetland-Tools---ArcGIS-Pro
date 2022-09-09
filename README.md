@@ -22,7 +22,7 @@ APRX templates or spreadsheets from version 1.0.3 or earlier should not be broug
 
 ## **Version History:**
 
-v 1.0.9 (8/29/2022; Production Release):
+### v 1.0.9 (8/29/2022; Production Release):
 
 -Replaced the NWI data service with a new, higher performing service. Previous versions of the service will be retired, so you must update to at least this version of the tool to retain NWI download functions during the Create Wetlands Project step.
 -Updated State Administrator Guide and User Guide to be in sync with the current tool version number.
@@ -31,24 +31,24 @@ v 1.0.9 (8/29/2022; Production Release):
 -Added further refinements to multiple scripts when groups of layers were being used in the map frame.
 
 
-v 1.0.8 (8/13/2022; Production Release):
+### v 1.0.8 (8/13/2022; Production Release):
 -Updated contact information in State Tool Administrator Guide to the Central Region GIS Specialist.
 -Corrected a bug that affected layer names in scripts when groups were being used in maps.
 -Deleted a redundant (bad) copy of a tool that was empty.
 
 
-v 1.0.7 (7/13/2022; Production Release):
+### v 1.0.7 (7/13/2022; Production Release):
 -Corrected a bug in the Export Reference Maps tool.
 -Updated user guides for new installation versions of ArcGIS Pro and R for Windows.
 
 
-v 1.0.6 (6/23/2022; Production Release):
+### v 1.0.6 (6/23/2022; Production Release):
 -Moved training data from GIS Testing to GIS States and updated all relevant training templates, tools, and documentation accordingly.
 -Corrected NWI symbology in the production toolbox references to the NWI layer.
 -Corrected minor typos in the user guide.
 
 
-v 1.0.5 (5/19/2022; Production Release):
+### v 1.0.5 (5/19/2022; Production Release):
 -All tools have been updated to show Help info when hovering over the "i" marker for parameters in the tools.
 -The previously determined map and report workflow has been fully enabled and documented and will function for determinations previously digitized by this tool, only. Determinations that are not digitized in this tool cannot be used in this process.
 -The revisions workflow has been fully enabled and documented. Determinations that are not digitized in this tool cannot be used in this process.
@@ -64,47 +64,47 @@ v 1.0.5 (5/19/2022; Production Release):
 -Created read-only views of the live data services and used them to create an Operations Dashboard on the GIS-States Portal. Only production data will upload to these layers, views, and the dashboard.  As this release is new, only a tiny amount of test data is currently present in the dashboard until states begin using the tool. 
 -The read-only views from the previous bullet point have been shared with the entire Organization. As such, the URLs for those views can be streamed into other secure maps or apps, such as Conservation Desktop. The views (if searching by name on GIS States) are:
 
-  > NRCS Sampling Units RO View
-  > NRCS ROPs RO View
-  > NRCS WC Reference Points RO View
-  > NRCS WC Drains RO View
-  > NRCS PJW RO View	
-  > NRCS CWD RO View
-  > NRCS CLU CWD Points RO View
-  > NRCS CLU CWD RO View
-  > NRCS CWD Summary Points RO View	
-  > NRCS CWD Summary Areas RO View
+  > - NRCS Sampling Units RO View
+  > - NRCS ROPs RO View
+  > - NRCS WC Reference Points RO View
+  > - NRCS WC Drains RO View
+  > - NRCS PJW RO View	
+  > - NRCS CWD RO View
+  > - NRCS CLU CWD Points RO View
+  > - NRCS CLU CWD RO View
+  > - NRCS CWD Summary Points RO View	
+  > - NRCS CWD Summary Areas RO View
 		
--The WC Tool State Administrator Guide has been updated and taken out of draft status. Further edits may be made, but the core structure and concepts are in placeThe WC Tool User Guide has been updated and taken out of draft status. Further edits may be made, but the core structure and concepts are in place.
+- The WC Tool State Administrator Guide has been updated and taken out of draft status. Further edits may be made, but the core structure and concepts are in placeThe WC Tool User Guide has been updated and taken out of draft status. Further edits may be made, but the core structure and concepts are in place.
 
 
-v 1.0.4 (4/12/2022; Production Release):
--Released production version that connects with data services on GIS States.
--Split Templates and Toolboxes into Training and Live Versions.
--New templates released as a result; all existing projects should be completed prior to upgrading and all templates should be rebuilt.
--New training template, toolbox, and scripts provided to support training in the GIS Testing environment; intended for training/test work only.
--New production template, toolbox, and scripts provided to support determinations in the GIS States environment; intended for actual work.
--Added support for custom styles.
--Added options in Form and Letter creation to select NRCS and FSA office as input parameters.
--Redesigned the NRCS_Address table; new table is not compatible with old versions of the table from versions prior to 1.0.4 and must be re-populated.
--Added new tool to import the NRCS_Address table to the toolboxes.
--Updated Form and Letter templates and processing in R.
--Corrected an issue with field numbers repeating when using the consolidate by label option to generate the form.
--Removed development Task files to reduce confusion for workflow.
+### v 1.0.4 (4/12/2022; Production Release):
+- Released production version that connects with data services on GIS States.
+- Split Templates and Toolboxes into Training and Live Versions.
+- New templates released as a result; all existing projects should be completed prior to upgrading and all templates should be rebuilt.
+- New training template, toolbox, and scripts provided to support training in the GIS Testing environment; intended for training/test work only.
+- New production template, toolbox, and scripts provided to support determinations in the GIS States environment; intended for actual work.
+- Added support for custom styles.
+- Added options in Form and Letter creation to select NRCS and FSA office as input parameters.
+- Redesigned the NRCS_Address table; new table is not compatible with old versions of the table from versions prior to 1.0.4 and must be re-populated.
+- Added new tool to import the NRCS_Address table to the toolboxes.
+- Updated Form and Letter templates and processing in R.
+- Corrected an issue with field numbers repeating when using the consolidate by label option to generate the form.
+- Removed development Task files to reduce confusion for workflow.
 
 
-v 1.0.3 (3/22/2022; Training Version):
--Updated Form templates due to new R libraries to correct formatting issues.
+### v 1.0.3 (3/22/2022; Training Version):
+- Updated Form templates due to new R libraries to correct formatting issues.
 
 
-v 1.0.2 (3/15/2022; Training Version):
--Corrections to typos and terminology throughout the tool for greater consistency.
+### v 1.0.2 (3/15/2022; Training Version):
+- Corrections to typos and terminology throughout the tool for greater consistency.
 
 
-v 1.0.1 (3/11/2022; Training Version):
--Adjustments to GIS data uploads to server and dashboard.
+### v 1.0.1 (3/11/2022; Training Version):
+- Adjustments to GIS data uploads to server and dashboard.
 
 
-v 1.0.0 (3/5/2022; Training Version):
--Initial release. Training Version.
--All principal features enabled except automated NWI map layout export, pending NWI Feature Service maintenance.
+### v 1.0.0 (3/5/2022; Training Version):
+- Initial release. Training Version.
+- All principal features enabled except automated NWI map layout export, pending NWI Feature Service maintenance.
