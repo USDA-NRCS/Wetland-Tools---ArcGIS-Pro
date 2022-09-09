@@ -1,29 +1,42 @@
-# Updated by Edwin Muniz May 11, 2022
-Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/bin/quarto/bin")
+# Updated by Edwin Muniz September 9, 2022
 
-#Set working directory from tool default
+#Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/bin/quarto/bin")
+#Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/bin/quarto/bin/tools")
 
+#Set working libraries from tool
+if (!requireNamespace("xlsx", quietly = TRUE))
+  install.packages("xlsx")
+if (!requireNamespace("rmarkdown", quietly = TRUE))
+  install.packages("rmarkdown")
+if (!requireNamespace("knitr", quietly = TRUE))
+  install.packages("knitr")
+if (!requireNamespace("flextable", quietly = TRUE))
+  install.packages("flextable")
+if (!requireNamespace("textreadr", quietly = TRUE))
+  install.packages("textreadr")
+if (!requireNamespace("dbplyr", quietly = TRUE))
+  install.packages("dbplyr")
+require(xlsx)
+require(rmarkdown)
+require(knitr)
+require(flextable)
+require(textreadr)
+require(dbplyr)
+
+#Set location for most recent pandoc executable
+var.sub <- "C:/Program Files/RStudio/bin/quarto/bin/tools/pandoc.exe"
+#var.path <- "C:/Program Files/RStudio/bin/quarto/bin/pandoc.exe"
+
+if (file.exists(var.sub)){
+  Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/bin/quarto/bin/tools")
+} else {
+  Sys.setenv(RSTUDIO_PANDOC = "C:/Program Files/RStudio/bin/quarto/bin")
+}
+
+#Tools parameters and report generator
 tool_exec <- function(in_params, out_params)
 {
-  if (!requireNamespace("xlsx", quietly = TRUE))
-    install.packages("xlsx")
-  if (!requireNamespace("rmarkdown", quietly = TRUE))
-    install.packages("rmarkdown")
-  if (!requireNamespace("knitr", quietly = TRUE))
-    install.packages("knitr")
-  if (!requireNamespace("flextable", quietly = TRUE))
-    install.packages("flextable")
-  if (!requireNamespace("textreadr", quietly = TRUE))
-    install.packages("textreadr")
-  if (!requireNamespace("dbplyr", quietly = TRUE))
-    install.packages("dbplyr")
-  require(xlsx)
-  require(rmarkdown)
-  require(knitr)
-  require(flextable)
-  require(textreadr)
-  require(dbplyr)
-  
+
   arc.progress_label('Loading required dataset...')
   arc.progress_pos(0)
 

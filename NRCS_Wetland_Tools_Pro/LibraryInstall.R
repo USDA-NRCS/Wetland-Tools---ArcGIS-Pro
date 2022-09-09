@@ -20,14 +20,17 @@
 remove.packages(arcgisbinding)
 
 # Redirect R profile
+# Line 1
 source('https://raw.githubusercontent.com/ncss-tech/soilReports/master/R/installRprofile.R')
+
+#Line 2
 installRprofile(overwrite=TRUE)
 
 #Wait a few seconds for the R section to restart
 .rs.restartR()
 
 #Install packages needed for the report generator
-install.packages(c("flextable", "knitr", "rmarkdown", "textreadr", "xlsx", "dbplyr"), dependencies = TRUE)
+install.packages(c("stringi", "flextable", "knitr", "rmarkdown", "textreadr", "xlsx", "dbplyr"), dependencies = TRUE)
 
 #Install arcgidbinding package
 install.packages("arcgisbinding", repos = "https://r.esri.com", type = "win.binary")
