@@ -64,16 +64,16 @@ v 1.0.5 (5/19/2022; Production Release):
 -Created read-only views of the live data services and used them to create an Operations Dashboard on the GIS-States Portal. Only production data will upload to these layers, views, and the dashboard.  As this release is new, only a tiny amount of test data is currently present in the dashboard until states begin using the tool. 
 -The read-only views from the previous bullet point have been shared with the entire Organization. As such, the URLs for those views can be streamed into other secure maps or apps, such as Conservation Desktop. The views (if searching by name on GIS States) are:
 
-  -NRCS Sampling Units RO View
-  -NRCS ROPs RO View
-  -NRCS WC Reference Points RO View
-  -NRCS WC Drains RO View
-  -NRCS PJW RO View	
-  -NRCS CWD RO View
-  -NRCS CLU CWD Points RO View
-  -NRCS CLU CWD RO View
-  -NRCS CWD Summary Points RO View	
-  -NRCS CWD Summary Areas RO View
+  > NRCS Sampling Units RO View
+  > NRCS ROPs RO View
+  > NRCS WC Reference Points RO View
+  > NRCS WC Drains RO View
+  > NRCS PJW RO View	
+  > NRCS CWD RO View
+  > NRCS CLU CWD Points RO View
+  > NRCS CLU CWD RO View
+  > NRCS CWD Summary Points RO View	
+  > NRCS CWD Summary Areas RO View
 		
 -The WC Tool State Administrator Guide has been updated and taken out of draft status. Further edits may be made, but the core structure and concepts are in placeThe WC Tool User Guide has been updated and taken out of draft status. Further edits may be made, but the core structure and concepts are in place.
 
