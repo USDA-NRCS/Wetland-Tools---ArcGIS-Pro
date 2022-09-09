@@ -1,15 +1,13 @@
 # Wetland-Tools---ArcGIS-Pro
 NRCS wetlands conservation compliance tools for creating determination products in ArcGIS Pro
 
-Version 1.0.9 (8/29/2022; Production Release):
+Version 1.1.0 (9/9/2022; Production Release):
 
-New features include:
-Replaced the NWI data service with a new, higher performing service. Previous versions of the service will be retired, so you must update to at least this version of the tool to retain NWI download functions during the Create Wetlands Project step.
-Updated State Administrator Guide and User Guide to be in sync with the current tool version number.
-Added an Appendix describing the Wetland Determinations Dashboard to the documentation guides.
-Corrected a bug in the Download Soil Data step to better handle groups of layers being used in the map frame.
-Added further refinements to multiple scripts when groups of layers were being used in the map frame.
-
+New Features/Changes:
+Updated the NAD Address Spreadsheet.
+Updated the LibraryInstall.R file to mitigate errors and execution failures of the Create Forms and Letters tool.
+Updated the WC_Report_Tool.r file to mitigate errors and execution failures of the Create Forms and Letters tool.
+Updated Install Base Software section and the Configure R section of the state administrator guide and user guide.
 
 State Tool Administrators should download the new version, customize it (per the guidance in the State Administrator Guide), and the provide their customized version to users in their state.
 	
@@ -20,11 +18,17 @@ APRX Templates from v1.0.4 or later are compatible with this new release. Make a
 The NRCS Address spreadsheet's format from 1.0.4 or later has NOT changed. You can use your existing 1.0.4 or later NRCS Address spreadsheet if you've already customized it. Make a copy of your existing NRCS Address spreadsheet outside of the install folder, install the new version, and then restore your custom NRCS Address spreadsheet in the standard location within the install folder.
 	
 APRX templates or spreadsheets from version 1.0.3 or earlier should not be brought forward into this version and should instead be rebuilt using the template files provided by the latest install.
-	
-R and RStudio have updated.  Please install R for Windows 4.1.3 and RStudio 2022.02.1 + 461.  Then please complete the R package installation instructions again (found in the Configure R section of the updated User Guide).  Finally, confirm that the arcgisbinding has been configured in ArcGIS Pro (found in the Configure arcgisbinding in ArcGIS Pro section of the updated User Guide)
 
 
-Version History:
+**Version History:**
+
+Version 1.0.9 (8/29/2022; Production Release):
+
+Replaced the NWI data service with a new, higher performing service. Previous versions of the service will be retired, so you must update to at least this version of the tool to retain NWI download functions during the Create Wetlands Project step.
+Updated State Administrator Guide and User Guide to be in sync with the current tool version number.
+Added an Appendix describing the Wetland Determinations Dashboard to the documentation guides.
+Corrected a bug in the Download Soil Data step to better handle groups of layers being used in the map frame.
+Added further refinements to multiple scripts when groups of layers were being used in the map frame.
 
 Version 1.0.8 (8/13/2022; Production Release):
 Updated contact information in State Tool Administrator Guide to the Central Region GIS Specialist.
