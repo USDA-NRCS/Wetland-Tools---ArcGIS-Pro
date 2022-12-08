@@ -15,11 +15,7 @@
 ##
 ## ===============================================================================================================
 ## Changes
-## ===============================================================================================================
-##
-## rev. <pending
-## - <pending>
-##
+## 12/08/2022 - Dylan Harwell - Import NAD_Address.xlsx table to GDB
 ## ===============================================================================================================
 #### Import system modules
 import arcpy, sys, os
@@ -34,28 +30,30 @@ arcpy.SetProgressorLabel("Setting variables...")
 
 supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
 templates_folder = os.path.join(os.path.dirname(sys.argv[0]), "Templates")
-in_excel = templates_folder + os.sep + "NRCS_Address.xlsx"
+nrcs_address_excel = templates_folder + os.sep + "NRCS_Address.xlsx"
+nad_address_excel = templates_folder + os.sep + "NAD_Address.xlsx"
 nrcs_table = supportGDB + os.sep + "nrcs_addresses"
 fsa_table = supportGDB + os.sep + "fsa_addresses"
-nrcs_sheet = "NRCS_Offices"
-fsa_sheet = "FSA_Offices"
-title_row = 1
+nad_table = supportGDB + os.sep + "nad_addresses"
 
-if arcpy.Exists(in_excel):
+if arcpy.Exists(nrcs_address_excel) and arcpy.Exists(nad_address_excel):
     try:
         arcpy.AddMessage("Importing NRCS Office Table...")
         arcpy.SetProgressorLabel("Importing NRCS Office Table...")
-        arcpy.ExcelToTable_conversion(in_excel, nrcs_table, nrcs_sheet, title_row)
+        arcpy.ExcelToTable_conversion(nrcs_address_excel, nrcs_table, "NRCS_Offices", 1)
         
         arcpy.AddMessage("Importing FSA Office Table...")
         arcpy.SetProgressorLabel("Importing FSA Office Table...")
-        arcpy.ExcelToTable_conversion(in_excel, fsa_table, fsa_sheet, title_row)
+        arcpy.ExcelToTable_conversion(nrcs_address_excel, fsa_table, "FSA_Offices", 1)
+
+        arcpy.AddMessage("Importing NAD Office Table...")
+        arcpy.SetProgressorLabel("Importing NAD Office Table...")
+        arcpy.ExcelToTable_conversion(nad_address_excel, fsa_table, "NAD_Address", 1)
     except:
         arcpy.AddError("Something went wrong in the import process. Exiting...")
         exit()
-        
 else:
-    arcpy.AddError("Could not find expected address workbook in install folders. Exiting...")
+    arcpy.AddError("Could not find expected NRCS and NAD Address workbooks in install folders. Exiting...")
     exit()
 
 arcpy.AddMessage("Address table imports were successful! Exiting...")
