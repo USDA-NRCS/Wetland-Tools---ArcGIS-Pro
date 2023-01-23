@@ -361,6 +361,7 @@ try:
     projectCLU = basedataGDB_path + os.sep + cluName
 
     projectTable = basedataGDB_path + os.sep + "Table_" + projectName
+    tempTable = basedataGDB_path + os.sep + "Admin_Table"
     wetDetTableName = "Admin_Table"
     wetDetTable = wcGDB_path + os.sep + wetDetTableName
 
@@ -649,7 +650,9 @@ try:
     arcpy.SetProgressorLabel("Exporting Excel table(s)...")
     if arcpy.Exists(excelAdmin):
         arcpy.Delete_management(excelAdmin)
-    arcpy.TableToExcel_conversion(projectTable, excelAdmin)
+    arcpy.management.Copy(projectTable, tempTable)
+    arcpy.TableToExcel_conversion(tempTable, excelAdmin)
+    arcpy.management.Delete(tempTable)
     
     if arcpy.Exists(excel026):
         arcpy.Delete_management(excel026)

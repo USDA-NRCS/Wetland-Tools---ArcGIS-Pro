@@ -314,7 +314,8 @@ existingFolder = arcpy.GetParameterAsText(1)
 #stateFld = arcpy.GetParameterAsText(3)
 sourceState = arcpy.GetParameterAsText(4)
 #countyFld = arcpy.GetParameterAsText(5)
-sourceCounty = arcpy.GetParameterAsText(6).replace("'", "''")
+#sourceCounty = arcpy.GetParameterAsText(6).replace("'", "''")
+sourceCounty = arcpy.GetParameterAsText(6)
 tractNumber = arcpy.GetParameterAsText(7)
 owFlag = arcpy.GetParameter(8)
 map_name = arcpy.GetParameterAsText(11)
@@ -421,6 +422,10 @@ try:
         exit()
 
     # Search for FIPS codes to give to the Extract CLU Tool/Function. Break after the first row (should only find one row in any case).
+    # Temporarily adjust source county to handle apostrophes in relation to searching
+    sourceCounty = sourceCounty.replace("'", "''")
+
+    # Run Search
     stfip, cofip = '', ''
     fields = ['STATEFP','COUNTYFP','NAME','STATE','STPOSTAL']
     field1 = 'STATE'
@@ -440,6 +445,9 @@ try:
     if adStatePostal == '':
         arcpy.AddError("State postal code could not be retrieved! Exiting...\n")
         exit()
+
+    # Change sourceCounty back to handle apostrophes
+    sourceCounty = sourceCounty.replace("''", "'")
         
     # Transfer found values to variables to use for CLU download and project creation.
     adminState = stfip

@@ -179,10 +179,14 @@ def createCWD():
 
 
     #### Delete Certified-Digital areas from the Sampling Units layer (in case of download of existing SUs in previous steps)
+    edit = arcpy.da.Editor(wcGDB_path)
+    edit.startEditing()
     with arcpy.da.UpdateCursor(projectSU, "eval_status") as cursor:
         for row in cursor:
             if row[0] == "Certified-Digital":
                 cursor.deleteRow()
+    edit.stopEditing(save_changes=True)
+    del edit
                 
     
     #### Create the CWD Layer

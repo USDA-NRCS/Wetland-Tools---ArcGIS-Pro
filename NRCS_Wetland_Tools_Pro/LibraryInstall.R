@@ -1,7 +1,9 @@
 #Script developed to streamline the installation and setup of all the necessary packages in R for the report development as part of the Wetland Compliance tool.
 #Chris Morse - GIS Specialist, IN
 #Edwin Muniz - State Soil Scientist, NJ
-#June, 8, 2021.
+#October 27, 2022.
+
+#This version install the textreadr package from the archive location.
 
 
 #This script runs in three parts. The first part removes existing arcgisbinding packages that may
@@ -30,7 +32,11 @@ installRprofile(overwrite=TRUE)
 .rs.restartR()
 
 #Install packages needed for the report generator
-install.packages(c("stringi", "flextable", "knitr", "rmarkdown", "textreadr", "xlsx", "dbplyr"), dependencies = TRUE)
+install.packages(c("stringi", "flextable", "knitr", "rmarkdown", "xlsx", "dbplyr"), dependencies = TRUE)
+
+install.packages("devtools")
+require(devtools)
+install_version("textreadr", version = "1.2.0", repos = "https://cran.r-project.org/")
 
 #Install arcgidbinding package
 install.packages("arcgisbinding", repos = "https://r.esri.com", type = "win.binary")

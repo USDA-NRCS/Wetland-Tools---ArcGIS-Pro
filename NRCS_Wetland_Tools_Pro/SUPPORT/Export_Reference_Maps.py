@@ -38,6 +38,10 @@
 ## - Adjusted Hydric Rating by Map Unit to be "Hydric Classification" for more consistent terminology
 ## - Modified the legend of the Hydric Classification output to show all classes, not just classes of visible items
 ##
+## rev. 12/16/2022
+## - Added another map to the code for DEM without contours
+## - Added the contours to the Elevation - Contours and DEM map and renamed the map title to reflect the choice
+##
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
     # Adds tool message to the geoprocessor and text file log.
@@ -93,6 +97,7 @@ def logBasicSettings():
         f.write("\tZoom layer: " + zoomLyr + "\n")
     f.write("\tElevation - Contours Map: " + str(ctr_map) + "\n")
     f.write("\tElevation - Contours and DEM Map: " + str(dem_map) + "\n")
+    f.write("\tElevation - DEM-No Contours Map: " + str(demo_map) + "\n")
     f.write("\tElevation - Depth Grid Map: " + str(depth_map) + "\n")
     f.write("\tElevation - Slope Map: " + str(slope_map) + "\n")
     f.write("\tNational Wetland Inventory Map: " + str(nwi_map) + "\n")
@@ -418,6 +423,11 @@ try:
         dem_map = True
     else:
         dem_map = False
+
+    if "'Elevation - DEM without Contours'" in mapList:
+        demo_map = True
+    else:
+        demo_map = False
         
     if "'Elevation - Depth Grid'" in mapList:
         depth_map = True
@@ -566,6 +576,7 @@ try:
     sitePDF = wetDir + os.sep + "Site_" + projectName + ".pdf"
     ctrPDF = wetDir + os.sep + "Contours_" + projectName + ".pdf"
     demPDF = wetDir + os.sep + "DEM_" + projectName + ".pdf"
+    demoPDF = wetDir + os.sep + "DEM_No_Contours_" + projectName + ".pdf"
     depthPDF = wetDir + os.sep + "Depth_Grid_" + projectName + ".pdf"
     slopePDF = wetDir + os.sep + "Slope_" + projectName + ".pdf"
     nwiPDF = wetDir + os.sep + "NWI_" + projectName + ".pdf"
@@ -581,7 +592,7 @@ try:
     wtrtblPDF = wetDir + os.sep + "Water_Table_" + projectName + ".pdf"
     metadataPDF = wetDir + os.sep + "SSURGO_Metadata_" + projectName + ".pdf"
 
-    PDFlist = [sitePDF, ctrPDF, demPDF, depthPDF, slopePDF, nwiPDF, soilPDF, drainPDF, ecoPDF,
+    PDFlist = [sitePDF, ctrPDF, demPDF, demoPDF, depthPDF, slopePDF, nwiPDF, soilPDF, drainPDF, ecoPDF,
                floodPDF, hydricRatMuPDF, hydricRatCompPDF, hydrologicPDF, pondingPDF, wtrtblPDF,
                metadataPDF]
     
@@ -593,6 +604,7 @@ try:
                 sitePDF = wetDir + os.sep + "Site_" + projectName + "_" + str(count) + ".pdf"
                 ctrPDF = wetDir + os.sep + "Contours_" + projectName + "_" + str(count) + ".pdf"
                 demPDF = wetDir + os.sep + "DEM_" + projectName + "_" + str(count) + ".pdf"
+                demoPDF = wetDir + os.sep + "DEM_No_Contours_" + projectName + "_" + str(count) + ".pdf"
                 depthPDF = wetDir + os.sep + "Depth_Grid_" + projectName + "_" + str(count) + ".pdf"
                 slopePDF = wetDir + os.sep + "Slope_" + projectName + "_" + str(count) + ".pdf"
                 nwiPDF = wetDir + os.sep + "NWI_" + projectName + "_" + str(count) + ".pdf"
@@ -620,7 +632,7 @@ try:
         except:
             pass
         
-        PDFlist = [sitePDF, ctrPDF, demPDF, depthPDF, slopePDF, nwiPDF, soilPDF, drainPDF, ecoPDF,
+        PDFlist = [sitePDF, ctrPDF, demPDF, demoPDF, depthPDF, slopePDF, nwiPDF, soilPDF, drainPDF, ecoPDF,
                    floodPDF, hydricRatMuPDF, hydricRatCompPDF, hydrologicPDF, pondingPDF, wtrtblPDF,
                    metadataPDF]
         for item in PDFlist:
@@ -966,6 +978,8 @@ try:
                     setZoom(elev_lyt, ext)
                 update_elev_zoom = True
 
+            ctr_lyr.visible = True
+            ctr_lyr.showLabels = True
             dem_lyr.visible = True
             hill_lyr.visible = True
         
@@ -975,7 +989,7 @@ try:
                     item.visible = False
 
             # Update the title
-            elev_title_elm.text = "Elevation"
+            elev_title_elm.text = "Contours and Elevation"
 
             # Export the map
             AddMsgAndPrint("\tExporting the DEM Map to PDF...",0)
@@ -989,6 +1003,47 @@ try:
         else:
             AddMsgAndPrint("\nDEM, and/or Hillshade layer(s) not in map. Cannot create DEM Map. Continuing to next map...",1)
 
+
+    #####################################################################################################
+    ####################################### DEM ONLY MAP START ##########################################
+    #####################################################################################################
+    if demo_map:
+        AddMsgAndPrint("\nCreating the DEM - No Contours Map PDF file...",0)
+        arcpy.SetProgressorLabel("Creating DEM - No Contours Map...")
+
+        # Proceed if operational layer(s) actually exist(s) in the map
+        if dem_lyr != '' and hill_lyr != '':
+            if update_elev_zoom == False:
+                # Set zoom and visiblility
+                if zoomType == "Zoom to a layer":
+                    setZoom(elev_lyt, ext, "Yes")
+                else:
+                    setZoom(elev_lyt, ext)
+                update_elev_zoom = True
+
+            dem_lyr.visible = True
+            hill_lyr.visible = True
+        
+            elev_leg = elev_lyt.listElements('LEGEND_ELEMENT')[0]
+            for item in elev_leg.items:
+                if item.name == hillName:
+                    item.visible = False
+
+            # Update the title
+            elev_title_elm.text = "Elevation"
+
+            # Export the map
+            AddMsgAndPrint("\tExporting the DEM-No Contours Map to PDF...",0)
+            arcpy.SetProgressorLabel("Exporting DEM-No Contours Map...")
+            elev_lyt.exportToPDF(demoPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            AddMsgAndPrint("\tDEM Map file exported!",0)
+
+            # Reset visibility
+            visibility_off(lyr_list)
+
+        else:
+            AddMsgAndPrint("\nDEM, and/or Hillshade layer(s) not in map. Cannot create DEM - No Contours Map. Continuing to next map...",1)
+            
 
     #####################################################################################################
     ######################################### SLOPE MAP START ###########################################
@@ -1559,9 +1614,16 @@ try:
             pass
         
     if dem_map:
-        AddMsgAndPrint("\tAppending DEM map...",0)
+        AddMsgAndPrint("\tAppending DEM and Contours map...",0)
         try:
             finalPDF.appendPages(demPDF)
+        except:
+            pass
+
+    if demo_map:
+        AddMsgAndPrint("\tAppending DEM-No Contours map...",0)
+        try:
+            finalPDF.appendPages(demoPDF)
         except:
             pass
         

@@ -38,6 +38,10 @@
 ## rev. 04/29/2022
 ## - Adjusted previous determination data workflows and corrected related bugs
 ##
+## rev. 12/14/2022
+## - Debugged failed Base Map generation when previous determinations are present on the Tract but not on the new
+##   request area.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================
 def AddMsgAndPrint(msg, severity=0):
@@ -239,8 +243,19 @@ def createSU():
                     arcpy.Append_management(suTemp1, projectSUnew, "NO_TEST")
                     arcpy.Append_management(prevSU, projectSUnew, "NO_TEST")
         else:
-            AddMsgAndPrint("\tNo previous sampling units found in online data! Continuing...",0)
-            arcpy.SetProgressorLabel("No previous sampling units found in online data! Continuing...")
+            AddMsgAndPrint("\tPrevious Sampling Units do not overlap the new request extent! Creating new sampling units area...",0)
+            arcpy.SetProgressorLabel("Previous Sampling Units do not overlap the new request extent! Creating new sampling units area...")
+            # Create the SU layer by intersecting the Reqeust Extent with the CLU
+            arcpy.Intersect_analysis([projectExtent, projectCLU], suMulti, "NO_FID", "#", "INPUT")
+            arcpy.MultipartToSinglepart_management(suMulti, suTemp1)
+
+            # Dissolve out field lines if that option was selected
+            if keepFields == "No":
+                dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+                arcpy.Dissolve_management(suTemp1, suTemp2, dis_fields, "", "SINGLE_PART", "")
+                arcpy.Append_management(suTemp2, projectSUnew, "NO_TEST")
+            else:
+                arcpy.Append_management(suTemp1, projectSUnew, "NO_TEST")
 
     else:
         # Create the SU layer by intersecting the Reqeust Extent with the CLU
