@@ -1,25 +1,54 @@
 # Wetland-Tools---ArcGIS-Pro
 NRCS wetlands conservation compliance tools for creating determination products in ArcGIS Pro
 
-## **Version 1.1.0 (09/09/2022; Production Release):**
+## **Version 2.0.0 (01/23/2023; Development Release):**
 
 ### **New Features/Changes**
-- Updated the NAD Address Spreadsheet.
-- Updated the LibraryInstall.R file to mitigate errors and execution failures of the Create Forms and Letters tool.
-- Updated the WC_Report_Tool.r file to mitigate errors and execution failures of the Create Forms and Letters tool.
-- Updated Install Base Software section and the Configure R section of the state administrator guide and user guide.
-- Updated the labeling expressions for Sampling Units, CWD, CLU CWD, and Previous CLU CWD to round acres to the hundredths.
+- Removed all R components and replaced them with python components in the Forms and Letter tools.
+	-R for Windows, RStudio, and/or RTools are no longer required dependencies and can be uninstalled unless needed for other work.
+	-The R arcgisbinding does not need to be configured any longer.
+- Updated State Tool Adminstrator Guide and User Guide to reflect the changes that removed R.
+- Updated Install Base Software sections of the guides to account for currently available versions of ArcGIS Pro.
+- Updated the NAD Address Spreadsheet to correct the name of the TOLLFREE column.
+- Updated Import Office Addresses tool to also import the NAD_Address.xlsx spreadsheet to allow rapid local corrections in the event of address changes.
+- Imported the NAD Address data table into the installed SUPPORT.gdb file by default.
+- Fixed bug with apostrophes in county names.
+- Fixed bug to reliably generate Sampling Unit areas when a new Request Extent is found adjacent and coincident with previously completed determinations.
+- Restored capability to make a elevation maps with and without contours.
+- Added new layer files (LYRX) for NRCS Bare Earth DEM service coverage extents and a new layer for the NRCS 0.5 meter service to the Reference Layers folder.
 
 ### **Changed Files**
-- ..\NRCS_Wetland_Tools_Pro\LibraryInstall.R
+- ..\NRCS_Wetland_Tools_Pro\LibraryInstall.R (removed)
+- ..\NRCS_Wetland_Tools_Pro\NRCS_Wetland_Tools_Pro.tbx
+- ..\NRCS_Wetland_Tools_Pro\NRCS_Wetland_Tools_Pro_Training.tbx
+- ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 0.5m.lyrx
+- ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 3m Coverage.lyrx
+- ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 2m Coverage.lyrx
+- ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 1m Coverage.lyrx
+- ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 0.5m Coverage.lyrx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_028_Form_Only.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Forms_and_Letters.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Import_Office_Addresses.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Reference_Maps.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_CWD_Layers.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Base_Map_Layers_Training.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Base_Map_Layers.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_CWD_Mapping_Layers.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Wetlands_Project.py
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.docx
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.pdf
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.docx
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.pdf
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\WC_Report_Tool.r
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\python_packages
+	(this is a new folder with all new contents)
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\SUPPORT.gdb
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates
+	(all files in this folder that supported R were removed or replaced, except for NAD_Address.xlsx and NRCS_Address.xlsx)
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\NAD_Address.xlsx
+	(the TOLLFREE column name in this spreadsheet was corrected from the previously incorrect TOOLFREE)
 
 ### Tips on Updating
-State Tool Administrators should download the new version, customize it (per the guidance in the State Administrator Guide), and the provide their customized version to users in their state.
+This is a new version release. It is recommended to completely replace existing installation folders with only few exceptions (outlined below). State Tool Administrators should download the new version, customize it (per the guidance in the State Administrator Guide), and the provide their customized version to users in their state.
 	
 Close any ArcGIS Pro projects for the WC Tools before installing the new version.
 	
@@ -31,6 +60,21 @@ APRX templates or spreadsheets from version 1.0.3 or earlier should not be broug
 
 
 ## **Version History:**
+
+### v 1.1.0 (09/09/2022; Production Release):
+
+- Updated the NAD Address Spreadsheet.
+- Updated the LibraryInstall.R file to mitigate errors and execution failures of the Create Forms and Letters tool.
+- Updated the WC_Report_Tool.r file to mitigate errors and execution failures of the Create Forms and Letters tool.
+- Updated Install Base Software section and the Configure R section of the state administrator guide and user guide.
+- Updated the labeling expressions for Sampling Units, CWD, CLU CWD, and Previous CLU CWD to round acres to the hundredths.
+- ..\NRCS_Wetland_Tools_Pro\LibraryInstall.R
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.pdf
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.pdf
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\WC_Report_Tool.r
+
 
 ### v 1.0.9 (08/29/2022; Production Release):
 
