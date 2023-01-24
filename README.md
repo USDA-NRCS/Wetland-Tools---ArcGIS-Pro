@@ -5,8 +5,8 @@ NRCS wetlands conservation compliance tools for creating determination products 
 
 ### **New Features/Changes**
 - Removed all R components and replaced them with python components in the Forms and Letter tools.
--R for Windows, RStudio, and/or RTools are no longer required dependencies and can be uninstalled unless needed for other work.
--The R arcgisbinding does not need to be configured any longer.
+- R for Windows, RStudio, and/or RTools are no longer required dependencies and can be uninstalled unless needed for other work.
+- The R arcgisbinding no longer needs to be configured.
 - Updated State Tool Adminstrator Guide and User Guide to reflect the changes that removed R.
 - Updated Install Base Software sections of the guides to account for currently available versions of ArcGIS Pro.
 - Updated the NAD Address Spreadsheet to correct the name of the TOLLFREE column.
