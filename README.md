@@ -45,7 +45,7 @@ NRCS wetlands conservation compliance tools for creating determination products 
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\NAD_Address.xlsx (the TOLLFREE column name in this spreadsheet was corrected from the previously incorrect TOOLFREE)
 
 ### Tips on Updating
-This is a new version release. It is recommended to completely replace existing installation folders with only few exceptions (outlined below). State Tool Administrators should download the new version, customize it (per the guidance in the State Administrator Guide), and the provide their customized version to users in their state.
+Version 2.0.0 is a new version release. It is recommended to completely replace existing installation folders and contents with only a few exceptions (outlined below). State Tool Administrators should download the new version, customize it (per the guidance in the State Tool Administrator Guide), and the provide their customized version of the tool to users in their state.
 	
 Close any ArcGIS Pro projects for the WC Tools before installing the new version.
 	
