@@ -5,8 +5,8 @@ NRCS wetlands conservation compliance tools for creating determination products 
 
 ### **New Features/Changes**
 - Removed all R components and replaced them with python components in the Forms and Letter tools.
-	-R for Windows, RStudio, and/or RTools are no longer required dependencies and can be uninstalled unless needed for other work.
-	-The R arcgisbinding does not need to be configured any longer.
+-R for Windows, RStudio, and/or RTools are no longer required dependencies and can be uninstalled unless needed for other work.
+-The R arcgisbinding does not need to be configured any longer.
 - Updated State Tool Adminstrator Guide and User Guide to reflect the changes that removed R.
 - Updated Install Base Software sections of the guides to account for currently available versions of ArcGIS Pro.
 - Updated the NAD Address Spreadsheet to correct the name of the TOLLFREE column.
@@ -39,13 +39,10 @@ NRCS wetlands conservation compliance tools for creating determination products 
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.pdf
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.docx
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.pdf
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\python_packages
-	(this is a new folder with all new contents)
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\python_packages (this is a new folder with all new contents)
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\SUPPORT.gdb
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates
-	(all files in this folder that supported R were removed or replaced, except for NAD_Address.xlsx and NRCS_Address.xlsx)
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\NAD_Address.xlsx
-	(the TOLLFREE column name in this spreadsheet was corrected from the previously incorrect TOOLFREE)
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates (all files in this folder that supported R were removed or replaced, except for NAD_Address.xlsx and NRCS_Address.xlsx)
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\NAD_Address.xlsx (the TOLLFREE column name in this spreadsheet was corrected from the previously incorrect TOOLFREE)
 
 ### Tips on Updating
 This is a new version release. It is recommended to completely replace existing installation folders with only few exceptions (outlined below). State Tool Administrators should download the new version, customize it (per the guidance in the State Administrator Guide), and the provide their customized version to users in their state.
