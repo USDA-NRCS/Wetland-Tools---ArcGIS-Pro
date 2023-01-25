@@ -48,7 +48,7 @@ if arcpy.Exists(nrcs_address_excel) and arcpy.Exists(nad_address_excel):
 
         arcpy.AddMessage("Importing NAD Office Table...")
         arcpy.SetProgressorLabel("Importing NAD Office Table...")
-        arcpy.ExcelToTable_conversion(nad_address_excel, fsa_table, "NAD_Address", 1)
+        arcpy.ExcelToTable_conversion(nad_address_excel, nad_table, "NAD_Address", 1)
     except:
         arcpy.AddError("Something went wrong in the import process. Exiting...")
         exit()
