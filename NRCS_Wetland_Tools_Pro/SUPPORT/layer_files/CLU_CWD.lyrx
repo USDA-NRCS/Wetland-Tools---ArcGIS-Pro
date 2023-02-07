@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.9.0",
-  "build" : 32739,
+  "version" : "2.7.0",
+  "build" : 26828,
   "layers" : [
     "CIMPATH=Determinations/9e6157b0f97d486c88a9c21935a75713.xml"
   ],
@@ -22,7 +22,7 @@
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -30,7 +30,6 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
-      "allowDrapingOnIntegratedMesh" : true,
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
@@ -69,7 +68,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "if(!IsEmpty($feature.occur_year)) {\r\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + $feature.occur_year + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}",
+          "expression" : "if(IsEmpty($feature.occur_year)) {\r\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return $feature.clu_number + TextFormatting.NewLine + $feature.wetland_label + $feature.occur_year + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -114,8 +113,7 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ],
-              "trimStackingSeparators" : true
+              ]
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",
@@ -190,7 +188,7 @@
           "standardLabelPlacementProperties" : {
             "type" : "CIMStandardLabelPlacementProperties",
             "featureType" : "Line",
-            "featureWeight" : "Low",
+            "featureWeight" : "None",
             "labelWeight" : "High",
             "numLabelsOption" : "OneLabelPerName",
             "lineLabelPosition" : {
