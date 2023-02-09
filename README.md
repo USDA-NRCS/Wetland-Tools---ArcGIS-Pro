@@ -83,7 +83,7 @@ Existing projects that were created from versions 1.0.4 to 1.1.0 are compatible 
 - Click Import Layout.
 - Click Import Layout File (at the bottom of the Import Layout screen).
 - Navigate to ..\NRCS_Wetland_Tools_Pro\Installed_Layouts
-- Select Base Map Portrati 8.5x11 (this is a PAGX file type).
+- Select Base Map Portrat 8.5x11 (this is a PAGX file type).
 - Click OK
 - The new Base Map will be added to the project and will be open.
 - In the Contents pane of the open Base Map, right-click the "Map Frame" item and then click Properties.
