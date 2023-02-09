@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.9.0",
-  "build" : 32739,
+  "version" : "2.7.0",
+  "build" : 26828,
   "layers" : [
     "CIMPATH=field_test/elevation_half_m_dtm.xml"
   ],
@@ -18,7 +18,7 @@
       "description" : "The high resolution elevation raster services are composed of raster derivatives from LiDAR projects collected from 2002 to the present. Rasters from individual projects are added to a mosaic dataset and functions are applied on ArcGIS Server to produce further derivatives such as; hillshade, slope and aspect. Height values (Z-values) that come in feet are converted to meters to create a consistent elevation layer. Coordinate systems are adjusted to match the national. Some collections were made with resolution in feet, not exactly matching resolution in meters. Datasets that are equal to or smaller than 0.5 Meters resolution are included in the 0.5M layer. \n<br /><strong>Purpose: </strong>This service provides the latest 1m USDA-FPAC-GEO collection <br />\n<strong>Creation Date: </strong>2002 - 20220815<br />\n<strong>Publication Date: </strong>20220815<br />\n<strong>Revision Date: </strong>20221206<br />\n<strong>Refresh Cycle: </strong>Updated periodically as new Lidar data is acquired.<br />\n<strong>Version: </strong>1.2.0<br />\n<strong><a href='https://gis-dev.dev.sc.egov.usda.gov/info/changelog/elevation/half_m_dtm.html' target='_blank'>Change Log</a></strong><br />\n<strong><a href='https://usdafpacbc.servicenowservices.com/isd' target='_blank'>Report Service Errors</a></strong><br />",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{FE683FA1-CB1B-4790-84EF-277D20A6E80B}"
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
       },
       "layerType" : "Operational",
       "showLegends" : true,
@@ -30,7 +30,6 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
-      "allowDrapingOnIntegratedMesh" : true,
       "dataConnection" : {
         "type" : "CIMAGSServiceConnection",
         "objectName" : "elevation/half_m_dtm",
@@ -124,7 +123,7 @@
           "limitMin" : -1.1342744887950962e+38,
           "limitMax" : 1.1342744887950962e+38,
           "histogram" : [
-            8789512,
+            154699814745512,
             0,
             0,
             0,
@@ -379,7 +378,7 @@
             0,
             0,
             0,
-            8810989
+            155077820705489
           ],
           "nsamples" : 17600501,
           "resolution" : 8.8962705003536957e+35
@@ -473,7 +472,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{FE683FA1-CB1B-4790-84EF-277D20A6E80B}",
+      "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [
@@ -488,6 +487,6 @@
       "expanded" : true
     }
   ],
-  "rGBColorProfile" : "sRGB IEC61966-2.1",
+  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
   "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
 }

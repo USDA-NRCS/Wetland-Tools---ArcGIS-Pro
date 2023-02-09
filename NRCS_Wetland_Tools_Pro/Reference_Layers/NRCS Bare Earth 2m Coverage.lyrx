@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.9.0",
-  "build" : 32739,
+  "version" : "2.7.0",
+  "build" : 26828,
   "layers" : [
     "CIMPATH=field_test/new_group_layer2.xml"
   ],
@@ -13,12 +13,13 @@
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
+      "metadataURI" : "CIMPATH=Metadata/215a54988555ad68eac7892cf5057c4c.xml",
       "useSourceMetadata" : true,
       "attribution" : "USDA-NRCS-NGCE",
       "description" : "Vector polygon dataset provides Lidar project boundaries by resolution.",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{FE683FA1-CB1B-4790-84EF-277D20A6E80B}"
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -32,7 +33,6 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
-      "allowDrapingOnIntegratedMesh" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
@@ -102,8 +102,7 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ],
-              "trimStackingSeparators" : true
+              ]
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",
@@ -319,12 +318,13 @@
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
+      "metadataURI" : "CIMPATH=Metadata/bc7c0caba39affaa42391015ab61f8a8.xml",
       "useSourceMetadata" : true,
       "attribution" : "USDA-NRCS-NGCE",
       "description" : "Vector polygon dataset provides Lidar project boundaries by resolution.",
       "layerElevation" : {
         "type" : "CIMLayerElevationSurface",
-        "mapElevationID" : "{FE683FA1-CB1B-4790-84EF-277D20A6E80B}"
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
       },
       "expanded" : true,
       "layerType" : "Operational",
@@ -338,7 +338,6 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
-      "allowDrapingOnIntegratedMesh" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
         "type" : "CIMFeatureTable",
@@ -408,8 +407,7 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ],
-              "trimStackingSeparators" : true
+              ]
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",
@@ -628,7 +626,10 @@
       "metadataURI" : "CIMPATH=Metadata/c69d7e15f37a3a7f5e08f71918909560.xml",
       "useSourceMetadata" : true,
       "description" : "New Group Layer",
-      "expanded" : true,
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
+      },
       "layerType" : "Operational",
       "showLegends" : true,
       "transparency" : 50,
@@ -640,7 +641,6 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
-      "allowDrapingOnIntegratedMesh" : true,
       "layers" : [
         "CIMPATH=field_test/2m_bare_earth_lidar2.xml",
         "CIMPATH=field_test/2m_bare_earth_lidar.xml"
@@ -648,6 +648,16 @@
     }
   ],
   "binaryReferences" : [
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/215a54988555ad68eac7892cf5057c4c.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230209</CreaDate><CreaTime>10073400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>NRCS 2m Coverage Overview</resTitle></idCitation><idAbs>Vector polygon dataset provides Lidar project boundaries by resolution.</idAbs><idCredit>USDA-NRCS-NGCE</idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/bc7c0caba39affaa42391015ab61f8a8.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20230209</CreaDate><CreaTime>10073400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>NRCS 2m Coverage Detailed</resTitle></idCitation><idAbs>Vector polygon dataset provides Lidar project boundaries by resolution.</idAbs><idCredit>USDA-NRCS-NGCE</idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    },
     {
       "type" : "CIMBinaryReference",
       "uRI" : "CIMPATH=Metadata/c69d7e15f37a3a7f5e08f71918909560.xml",
@@ -660,7 +670,7 @@
       "elevationMode" : "BaseGlobeSurface",
       "name" : "Ground",
       "verticalExaggeration" : 1,
-      "mapElevationID" : "{FE683FA1-CB1B-4790-84EF-277D20A6E80B}",
+      "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}",
       "color" : {
         "type" : "CIMRGBColor",
         "values" : [
@@ -675,6 +685,6 @@
       "expanded" : true
     }
   ],
-  "rGBColorProfile" : "sRGB IEC61966-2.1",
+  "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
   "cMYKColorProfile" : "U.S. Web Coated (SWOP) v2"
 }

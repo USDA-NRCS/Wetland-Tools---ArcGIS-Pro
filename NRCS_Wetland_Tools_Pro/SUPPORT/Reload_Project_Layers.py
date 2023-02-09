@@ -15,8 +15,8 @@
 ## Changes
 ## ===============================================================================================================
 ##
-## rev. ##/##/####
-## -[enter text for revisions here]
+## rev. 02/09/2023
+## -Added other business layers to the reload script besides just attribute rule business layers.
 ##
 ## ===============================================================================================================
 ## ===============================================================================================================    
@@ -137,23 +137,64 @@ try:
     # Project paths
     userWorkspace = sourceFolder
     projectName = os.path.basename(userWorkspace)
+    
+    basedataGDB_name = projectName + "_BaseData.gdb"
+    basedataGDB_path = userWorkspace + os.sep + basedataGDB_name
+    basedataFD = basedataGDB_path + os.sep + "Layers"
+    if not arcpy.Exists(basedataGDB_path):
+        arcpy.AddError("The specified folder does appear to contain a basedata GDB file.")
+        arcpy.AddError("Recommend trying a different folder or starting from scratch on a new project. Exiting...")
+        exit()
+    
     wetDir = userWorkspace + os.sep + "Wetlands"
     if not arcpy.Exists(wetDir):
         arcpy.AddError("The specified folder does appear to be a determinations project folder.")
-        arcpy.AddError("We recommend trying a different folder or starting from scratch on a new project. Exiting...")
+        arcpy.AddError("Recommend trying a different folder or starting from scratch on a new project. Exiting...")
         exit()
     wcGDB_path = wetDir + os.sep + projectName + "_WC.gdb"
     if not arcpy.Exists(wcGDB_path):
-        arcpy.AddError("The specified folder does contain a wetlands database.")
-        arcpy.AddError("We recommend re-running Create Wetlands Project, Create Base Map Layers, or Create CWD Layers. Exiting...")
+        arcpy.AddError("The specified folder does not contain a wetlands database.")
+        arcpy.AddError("Recommend re-running Create Wetlands Project, Create Base Map Layers, or Create CWD Layers. Exiting...")
         exit()
     wcFD = wcGDB_path + os.sep + "WC_Data"
     if not arcpy.Exists(wcFD):
-        arcpy.AddError("The specified folder does contain a wetlands database with a correct dataset. Exiting...")
-        arcpy.AddError("We recommend re-running Create Wetlands Project, Create Base Map Layers, or Create CWD Layers. Exiting...")
+        arcpy.AddError("The specified folder does not contain a wetlands database with a correct dataset.")
+        arcpy.AddError("Recommend re-running Create Wetlands Project, Create Base Map Layers, or Create CWD Layers. Exiting...")
         exit()
 
+    # Project Business Layers without rules
+    cluName = "Site_CLU"
+    projectCLU = basedataFD + os.sep + cluName
+    
+    defineName = "Site_Define_AOI"
+    projectDefine = basedataFD + os.sep + defineName
+            
+    nwiName = "Site_NWI"
+    projectNWI = basedataFD + os.sep + nwiName
 
+    extName = "Request_Extent"
+    projectExt = basedataFD + os.sep + extName
+
+    contourName = "Site_Contours"
+    projectContours = basedataGDB_path + os.sep + contourName
+
+    depthName = "Site_Depth_Grid"
+    projectDepth = basedataGDB_path + os.sep + depthName
+
+    hillName = "Site_Hillshade"
+    projectHill = basedataGDB_path + os.sep + hillName
+
+    demName = "Site_DEM"
+    projectDEM = basedataGDB_path + os.sep + demName
+
+    slopeName = "Site_Slope_Pct"
+    projectSlope = basedataGDB_path + os.sep + slopeName
+
+    clucwdName = "Site_CLU_CWD"
+    projectCLUCWD = wcFD + os.sep + clucwdName
+
+    prevName = "Site_Previous_CLU_CWD"
+    projectPrev = wcFD + os.sep + prevName
     
     # Possible Project Business Layers that have rules
     suName = "Site_Sampling_Units"
@@ -180,6 +221,7 @@ try:
     refAnnoString = "Site_Reference_Points" + "Anno*"
     drainAnnoString = "Site_Drainage_Lines" + "Anno*"
     cwdAnnoString = "Site_CWD" + "Anno*"
+    clucwdAnnoString = "Site_CLU_CWD" + "Anno*"
     
     # Layer Files
     suLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Sampling_Units.lyrx").listLayers()[0]
@@ -187,6 +229,7 @@ try:
     refLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Reference_Points.lyrx").listLayers()[0]
     drainLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Drainage_Lines.lyrx").listLayers()[0]
     cwdLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "CWD.lyrx").listLayers()[0]
+    clucwdLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "CLU_CWD.lyrx").listLayers()[0]
     pjwLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "PJW.lyrx").listLayers()[0]
     
     # Rules Files
@@ -233,7 +276,7 @@ try:
     mapLayersToRemove = [suName, ropName, refName, drainName, cwdName, pjwName]
 
     # Find annotation to remove as well and add it to the list
-    annoStrings = [suAnnoString, ropAnnoString, refAnnoString, drainAnnoString, cwdAnnoString]
+    annoStrings = [suAnnoString, ropAnnoString, refAnnoString, drainAnnoString, cwdAnnoString, clucwdAnnoString]
     for aString in annoStrings:
         for lyr in m.listLayers(aString):
             mapLayersToRemove.append(lyr.longName)
@@ -348,6 +391,50 @@ try:
             if name in lyr.longName:
                 lyr.visible = False
 
+    # Check and add layers without rules
+    if not arcpy.Exists(cluName):
+        if arcpy.Exists(projectCLU):
+            arcpy.SetParameterAsText(1, projectCLU)
+
+    if not arcpy.Exists(defineName):
+        if arcpy.Exists(projectDefine):
+            arcpy.SetParameterAsText(2, projectDefine)
+
+    if not arcpy.Exists(extName):
+        extentLyr = arcpy.mp.LayerFile(os.path.join(os.path.dirname(sys.argv[0]), "layer_files") + os.sep + "Extent.lyrx").listLayers()[0]
+        extentLyr_cp = extentLyr.connectionProperties
+        extentLyr_cp['connection_info']['database'] = basedataGDB_path
+        extentLyr_cp['dataset'] = extName
+        extentLyr.updateConnectionProperties(extentLyr.connectionProperties, extentLyr_cp)
+        m.addLayer(extentLyr)
+
+    if not arcpy.Exists(contourName):
+        if arcpy.Exists(projectContours):
+            arcpy.SetParameterAsText(3, projectContours)
+
+    if not arcpy.Exists(depthName):
+        if arcpy.Exists(projectDepth):
+            arcpy.SetParameterAsText(4, projectDepth)
+
+    if not arcpy.Exists(hillName):
+        if arcpy.Exists(projectHill):
+            arcpy.SetParameterAsText(5, projectHill)
+
+    if not arcpy.Exists(demName):
+        if arcpy.Exists(projectDEM):
+            arcpy.SetParameterAsText(6, projectDEM)
+
+    if not arcpy.Exists(slopeName):
+        if arcpy.Exists(projectSlope):
+            arcpy.SetParameterAsText(7, projectSlope)
+
+    if not arcpy.Exists(clucwdName):
+        if arcpy.Exists(projectCLUCWD):
+            arcpy.SetParameterAsText(8, projectCLUCWD)
+
+    if not arcpy.Exists(prevName):
+        if arcpy.Exists(projectPrev):
+            arcpy.SetParameterAsText(9, projectPrev)
     
     #### Compact FGDB
     try:

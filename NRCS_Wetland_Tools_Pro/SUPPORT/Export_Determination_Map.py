@@ -434,6 +434,7 @@ try:
     cwdName = "Site_CWD"
     clucwdName = "Site_CLU_CWD"
     pjwName = "Site_PJW"
+    pjwAltName = "PJW"
     drainName = "Site_Drainage_Lines"
     prevcwdName = "Site_Previous_CLU_CWD"
     imageName = imagery
@@ -685,6 +686,7 @@ try:
 ##            prev_cwd_anno_lyr.visible = False
 
     if sourcePJW:
+        pjw_lyr.name = "Potential Jurisdictional Waters"
         pjw_lyr.visible = True
         pjw_lyr.showLabels = False
         
@@ -716,13 +718,16 @@ try:
             plss_lyr.visible = False
         except:
             pass
-            
+    
     # Export the map
     AddMsgAndPrint("\tExporting the Determination Map to PDF...",0)
     arcpy.SetProgressorLabel("Exporting Determination Map...")
     dm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
     AddMsgAndPrint("\tDetermination Map file exported!",0)
 
+    # Change back the PJW layer name (temp fix before all renaming)
+    if sourcePJW:
+        pjw_lyr.name = "Site_PJW"
 
     #### MAINTENANCE
     # Look for and delete anything else that may remain in the installed SCRATCH.gdb

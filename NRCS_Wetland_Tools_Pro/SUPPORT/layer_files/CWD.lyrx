@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.9.0",
-  "build" : 32739,
+  "version" : "2.7.0",
+  "build" : 26828,
   "layers" : [
     "CIMPATH=data_templates/master_cwd.xml"
   ],
@@ -24,7 +24,7 @@
       "expanded" : true,
       "layerType" : "Operational",
       "showLegends" : true,
-      "visibility" : false,
+      "visibility" : true,
       "displayCacheType" : "Permanent",
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
@@ -32,7 +32,6 @@
       "refreshRate" : -1,
       "refreshRateUnit" : "esriTimeUnitsSeconds",
       "blendingMode" : "Alpha",
-      "allowDrapingOnIntegratedMesh" : true,
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "0",
       "featureTable" : {
@@ -284,7 +283,7 @@
         },
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in001_t0000309_2022_09\\Wetlands\\in001_t0000309_2022_09_WC.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\Determinations\\in001_t0000309_2022_04\\Wetlands\\in001_t0000309_2022_04_WC.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "Site_CWD",
           "datasetType" : "esriDTFeatureClass"
@@ -313,7 +312,7 @@
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "if(IsEmpty($feature.occur_year)) {\r\n    return Text($feature.wetland_label) + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}\r\nelse {\r\n    return Text($feature.wetland_label) + Text($feature.occur_year) + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\r\n}",
+          "expression" : "if(IsEmpty($feature.occur_year)) {\n    return Text($feature.wetland_label) + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\n}\nelse {\n    return Text($feature.wetland_label) + Text($feature.occur_year) + TextFormatting.NewLine + Text(Round($feature.acres,2), '#.00') + \" ac\"\n}",
           "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
@@ -358,8 +357,7 @@
                   "visible" : true,
                   "splitAfter" : true
                 }
-              ],
-              "trimStackingSeparators" : true
+              ]
             },
             "lineFeatureType" : "General",
             "linePlacementMethod" : "OffsetCurvedFromLine",

@@ -42,6 +42,9 @@
 ## - Slight modifications to test edit objects interfering with output schema locks. Confirmed that editing is
 ##   required during script runtime to allow attribute rules that use the "Update" option to function properly.
 ##
+## rev. 02/08/2023
+## - Added sum of SU acres to be passed to the Project Area Text Box on the Base Map Layout
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -96,6 +99,16 @@ def logBasicSettings():
     f.close
     del f
 
+## ================================================================================================================
+def getLayout(lyt_name):
+    try:
+        layout = aprx.listLayouts(lyt_name)[0]
+        return layout
+    except:
+        AddMsgAndPrint("\t" + lyt_name + " layout missing from project. Skipping layout automation for " + lyt_name + ".", 1)
+        AddMsgAndPrint("\tManual import of the missing " + lyt_name + " layout from the install directory is recommended. Continuing...",1)
+        return False
+    
 #### ===============================================================================================================
 ##def deleteRules(projectFC, rule_names):
 ##    # Removes a feature class's rules and imports them again
@@ -210,6 +223,8 @@ try:
     yn_domain = domain_base + os.sep + "domain_yn"
     yesno_domain = domain_base + os.sep + "domain_yesno"
 
+
+
 ##    # Possible Rules Files
 ##    rules_su = os.path.join(os.path.dirname(sys.argv[0]), "Rules_SU.csv")
 ##    rules_rops = os.path.join(os.path.dirname(sys.argv[0]), "Rules_ROPs.csv")
@@ -224,6 +239,8 @@ try:
 ##                       'Add ROP Admin County Name', 'Add ROP Job ID', 'Add ROP State Code', 'Add ROP State Name',
 ##                       'Add ROP County Code', 'Add ROP County Name', 'Add ROP Farm Number', 'Add ROP Tract Number']
 
+
+        
     
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
@@ -233,15 +250,25 @@ try:
 
 
     #### If project wetlands feature dataset does not exist, exit.
+    AddMsgAndPrint("\nVerifying project integrity...",0)
+    arcpy.SetProgressorLabel("Verifing project integrity...")
+    
     if not arcpy.Exists(wcFD):
         AddMsgAndPrint("\tInput Site Sampling Units layer does not come from an expected project feature dataset.",2)
         AddMsgAndPrint("\tPlease re-run and select a valid Site Samping Units layer. Exiting...",2)
         exit()
 
+
+    #### Define the base map layout; if it doesn't exist, exit.
+    BM_layout = getLayout("Base Map")
+    if BM_layout == '':
+        AddMsgAndPrint("\tBase Map Layout not present in project.",2)
+        AddMsgAndPrint("\tManually import Base Map Layout PAGX file from Installed Layouts folder and connect it to the Determinations Map Frame.",2)
+        AddMsgAndPrint("\tThen re-run this tool. Exiting...",2)
+        exit()
+
     
     #### At least one ROP record must exist
-    AddMsgAndPrint("\nVerifying project integrity...",0)
-    arcpy.SetProgressorLabel("Verifing project integrity...")
     result = int(arcpy.GetCount_management(projectROP).getOutput(0))
     if result < 1:
         AddMsgAndPrint("\tAt least one ROP must exist in the Site ROPs layer!",2)
@@ -379,12 +406,38 @@ try:
     edit.stopEditing(True)
     del workspace, edit
 
+    # Update the acres
     expression = "round(!Shape.Area@acres!,2)"
     arcpy.CalculateField_management(projectSU, "acres", expression, "PYTHON_9.3")
     del expression
 
+    # Sum the acres
+    arcpy.analysis.Statistics(projectSU, "temp_ac", [["acres", "SUM"]])
+
+    # Get the sum acres
+    fields = ['SUM_acres']
+    cursor = arcpy.da.SearchCursor("temp_ac", fields)
+    for row in cursor:
+        sum_ac = row[0]
+        sum_ac = str(round(sum_ac, 2))
+        #break
+    del cursor, fields
+
+    arcpy.management.Delete("temp_ac")
+
+    # Update the Base Map Total Project Area Text Box with the Sum of mapped sampling unit acres
+    try:
+        Proj_Area_ele = BM_layout.listElements("TEXT_ELEMENT", "Project Area Text Box")[0]
+    except:
+        AddMsgAndPrint("\tThe Project Area Text Box is not present on the Base Map Layout.",2)
+        AddMsgAndPrint("\tManually import Base Map Layout PAGX file from Installed Layouts folder and connect it to the Determinations Map Frame.",2)
+        AddMsgAndPrint("\tThen re-run this tool. Exiting...",2)
+        exit()
+
+    Proj_Area_ele.text = "Total Project Area: " + sum_ac + " ac."
+
     # Update ROPs layer
-    AddMsgAndPrint("\tUpdating ROPs request info...",0)
+    AddMsgAndPrint("\nUpdating ROPs request info...",0)
     arcpy.SetProgressorLabel("Updating ROPs info...")
     fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number']
     cursor = arcpy.da.UpdateCursor(projectROP, fields)

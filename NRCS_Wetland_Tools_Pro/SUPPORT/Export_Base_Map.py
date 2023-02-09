@@ -39,6 +39,9 @@
 ## rev. 02/08/2022
 ## - Blocked out annotation and labels related code
 ##
+## rev. 02/09/2023
+## - Added sum of SU acres to be passed to the Project Area Text Box on the Base Map Layout
+##
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
     # Adds tool message to the geoprocessor and text file log.
@@ -227,12 +230,14 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
     for elm in lyt.listElements():
         elm_list.append(elm.name)
 
-    elm_names = ['Location','Farm','Tract','GeoCo','AdminCo','Customer']
+    elm_names = ['Location','Farm','Tract','GeoCo','AdminCo','Customer','Project Area Text Box']
 
     for name in elm_names:
         if name not in elm_list:
             AddMsgAndPrint("\n" + lyt.name + " layout does not contain " + name + " layout element.",2)
             AddMsgAndPrint("\nThe layout had an element deleted or may not be from the current version of the NRCS Wetlands Compliance Tools.",2)
+            AddMsgAndPrint("\tManually import Base Map Layout PAGX file from Installed Layouts folder and connect it to the Determinations Map Frame.",2)
+            AddMsgAndPrint("\tThen re-run this tool.",2)
             AddMsgAndPrint("\nExiting....",2)
             exit()
 
@@ -265,6 +270,10 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
         # Imagery Text element
         if elm.name == "Imagery Text Box":
             imagery_elm = elm
+
+        # Project Area Text Box element
+        if elm.name == "Project Area Text Box":
+            proj_area_elm = elm
         
 ##        # Map Prepared By element
 ##        if elm.name == "Map Author":
@@ -317,6 +326,25 @@ def setLytElements(lyt, admCoName, geoCoName, farmNum, trNum, clientName, digiti
 ##    else:
 ##        prep_elm.text = "Map Prepared By: (Not Entered)"
 
+
+    #### Update the total project area acres
+    # Sum the acres
+    arcpy.analysis.Statistics(projectSU, "temp_ac", [["acres", "SUM"]])
+
+    # Get the sum acres
+    fields = ['SUM_acres']
+    cursor = arcpy.da.SearchCursor("temp_ac", fields)
+    for row in cursor:
+        sum_ac = row[0]
+        sum_ac = str(round(sum_ac, 2))
+        #break
+    del cursor, fields
+
+    proj_area_elm.text = "Total Project Area: " + sum_ac + " ac."
+
+    arcpy.management.Delete("temp_ac")
+    
+    
     #### Turn off the imagery element in each layout
     # Get the legend item for the layout
     leg = lyt.listElements('LEGEND_ELEMENT')[0]
@@ -429,7 +457,8 @@ try:
     if '\\' in imageName:
         imageName = imageName.split('\\')[-1]
         
-
+    projectSU = wcFD + os.sep + suName
+    
     #### Set up log file path and start logging
     arcpy.AddMessage("Commence logging...\n")
     textFilePath = userWorkspace + os.sep + projectName + "_log.txt"
@@ -517,7 +546,9 @@ try:
     try:
         bm_lyt = aprx.listLayouts("Base Map")[0]
     except:
-        AddMsgAndPrint("\nCould not find installed Base Map layout. Exiting...",2)
+        AddMsgAndPrint("\nBase Map layout not present in project.",2)
+        AddMsgAndPrint("\tManually import Base Map Layout PAGX file from Installed Layouts folder and connect it to the Determinations Map Frame.",2)
+        AddMsgAndPrint("\tThen re-run this tool. Exiting...",2)
         exit()
 
     # Send information to function to set the layout elements

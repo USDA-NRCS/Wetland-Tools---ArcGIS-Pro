@@ -10,8 +10,141 @@
     },
     {
       "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/5656ec04ae6ed7ac52945965d6b432c3.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20200903</CreaDate><CreaTime>09513300</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Map</resTitle></idCitation></dataIdInfo><Binary><Thumbnail><Data EsriPropertyType=\"PictureX\">/9j/4AAQSkZJRgABAQEAAAAAAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a\r\nHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy\r\nMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCADIASwDAREA\r\nAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA\r\nAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3\r\nODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm\r\np6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA\r\nAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx\r\nBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK\r\nU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3\r\nuLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+gAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACg\r\nAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAC\r\ngAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKA\r\nCgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAK\r\nACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA\r\nKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAo\r\nAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgA\r\noAKACgAoA//Z</Data></Thumbnail></Binary></metadata>\r\n"
+      "uRI" : "CIMPATH=Metadata/6f2ac67232c0c286e71f479f596d86b4.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20211104</CreaDate><CreaTime>12151700</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>Determinations</resTitle></idCitation></dataIdInfo></metadata>\r\n"
+    },
+    {
+      "type" : "CIMBinaryReference",
+      "uRI" : "CIMPATH=Metadata/e614b7c1a95993629be5b7d8abbfc768.xml",
+      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20210907</CreaDate><CreaTime>11342000</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri><dataIdInfo><idCitation><resTitle>world_imagery</resTitle></idCitation><idAbs>ortho_imagery/world_imagery</idAbs><idCredit></idCredit><idPurp></idPurp><resConst><Consts><useLimit></useLimit></Consts></resConst></dataIdInfo></metadata>\r\n"
+    }
+  ],
+  "layerDefinitions" : [
+    {
+      "type" : "CIMDynamicServiceLayer",
+      "name" : "Common Land Unit Map Service",
+      "uRI" : "CIMPATH=determinations/common_land_unit_map_service.xml",
+      "sourceURI" : "68215d4459464f5d90d33a72076f1e23",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "useSourceMetadata" : true,
+      "attribution" : "USDA",
+      "description" : "common_land_units/common_land_units",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
+      },
+      "layerType" : "Operational",
+      "minScale" : 50000,
+      "showLegends" : true,
+      "visibility" : false,
+      "displayCacheType" : "None",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "serviceConnection" : {
+        "type" : "CIMAGSServiceConnection",
+        "objectName" : "common_land_units/common_land_units",
+        "objectType" : "MapServer",
+        "url" : "https://gis.sc.egov.usda.gov/appserver/rest/services/common_land_units/common_land_units/MapServer",
+        "serverConnection" : {
+          "type" : "CIMInternetServerConnection",
+          "anonymous" : true,
+          "hideUserProperty" : true,
+          "url" : "https://gis.sc.egov.usda.gov/appserver/services"
+        }
+      },
+      "subLayers" : [
+        {
+          "type" : "CIMDynamicServiceSubLayer",
+          "minScale" : 50000,
+          "name" : "Common Land Units (CLU)",
+          "showLegends" : true,
+          "subLayerID" : "0",
+          "visibility" : true,
+          "serviceLayerID" : -1,
+          "timeOffsetUnits" : "esriTimeUnitsUnknown",
+          "showPopups" : true
+        }
+      ],
+      "transparentColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          254,
+          254,
+          254,
+          100
+        ]
+      },
+      "backgroundColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          254,
+          254,
+          254,
+          100
+        ]
+      },
+      "imageFormat" : "esriImagePNG32"
+    },
+    {
+      "type" : "CIMTiledServiceLayer",
+      "name" : "World Imagery Basemap",
+      "uRI" : "CIMPATH=1dc1987ce49d46d5ac23e11308cdcbfb.xml",
+      "sourceModifiedTime" : {
+        "type" : "TimeInstant"
+      },
+      "metadataURI" : "CIMPATH=Metadata/e614b7c1a95993629be5b7d8abbfc768.xml",
+      "useSourceMetadata" : true,
+      "description" : "ortho_imagery/world_imagery",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface",
+        "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}"
+      },
+      "layerType" : "BasemapBackground",
+      "showLegends" : true,
+      "visibility" : true,
+      "displayCacheType" : "Permanent",
+      "maxDisplayCacheAge" : 5,
+      "showPopups" : true,
+      "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
+      "blendingMode" : "Alpha",
+      "serviceConnection" : {
+        "type" : "CIMAGSServiceConnection",
+        "objectName" : "ortho_imagery/world_imagery",
+        "objectType" : "MapServer",
+        "url" : "https://gis.sc.egov.usda.gov/data/rest/services/ortho_imagery/world_imagery/MapServer",
+        "serverConnection" : {
+          "type" : "CIMInternetServerConnection",
+          "anonymous" : true,
+          "hideUserProperty" : true,
+          "url" : "https://gis.sc.egov.usda.gov/data/services"
+        }
+      },
+      "transparentColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          254,
+          254,
+          254,
+          100
+        ]
+      },
+      "backgroundColor" : {
+        "type" : "CIMRGBColor",
+        "values" : [
+          254,
+          254,
+          254,
+          100
+        ]
+      }
     }
   ],
   "mapDefinitions" : [
@@ -23,7 +156,7 @@
         "type" : "TimeInstant",
         "start" : 978307200000
       },
-      "metadataURI" : "CIMPATH=Metadata/5656ec04ae6ed7ac52945965d6b432c3.xml",
+      "metadataURI" : "CIMPATH=Metadata/6f2ac67232c0c286e71f479f596d86b4.xml",
       "useSourceMetadata" : true,
       "illumination" : {
         "type" : "CIMIlluminationProperties",
@@ -38,142 +171,20 @@
         "enableAmbientOcclusion" : true,
         "enableEyeDomeLighting" : true
       },
+      "layers" : [
+        "CIMPATH=determinations/common_land_unit_map_service.xml",
+        "CIMPATH=1dc1987ce49d46d5ac23e11308cdcbfb.xml"
+      ],
       "defaultViewingMode" : "Map",
       "mapType" : "Map",
-      "datumTransforms" : [
-        {
-          "type" : "CIMDatumTransform",
-          "forward" : true,
-          "geoTransformation" : {
-            "geoTransforms" : [
-              {
-                "wkid" : 8502,
-                "latestWkid" : 1521,
-                "transformForward" : false,
-                "name" : "NAD_1983_To_HARN_Indiana"
-              }
-            ]
-          }
-        },
-        {
-          "type" : "CIMDatumTransform",
-          "forward" : false,
-          "geoTransformation" : {
-            "geoTransforms" : [
-              {
-                "wkid" : 8502,
-                "latestWkid" : 1521,
-                "transformForward" : false,
-                "name" : "NAD_1983_To_HARN_Indiana"
-              }
-            ]
-          }
-        },
-        {
-          "type" : "CIMDatumTransform",
-          "forward" : true,
-          "geoTransformation" : {
-            "geoTransforms" : [
-              {
-                "wkid" : 15931,
-                "latestWkid" : 15931,
-                "transformForward" : true,
-                "name" : "NAD_1983_NSRS2007_To_WGS_1984_1"
-              },
-              {
-                "wkid" : 108190,
-                "latestWkid" : 108190,
-                "transformForward" : true,
-                "name" : "WGS_1984_(ITRF00)_To_NAD_1983"
-              }
-            ]
-          }
-        },
-        {
-          "type" : "CIMDatumTransform",
-          "forward" : false,
-          "geoTransformation" : {
-            "geoTransforms" : [
-              {
-                "wkid" : 15931,
-                "latestWkid" : 15931,
-                "transformForward" : true,
-                "name" : "NAD_1983_NSRS2007_To_WGS_1984_1"
-              },
-              {
-                "wkid" : 108190,
-                "latestWkid" : 108190,
-                "transformForward" : true,
-                "name" : "WGS_1984_(ITRF00)_To_NAD_1983"
-              }
-            ]
-          }
-        },
-        {
-          "type" : "CIMDatumTransform",
-          "forward" : true,
-          "geoTransformation" : {
-            "geoTransforms" : [
-              {
-                "wkid" : 108190,
-                "latestWkid" : 108190,
-                "transformForward" : true,
-                "name" : "WGS_1984_(ITRF00)_To_NAD_1983"
-              }
-            ]
-          }
-        },
-        {
-          "type" : "CIMDatumTransform",
-          "forward" : false,
-          "geoTransformation" : {
-            "geoTransforms" : [
-              {
-                "wkid" : 108190,
-                "latestWkid" : 108190,
-                "transformForward" : true,
-                "name" : "WGS_1984_(ITRF00)_To_NAD_1983"
-              }
-            ]
-          }
-        },
-        {
-          "type" : "CIMDatumTransform",
-          "forward" : true,
-          "geoTransformation" : {
-            "geoTransforms" : [
-              {
-                "wkid" : 1900,
-                "latestWkid" : 1900,
-                "transformForward" : true,
-                "name" : "NAD_1983_HARN_To_WGS_1984_2"
-              }
-            ]
-          }
-        },
-        {
-          "type" : "CIMDatumTransform",
-          "forward" : false,
-          "geoTransformation" : {
-            "geoTransforms" : [
-              {
-                "wkid" : 1900,
-                "latestWkid" : 1900,
-                "transformForward" : true,
-                "name" : "NAD_1983_HARN_To_WGS_1984_2"
-              }
-            ]
-          }
-        }
-      ],
       "defaultExtent" : {
-        "xmin" : -199.175450614670865,
-        "ymin" : -155.9445823350477,
-        "xmax" : 200.220305495252433,
-        "ymax" : 155.422154933120112,
+        "xmin" : -19285871.9896839708,
+        "ymin" : 909866.8597394228,
+        "xmax" : -6980005.4575728057,
+        "ymax" : 10386340.5039623361,
         "spatialReference" : {
-          "wkid" : 4326,
-          "latestWkid" : 4326
+          "wkid" : 102100,
+          "latestWkid" : 3857
         }
       },
       "elevationSurfaces" : [
@@ -182,7 +193,7 @@
           "elevationMode" : "BaseGlobeSurface",
           "name" : "Ground",
           "verticalExaggeration" : 1,
-          "mapElevationID" : "{E5D5E1DF-E969-4874-BE20-5BF3F96DB1CC}",
+          "mapElevationID" : "{75C128EC-40E8-4AB0-8BC7-3442F405A3AA}",
           "color" : {
             "type" : "CIMRGBColor",
             "values" : [
@@ -232,8 +243,8 @@
         "isZSnappingEnabled" : true
       },
       "spatialReference" : {
-        "wkid" : 4326,
-        "latestWkid" : 4326
+        "wkid" : 102100,
+        "latestWkid" : 3857
       },
       "timeDisplay" : {
         "type" : "CIMMapTimeDisplay",
@@ -248,13 +259,6 @@
       },
       "colorModel" : "RGB",
       "scaleDisplayFormat" : "Value",
-      "groundToGridCorrection" : {
-        "type" : "CIMGroundToGridCorrection",
-        "useDirection" : true,
-        "useScale" : true,
-        "scaleType" : "ConstantFactor",
-        "constantScaleFactor" : 1
-      },
       "clippingMode" : "None",
       "nearPlaneClipDistanceMode" : "Automatic",
       "rGBColorProfile" : "sRGB IEC61966-2-1 noBPC",
@@ -264,7 +268,7 @@
   "layoutDefinition" : {
     "type" : "CIMLayout",
     "name" : "Base Map",
-    "uRI" : "CIMPATH=layout/layout.xml",
+    "uRI" : "CIMPATH=layout/base_map15.xml",
     "sourceModifiedTime" : {
       "type" : "TimeInstant"
     },
@@ -286,11 +290,11 @@
           "rings" : [
             [
               [
-                6.04144287109375,
+                7.9998779296875,
                 0.23976101218369186
               ],
               [
-                6.04144287109375,
+                7.9998779296875,
                 0.72739122051702521
               ],
               [
@@ -302,7 +306,7 @@
                 0.23976101218369186
               ],
               [
-                6.04144287109375,
+                7.9998779296875,
                 0.23976101218369186
               ]
             ]
@@ -795,6 +799,7 @@
         "locked" : true,
         "name" : "North Arrow",
         "visible" : true,
+        "rotation" : 2.4676890121091847e-17,
         "rotationCenter" : {
           "x" : 7.14350000000000041,
           "y" : 1.1734
@@ -991,6 +996,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -1154,6 +1161,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -1336,6 +1345,292 @@
         "headingGap" : 5,
         "horizontalItemGap" : 5,
         "horizontalPatchGap" : 5,
+        "items" : [
+          {
+            "type" : "CIMHorizontalLegendItem",
+            "name" : "Common Land Unit Map Service",
+            "layerNameSymbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMTextSymbol",
+                "blockProgression" : "TTB",
+                "depth3D" : 1,
+                "drawSoftHyphen" : true,
+                "extrapolateBaselines" : true,
+                "fontEffects" : "Normal",
+                "fontEncoding" : "Unicode",
+                "fontFamilyName" : "Arial",
+                "fontStyleName" : "Regular",
+                "fontType" : "Unspecified",
+                "haloSize" : 1,
+                "height" : 9,
+                "hinting" : "Default",
+                "horizontalAlignment" : "Left",
+                "kerning" : true,
+                "letterWidth" : 100,
+                "ligatures" : true,
+                "lineGapType" : "ExtraLeading",
+                "symbol" : {
+                  "type" : "CIMPolygonSymbol",
+                  "symbolLayers" : [
+                    {
+                      "type" : "CIMSolidFill",
+                      "enable" : true,
+                      "color" : {
+                        "type" : "CIMRGBColor",
+                        "values" : [
+                          0,
+                          0,
+                          0,
+                          255
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "symbol3DProperties" : {
+                  "type" : "CIM3DSymbolProperties",
+                  "dominantSizeAxis3D" : "Z",
+                  "rotationOrder3D" : "YXZ",
+                  "scaleZ" : 1,
+                  "scaleY" : 1
+                },
+                "textCase" : "Normal",
+                "textDirection" : "LTR",
+                "verticalAlignment" : "Bottom",
+                "verticalGlyphOrientation" : "Right",
+                "wordSpacing" : 100,
+                "billboardMode3D" : "FaceNearPlane"
+              }
+            },
+            "columns" : -1,
+            "showLayerName" : true,
+            "showHeading" : true,
+            "headingSymbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMTextSymbol",
+                "blockProgression" : "TTB",
+                "depth3D" : 1,
+                "drawSoftHyphen" : true,
+                "extrapolateBaselines" : true,
+                "fontEffects" : "Normal",
+                "fontEncoding" : "Unicode",
+                "fontFamilyName" : "Arial",
+                "fontStyleName" : "Regular",
+                "fontType" : "Unspecified",
+                "haloSize" : 1,
+                "height" : 9,
+                "hinting" : "Default",
+                "horizontalAlignment" : "Left",
+                "kerning" : true,
+                "letterWidth" : 100,
+                "ligatures" : true,
+                "lineGapType" : "ExtraLeading",
+                "symbol" : {
+                  "type" : "CIMPolygonSymbol",
+                  "symbolLayers" : [
+                    {
+                      "type" : "CIMSolidFill",
+                      "enable" : true,
+                      "color" : {
+                        "type" : "CIMRGBColor",
+                        "values" : [
+                          0,
+                          0,
+                          0,
+                          255
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "symbol3DProperties" : {
+                  "type" : "CIM3DSymbolProperties",
+                  "dominantSizeAxis3D" : "Z",
+                  "rotationOrder3D" : "YXZ",
+                  "scaleZ" : 1,
+                  "scaleY" : 1
+                },
+                "textCase" : "Normal",
+                "textDirection" : "LTR",
+                "verticalAlignment" : "Bottom",
+                "verticalGlyphOrientation" : "Right",
+                "wordSpacing" : 100,
+                "billboardMode3D" : "FaceNearPlane"
+              }
+            },
+            "showLabels" : true,
+            "layer" : "CIMPATH=determinations/common_land_unit_map_service.xml",
+            "showDescription" : true,
+            "labelSymbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMTextSymbol",
+                "blockProgression" : "TTB",
+                "depth3D" : 1,
+                "drawSoftHyphen" : true,
+                "extrapolateBaselines" : true,
+                "fontEffects" : "Normal",
+                "fontEncoding" : "Unicode",
+                "fontFamilyName" : "Arial",
+                "fontStyleName" : "Regular",
+                "fontType" : "Unspecified",
+                "haloSize" : 1,
+                "height" : 9,
+                "hinting" : "Default",
+                "horizontalAlignment" : "Left",
+                "kerning" : true,
+                "letterWidth" : 100,
+                "ligatures" : true,
+                "lineGapType" : "ExtraLeading",
+                "symbol" : {
+                  "type" : "CIMPolygonSymbol",
+                  "symbolLayers" : [
+                    {
+                      "type" : "CIMSolidFill",
+                      "enable" : true,
+                      "color" : {
+                        "type" : "CIMRGBColor",
+                        "values" : [
+                          0,
+                          0,
+                          0,
+                          255
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "symbol3DProperties" : {
+                  "type" : "CIM3DSymbolProperties",
+                  "dominantSizeAxis3D" : "Z",
+                  "rotationOrder3D" : "YXZ",
+                  "scaleZ" : 1,
+                  "scaleY" : 1
+                },
+                "textCase" : "Normal",
+                "textDirection" : "LTR",
+                "verticalAlignment" : "Bottom",
+                "verticalGlyphOrientation" : "Right",
+                "wordSpacing" : 100,
+                "billboardMode3D" : "FaceNearPlane"
+              }
+            },
+            "descriptionSymbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMTextSymbol",
+                "blockProgression" : "TTB",
+                "depth3D" : 1,
+                "drawSoftHyphen" : true,
+                "extrapolateBaselines" : true,
+                "fontEffects" : "Normal",
+                "fontEncoding" : "Unicode",
+                "fontFamilyName" : "Arial",
+                "fontStyleName" : "Regular",
+                "fontType" : "Unspecified",
+                "haloSize" : 1,
+                "height" : 9,
+                "hinting" : "Default",
+                "horizontalAlignment" : "Left",
+                "kerning" : true,
+                "letterWidth" : 100,
+                "ligatures" : true,
+                "lineGapType" : "ExtraLeading",
+                "symbol" : {
+                  "type" : "CIMPolygonSymbol",
+                  "symbolLayers" : [
+                    {
+                      "type" : "CIMSolidFill",
+                      "enable" : true,
+                      "color" : {
+                        "type" : "CIMRGBColor",
+                        "values" : [
+                          0,
+                          0,
+                          0,
+                          255
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "symbol3DProperties" : {
+                  "type" : "CIM3DSymbolProperties",
+                  "dominantSizeAxis3D" : "Z",
+                  "rotationOrder3D" : "YXZ",
+                  "scaleZ" : 1,
+                  "scaleY" : 1
+                },
+                "textCase" : "Normal",
+                "textDirection" : "LTR",
+                "verticalAlignment" : "Bottom",
+                "verticalGlyphOrientation" : "Right",
+                "wordSpacing" : 100,
+                "billboardMode3D" : "FaceNearPlane"
+              }
+            },
+            "autoVisibility" : false,
+            "showGroupLayerName" : true,
+            "groupLayerNameSymbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMTextSymbol",
+                "blockProgression" : "TTB",
+                "depth3D" : 1,
+                "drawSoftHyphen" : true,
+                "extrapolateBaselines" : true,
+                "fontEffects" : "Normal",
+                "fontEncoding" : "Unicode",
+                "fontFamilyName" : "Arial",
+                "fontStyleName" : "Regular",
+                "fontType" : "Unspecified",
+                "haloSize" : 1,
+                "height" : 9,
+                "hinting" : "Default",
+                "horizontalAlignment" : "Left",
+                "kerning" : true,
+                "letterWidth" : 100,
+                "ligatures" : true,
+                "lineGapType" : "ExtraLeading",
+                "symbol" : {
+                  "type" : "CIMPolygonSymbol",
+                  "symbolLayers" : [
+                    {
+                      "type" : "CIMSolidFill",
+                      "enable" : true,
+                      "color" : {
+                        "type" : "CIMRGBColor",
+                        "values" : [
+                          0,
+                          0,
+                          0,
+                          255
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "symbol3DProperties" : {
+                  "type" : "CIM3DSymbolProperties",
+                  "dominantSizeAxis3D" : "Z",
+                  "rotationOrder3D" : "YXZ",
+                  "scaleZ" : 1,
+                  "scaleY" : 1
+                },
+                "textCase" : "Normal",
+                "textDirection" : "LTR",
+                "verticalAlignment" : "Bottom",
+                "verticalGlyphOrientation" : "Right",
+                "wordSpacing" : 100,
+                "billboardMode3D" : "FaceNearPlane"
+              }
+            },
+            "isVisible" : true,
+            "arrangement" : "PatchLabelDescription"
+          }
+        ],
         "minFontSize" : 7,
         "showTitle" : false,
         "textGap" : 5,
@@ -1684,25 +1979,16 @@
           "arrangement" : "PatchLabelDescription"
         },
         "excludedLayers" : [
+          "CIMPATH=Determinations/176a5b02b06a4cd1847575229406a264.xml",
+          "CIMPATH=Determinations/d724b2992a95465eadbbc2c28d2b1056.xml",
+          "CIMPATH=determinations/extent.xml",
           "CIMPATH=determinations/graphics_layer.xml",
+          "CIMPATH=determinations/highres_m_w_in091_2018_ecw.xml",
           "CIMPATH=determinations/indiana_2018_naip_60cm__map_.xml",
           "CIMPATH=map/common_land_unit_map_service.xml",
-          "CIMPATH=map/rops.xml",
-          "CIMPATH=map/rops.xml",
           "CIMPATH=map/drainage_lines2.xml",
-          "CIMPATH=map/drainage_lines2.xml",
-          "CIMPATH=determinations/extent.xml",
-          "CIMPATH=determinations/extent.xml",
-          "CIMPATH=map/sampling_units.xml",
-          "CIMPATH=map/sampling_units.xml",
-          "CIMPATH=map/sampling_units.xml",
-          "CIMPATH=determinations/highres_m_w_in091_2018_ecw.xml",
-          "CIMPATH=map/drainage_lines2.xml",
-          "CIMPATH=map/sampling_units.xml",
-          "CIMPATH=Determinations/176a5b02b06a4cd1847575229406a264.xml",
           "CIMPATH=map/rops.xml",
-          "CIMPATH=determinations/extent.xml",
-          "CIMPATH=Determinations/d724b2992a95465eadbbc2c28d2b1056.xml"
+          "CIMPATH=map/sampling_units.xml"
         ]
       },
       {
@@ -1711,8 +1997,8 @@
         "name" : "Map Frame",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 0.25000280531001451,
-          "y" : 9.5
+          "x" : 0.24999999999999645,
+          "y" : 9.50000000000000178
         },
         "customProperties" : [
           {
@@ -1725,24 +2011,24 @@
           "rings" : [
             [
               [
-                8.25000280531001451,
-                2.5
+                8.24999999999999645,
+                2.50000000000000178
               ],
               [
-                0.25000280531001451,
-                2.5
+                0.24999999999999645,
+                2.50000000000000178
               ],
               [
-                0.25000280531001451,
-                9.5
+                0.24999999999999645,
+                9.50000000000000178
               ],
               [
-                8.25000280531001451,
-                9.5
+                8.24999999999999645,
+                9.50000000000000178
               ],
               [
-                8.25000280531001451,
-                2.5
+                8.24999999999999645,
+                2.50000000000000178
               ]
             ]
           ]
@@ -1803,12 +2089,12 @@
           "camera" : {
             "type" : "CIMViewCamera",
             "pitch" : -90,
-            "scale" : 7920,
-            "x" : -85.009402310179681,
-            "y" : 40.806851892967877,
+            "scale" : 224655442.95164347,
+            "x" : 0.0032023303210735321,
+            "y" : 0.0061283595860004425,
             "z" : "NaN",
-            "viewportHeight" : 1408.1788163576332,
-            "viewportWidth" : 1609.3472186944377
+            "viewportHeight" : 39943817.644437507,
+            "viewportWidth" : 45650077.307928577
           },
           "verticalExaggerationScaleFactor" : 1,
           "timeDisplay" : {
@@ -1889,6 +2175,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -1956,6 +2244,174 @@
                     "lineStyle3D" : "Strip",
                     "miterLimit" : 10,
                     "width" : 1,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        0,
+                        0,
+                        0,
+                        0
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "shadowSymbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMPolygonSymbol"
+              }
+            },
+            "shadowOffsetX" : 10,
+            "shadowOffsetY" : -10
+          },
+          "columnCount" : 1,
+          "columnGap" : 5
+        }
+      },
+      {
+        "type" : "CIMGraphicElement",
+        "anchor" : "TopLeftCorner",
+        "locked" : true,
+        "name" : "Project Area Text Box",
+        "visible" : true,
+        "rotationCenter" : {
+          "x" : 0.2500028053100149,
+          "y" : 9.70833137204234831
+        },
+        "graphic" : {
+          "type" : "CIMParagraphTextGraphic",
+          "symbol" : {
+            "type" : "CIMSymbolReference",
+            "symbol" : {
+              "type" : "CIMTextSymbol",
+              "blockProgression" : "TTB",
+              "depth3D" : 1,
+              "extrapolateBaselines" : true,
+              "fontEffects" : "Normal",
+              "fontEncoding" : "Unicode",
+              "fontFamilyName" : "Arial",
+              "fontStyleName" : "Regular",
+              "fontType" : "TTOpenType",
+              "haloSize" : 1.5,
+              "haloSymbol" : {
+                "type" : "CIMPolygonSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidFill",
+                    "enable" : true,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        255,
+                        255,
+                        255,
+                        0
+                      ]
+                    }
+                  }
+                ]
+              },
+              "height" : 9,
+              "hinting" : "Default",
+              "horizontalAlignment" : "Left",
+              "kerning" : true,
+              "letterWidth" : 100,
+              "ligatures" : true,
+              "lineGapType" : "ExtraLeading",
+              "symbol" : {
+                "type" : "CIMPolygonSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidFill",
+                    "enable" : true,
+                    "color" : {
+                      "type" : "CIMRGBColor",
+                      "values" : [
+                        0,
+                        0,
+                        0,
+                        100
+                      ]
+                    }
+                  }
+                ]
+              },
+              "symbol3DProperties" : {
+                "type" : "CIM3DSymbolProperties",
+                "dominantSizeAxis3D" : "Z",
+                "rotationOrder3D" : "YXZ",
+                "scaleZ" : 1,
+                "scaleY" : 1
+              },
+              "textCase" : "Normal",
+              "textDirection" : "LTR",
+              "verticalAlignment" : "Bottom",
+              "verticalGlyphOrientation" : "Right",
+              "wordSpacing" : 100,
+              "billboardMode3D" : "FaceNearPlane"
+            }
+          },
+          "blendingMode" : "Alpha",
+          "attributes" : {
+            "type" : "PropertySet",
+            "propertySetItems" : [
+              "ShowOverflow",
+              true,
+              "CheckSpelling",
+              true
+            ]
+          },
+          "placement" : "Unspecified",
+          "text" : "Total Project Area: 0.00 ac",
+          "shape" : {
+            "rings" : [
+              [
+                [
+                  0.2500028053100149,
+                  9.531631372042348
+                ],
+                [
+                  0.2500028053100149,
+                  9.70833137204234831
+                ],
+                [
+                  3.114100104592032,
+                  9.70833137204234831
+                ],
+                [
+                  3.114100104592032,
+                  9.531631372042348
+                ],
+                [
+                  0.2500028053100149,
+                  9.531631372042348
+                ]
+              ]
+            ]
+          },
+          "frame" : {
+            "type" : "CIMGraphicFrame",
+            "backgroundSymbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMPolygonSymbol"
+              }
+            },
+            "borderSymbol" : {
+              "type" : "CIMSymbolReference",
+              "symbol" : {
+                "type" : "CIMLineSymbol",
+                "symbolLayers" : [
+                  {
+                    "type" : "CIMSolidStroke",
+                    "enable" : true,
+                    "capStyle" : "Round",
+                    "joinStyle" : "Round",
+                    "lineStyle3D" : "Strip",
+                    "miterLimit" : 10,
+                    "width" : 0,
                     "color" : {
                       "type" : "CIMRGBColor",
                       "values" : [
@@ -2057,8 +2513,8 @@
         "name" : "Customer",
         "visible" : true,
         "rotationCenter" : {
-          "x" : 0.24999999999999845,
-          "y" : 9.90579999999999927
+          "x" : 0.24999999999999623,
+          "y" : 10.3333190428568873
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -2075,7 +2531,7 @@
               "fontStyleName" : "Regular",
               "fontType" : "TTOpenType",
               "haloSize" : 1,
-              "height" : 10,
+              "height" : 9,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
               "kerning" : true,
@@ -2120,6 +2576,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -2129,24 +2587,24 @@
             "rings" : [
               [
                 [
-                  3.99720790378006763,
-                  9.55239999999999867
+                  6,
+                  10.156619042856887
                 ],
                 [
-                  0.24999999999999845,
-                  9.55239999999999867
+                  0.24999999999999623,
+                  10.156619042856887
                 ],
                 [
-                  0.24999999999999845,
-                  9.90579999999999927
+                  0.24999999999999623,
+                  10.3333190428568873
                 ],
                 [
-                  3.99720790378006763,
-                  9.90579999999999927
+                  6,
+                  10.3333190428568873
                 ],
                 [
-                  3.99720790378006763,
-                  9.55239999999999867
+                  6,
+                  10.156619042856887
                 ]
               ]
             ]
@@ -2206,7 +2664,7 @@
         "visible" : true,
         "rotationCenter" : {
           "x" : 0.25000280531001456,
-          "y" : 10.1169483886718741
+          "y" : 9.91665952142844453
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -2223,7 +2681,7 @@
               "fontStyleName" : "Regular",
               "fontType" : "TTOpenType",
               "haloSize" : 1,
-              "height" : 10,
+              "height" : 9,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
               "kerning" : true,
@@ -2268,6 +2726,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -2278,23 +2738,23 @@
               [
                 [
                   3.997210446911577,
-                  9.94025161132812407
+                  9.73996274408469453
                 ],
                 [
                   0.25000280531001456,
-                  9.94025161132812407
+                  9.73996274408469453
                 ],
                 [
                   0.25000280531001456,
-                  10.1169483886718741
+                  9.91665952142844453
                 ],
                 [
                   3.997210446911577,
-                  10.1169483886718741
+                  9.91665952142844453
                 ],
                 [
                   3.997210446911577,
-                  9.94025161132812407
+                  9.73996274408469453
                 ]
               ]
             ]
@@ -2354,7 +2814,7 @@
         "visible" : true,
         "rotationCenter" : {
           "x" : 0.25000280531001501,
-          "y" : 10.3279573729909426
+          "y" : 10.1249876708145408
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -2371,7 +2831,7 @@
               "fontStyleName" : "Regular",
               "fontType" : "TTOpenType",
               "haloSize" : 1,
-              "height" : 10,
+              "height" : 9,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
               "kerning" : true,
@@ -2416,6 +2876,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -2426,23 +2888,23 @@
               [
                 [
                   3.99720790378006763,
-                  10.1512605956471926
+                  9.94829089347079076
                 ],
                 [
                   0.25000280531001501,
-                  10.1512605956471926
+                  9.94829089347079076
                 ],
                 [
                   0.25000280531001501,
-                  10.3279573729909426
+                  10.1249876708145408
                 ],
                 [
                   3.99720790378006763,
-                  10.3279573729909426
+                  10.1249876708145408
                 ],
                 [
                   3.99720790378006763,
-                  10.1512605956471926
+                  9.94829089347079076
                 ]
               ]
             ]
@@ -2502,7 +2964,7 @@
         "visible" : true,
         "rotationCenter" : {
           "x" : 0.24999999999999939,
-          "y" : 10.5389695799662615
+          "y" : 10.5416504148992338
         },
         "graphic" : {
           "type" : "CIMParagraphTextGraphic",
@@ -2519,7 +2981,7 @@
               "fontStyleName" : "Regular",
               "fontType" : "TTOpenType",
               "haloSize" : 1,
-              "height" : 10,
+              "height" : 9,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
               "kerning" : true,
@@ -2564,6 +3026,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -2574,23 +3038,23 @@
               [
                 [
                   1.60137176513671808,
-                  10.3622695799662612
+                  10.3649504148992335
                 ],
                 [
                   0.24999999999999939,
-                  10.3622695799662612
+                  10.3649504148992335
                 ],
                 [
                   0.24999999999999939,
-                  10.5389695799662615
+                  10.5416504148992338
                 ],
                 [
                   1.60137176513671808,
-                  10.5389695799662615
+                  10.5416504148992338
                 ],
                 [
                   1.60137176513671808,
-                  10.3622695799662612
+                  10.3649504148992335
                 ]
               ]
             ]
@@ -2667,7 +3131,7 @@
               "fontStyleName" : "Regular",
               "fontType" : "TTOpenType",
               "haloSize" : 1,
-              "height" : 10,
+              "height" : 9,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
               "kerning" : true,
@@ -2712,6 +3176,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -2860,6 +3326,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
@@ -3008,6 +3476,8 @@
             "type" : "PropertySet",
             "propertySetItems" : [
               "ShowOverflow",
+              true,
+              "CheckSpelling",
               true
             ]
           },
