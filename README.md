@@ -1,7 +1,7 @@
 # Wetland-Tools---ArcGIS-Pro
 NRCS wetlands conservation compliance tools for creating determination products in ArcGIS Pro
 
-## **Version 2.0.0 (01/23/2023; Development Release):**
+## **Version 2.0.0 (02/09/2023; Production Release):**
 
 ### **New Features/Changes**
 - Removed all R components and replaced them with python components in the Forms and Letter tools.
@@ -9,36 +9,51 @@ NRCS wetlands conservation compliance tools for creating determination products 
 - The R arcgisbinding no longer needs to be configured.
 - Updated State Tool Adminstrator Guide and User Guide to reflect the changes that removed R.
 - Updated Install Base Software sections of the guides to account for currently available versions of ArcGIS Pro.
+- Updated Install Base Software sections of the guides to account for currently available versions of ArcGIS Pro.
+- Added a Total Project Area text box to the Base Map. This will necessitate rebuilding templates or importing new base map layout to old projects.
+- Changed the Determination Map to display "Potential Jurisdictional Waters" in the legend when running Export Determination Map.
+- Updated Reload Project Layers tool to reload any missing business layer from the project, not just layers that use attribute rules.
+- Retrograded some 2.9 LYR files to version 2.7.
+- Added new layer files (LYRX) for NRCS Bare Earth DEM service coverage extents and a new layer for the NRCS 0.5 meter service to the Reference Layers folder.
 - Updated the NAD Address Spreadsheet to correct the name of the TOLLFREE column.
 - Updated Import Office Addresses tool to also import the NAD_Address.xlsx spreadsheet to allow rapid local corrections in the event of address changes.
 - Imported the NAD Address data table into the installed SUPPORT.gdb file by default.
 - Fixed bug with apostrophes in county names.
 - Fixed bug to reliably generate Sampling Unit areas when a new Request Extent is found adjacent and coincident with previously completed determinations.
 - Restored capability to make a elevation maps with and without contours.
-- Added new layer files (LYRX) for NRCS Bare Earth DEM service coverage extents and a new layer for the NRCS 0.5 meter service to the Reference Layers folder.
 
 ### **Changed Files**
 - ..\NRCS_Wetland_Tools_Pro\LibraryInstall.R (removed)
 - ..\NRCS_Wetland_Tools_Pro\NRCS_Wetland_Tools_Pro.tbx
 - ..\NRCS_Wetland_Tools_Pro\NRCS_Wetland_Tools_Pro_Training.tbx
+- ..\NRCS_Wetland_Tools_Pro\Template_Blank_2.7.aprx
+- ..\NRCS_Wetland_Tools_Pro\Template_Blank_Training_2.7.aprx
 - ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 0.5m.lyrx
 - ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 3m Coverage.lyrx
 - ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 2m Coverage.lyrx
 - ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 1m Coverage.lyrx
 - ..\NRCS_Wetland_Tools_Pro\Reference_Layers\NRCS Bare Earth 0.5m Coverage.lyrx
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_028_Form_Only.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Forms_and_Letters.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Import_Office_Addresses.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Reference_Maps.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_CWD_Layers.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Base_Map_Layers_Training.py
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Base_Map_Layers.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Base_Map_Layers_Training.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_CWD_Layers.py
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_CWD_Mapping_Layers.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Forms_and_Letters.py
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Wetlands_Project.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Base_Map.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Determination_Map.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Reference_Maps.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Import_Office_Addresses.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Reload_Project_Layers.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Validate_Sampling_Units.py
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.docx
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.pdf
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.docx
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.pdf
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\CLU_CWD.lyrx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\CWD.lyrx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Previous_CLU_CWD.lyrx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Sampling_Units.lyrx
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\python_packages (this is a new folder with all new contents)
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\SUPPORT.gdb
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates (all files in this folder that supported R were removed or replaced, except for NAD_Address.xlsx and NRCS_Address.xlsx)
@@ -49,11 +64,34 @@ Version 2.0.0 is a new version release. It is recommended to completely replace 
 	
 Close any ArcGIS Pro projects for the WC Tools before installing the new version.
 	
-APRX Templates from v1.0.4 or later are compatible with this new release. Make a copy of your existing custom APRX templates outside of the install folder, install the new version, and then restore your custom templates to the appropriate folder(s) within the new install.
-	
+APRX Templates from v1.0.4 or later are only marginally compatible with this new release. Existing templates or APRX files from any 1.x version of the tools will work, except for the Base Map.
+Therefore, you must rebuild new state templates from the updated Blank templates provided in version 2.0.0 before deploying to your users.
+
+
 The NRCS Address spreadsheet's format from 1.0.4 or later has NOT changed. You can use your existing 1.0.4 or later NRCS Address spreadsheet if you've already customized it. Make a copy of your existing NRCS Address spreadsheet outside of the install folder, install the new version, and then restore your custom NRCS Address spreadsheet in the standard location within the install folder.
 	
+	
 APRX templates or spreadsheets from version 1.0.3 or earlier should not be brought forward into this version and should instead be rebuilt using the template files provided by the latest install.
+
+
+Existing projects that were created from versions 1.0.4 to 1.1.0 are compatible with the new 2.0.0 version in all ways EXCEPT FOR the old Base Map.  In this scenario, to restore Base Map functionality, the user would have to import the new Base Map layout file with the below steps. These steps are ONLY recommended for existing projects that were started BEFORE a user upgraded version to 2.0.0 tools and ONLY if they have at least version 2.0.0 of the tools. For any new requests, it is recommended to start from new templates provided in the new tools (or from new templates provided by the State Tool Administrator).
+
+- Open the existing template or APRX.
+- In Catalog, expand Layouts.
+- Right-click and Delete the existing Base Map Layout.
+- Go to the Insert tab.
+- Click Import Layout.
+- Click Import Layout File (at the bottom of the Import Layout screen).
+- Navigate to ..\NRCS_Wetland_Tools_Pro\Installed_Layouts
+- Select Base Map Portrat 8.5x11 (this is a PAGX file type).
+- Click OK
+- The new Base Map will be added to the project and will be open.
+- In the Contents pane of the open Base Map, right-click the "Map Frame" item and then click Properties.
+- In the Format Map Frame pane that opens, find the Map Frame section and change the Map in the drop down from Determiations1 to Determinations.
+- Close the Format Map Frame pane.
+- In the Catalog Pane, expand the Maps section.
+- Right-click and Delete Determinations1. Do NOT delete Determinations! Only delete any additional Determinations maps that are appended with a number.
+- Save the project.
 
 
 ## **Version History:**
