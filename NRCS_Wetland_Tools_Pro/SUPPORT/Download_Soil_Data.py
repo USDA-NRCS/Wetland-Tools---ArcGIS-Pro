@@ -204,8 +204,13 @@ try:
 
     projectSoil = basedataGDB_path + os.sep + "SSURGO_Mapunits"
     soilTable = basedataGDB_path + os.sep + "summary_soils"
-    soil_excel = wetDir + os.sep + "SSURGO_Table.xlsx"
-    soil_excel_test = wetDir + os.sep + "SSURGO_Table_Test.xlsx"
+##    soil_excel = wetDir + os.sep + "SSURGO_Table.xlsx"
+##    soil_excel_test = wetDir + os.sep + "SSURGO_Table_Test.xlsx"
+
+    soil_csv_name = "SSURGO_Table.csv"
+    soil_csv = wetDir + os.sep + soil_csv_name
+    soil_test_name = "SSURGO_Table_Test.csv"
+    soil_csv_test = wetDir + os.sep + soil_test_name
     
     
     #### Set up log file path and start logging
@@ -215,16 +220,29 @@ try:
     logBasicSettings()
 
 
-    #### Check for open excel file and exit if it is locked
-    if os.path.exists(soil_excel):
+##    #### Check for open excel file and exit if it is locked
+##    if os.path.exists(soil_excel):
+##        try:
+##            os.rename(soil_excel, soil_excel_test)
+##            # Rename worked, continue
+##            os.rename(soil_excel_test, soil_excel)
+##        except:
+##            # Rename failed, generate an error message and exit.
+##            AddMsgAndPrint("\nExcel table of soils may be open or locked. Please close the file and try again. Exiting...",2)
+##            exit()
+
+
+    #### Check for open CSV file and exit if it is locked
+    if os.path.exists(soil_csv):
         try:
-            os.rename(soil_excel, soil_excel_test)
+            os.rename(soil_csv, soil_csv_test)
             # Rename worked, continue
-            os.rename(soil_excel_test, soil_excel)
+            os.rename(soil_csv_test, soil_csv)
         except:
             # Rename failed, generate an error message and exit.
-            AddMsgAndPrint("\nExcel table of soils may be open or locked. Please close the file and try again. Exiting...",2)
+            AddMsgAndPrint("\nCSV table of soils may be open or locked. Please close the file and try again. Exiting...",2)
             exit()
+
 
     #### Create the projectAOI and projectAOI_B layers based on the choice selected by user input
     AddMsgAndPrint("\nBuffering extent...",0)
@@ -279,9 +297,9 @@ try:
         #sdate_elm.text = "SSURGO Version: " + rundate
 
 
-    #### Export an excel table of the soil map units in the project extent
-    AddMsgAndPrint("\nCreating Excel Table of soils...",0)
-    arcpy.SetProgressorLabel("Creating Excel Table of soils...")
+    #### Export a CSV table of the soil map units in the project extent
+    AddMsgAndPrint("\nCreating CSV Table of soils...",0)
+    arcpy.SetProgressorLabel("Creating CSV Table of soils...")
     
     # Find and clean up the list of fields in the soils layer
     soil_fields = arcpy.ListFields(projectSoil)
@@ -297,8 +315,13 @@ try:
     # Run frequency to clean up matching records
     arcpy.analysis.Frequency(projectSoil, soilTable, soil_fld_names)
 
-    # Convert results to Excel
-    arcpy.conversion.TableToExcel(soilTable, soil_excel, "ALIAS")
+##    # Convert results to Excel
+##    arcpy.conversion.TableToExcel(soilTable, soil_excel, "ALIAS")
+
+    # Convert results to CSV
+    if arcpy.Exists(soil_csv):
+        arcpy.management.Delete(soil_csv)
+    arcpy.conversion.TableToTable(soilTable, wetDir, soil_csv_name)
 
     
     #### Clean up

@@ -416,13 +416,20 @@ try:
     cluCWD028_unsort = wcGDB_path + os.sep + name028_unsort
     cluCWD028 = wcGDB_path + os.sep + name028
     cluCWD028_temp = wcGDB_path + os.sep + name028_temp
-    cluCWD028_alt = wcGDB_path + os.sep + name028_alt
 
-    excelAdmin = userWorkspace + os.sep + "Admin_Table.xlsx"
-    excel026 = wetDir + os.sep + "CLU_CWD_026.xlsx"
-    excel026_alt = wetDir + os.sep + "CLU_CWD_026_alt.xlsx"
-    excel028 = wetDir + os.sep + "CLU_CWD_028.xlsx"
-    excel028_alt = wetDir + os.sep + "CLU_CWD_028_alt.xlsx"
+    #excelAdmin = userWorkspace + os.sep + "Admin_Table.xlsx"
+    #excel026 = wetDir + os.sep + "CLU_CWD_026.xlsx"
+    #excel026_alt = wetDir + os.sep + "CLU_CWD_026_alt.xlsx"
+    #excel028 = wetDir + os.sep + "CLU_CWD_028.xlsx"
+
+    csvAdminName = "Admin_Table.csv"
+    csvAdmin = userWorkspace + os.sep + csvAdminName
+    csv026Name = "CLU_CWD_026.csv"
+    csv026 = wetDir + os.sep + csv026Name
+    csv026_altName = "CLU_CWD_026_alt.csv"
+    csv026_alt = wetDir + os.sep + csv026_altName
+    csv028Name = "CLU_CWD_028.csv"
+    csv028 = wetDir + os.sep + csv028Name
 
     # Temp layers list for cleanup at the start and at the end
     tempLayers = [clucwd_multi, clucwd_single, updatedCert, updatedAdmin, cluCWD026_unsort, cluCWD028_unsort]
@@ -645,35 +652,55 @@ try:
                 arcpy.management.FeatureToPoint(projectSum, projectSumPts, "INSIDE")
         
 
-    #### Export Excel Tables to get ready for forms and letters tool.
-    AddMsgAndPrint("\nExporting Excel table(s)...\n",0)
-    arcpy.SetProgressorLabel("Exporting Excel table(s)...")
-    if arcpy.Exists(excelAdmin):
-        arcpy.Delete_management(excelAdmin)
+##    #### Export Excel Tables to get ready for forms and letters tool.
+##    AddMsgAndPrint("\nExporting Excel table(s)...\n",0)
+##    arcpy.SetProgressorLabel("Exporting Excel table(s)...")
+##    if arcpy.Exists(excelAdmin):
+##        arcpy.Delete_management(excelAdmin)
+##    arcpy.management.Copy(projectTable, tempTable)
+##    arcpy.TableToExcel_conversion(tempTable, excelAdmin)
+##    arcpy.management.Delete(tempTable)
+##    
+##    if arcpy.Exists(excel026):
+##        arcpy.Delete_management(excel026)
+##    if PrevOnly == False:
+##        arcpy.TableToExcel_conversion(cluCWD026, excel026)
+##    
+##    if arcpy.Exists(excel026_alt):
+##        arcpy.Delete_management(excel026_alt)
+##    if PrevOnly == False:
+##        arcpy.TableToExcel_conversion(cluCWD026_alt, excel026_alt)
+##
+##    if arcpy.Exists(excel028):
+##        arcpy.Delete_management(excel028)
+##    if arcpy.Exists(cluCWD028):
+##        arcpy.TableToExcel_conversion(cluCWD028, excel028)
+
+
+    #### Export CSV Tables as additonal resources for users, if needed
+    AddMsgAndPrint("\nExporting CSV table(s)...\n",0)
+    arcpy.SetProgressorLabel("Exporting CSV table(s)...")
+    if arcpy.Exists(csvAdmin):
+        arcpy.Delete_management(csvAdmin)
     arcpy.management.Copy(projectTable, tempTable)
-    arcpy.TableToExcel_conversion(tempTable, excelAdmin)
+    arcpy.TableToTable_conversion(tempTable, userWorkspace, csvAdminName)
     arcpy.management.Delete(tempTable)
     
-    if arcpy.Exists(excel026):
-        arcpy.Delete_management(excel026)
+    if arcpy.Exists(csv026):
+        arcpy.Delete_management(csv026)
     if PrevOnly == False:
-        arcpy.TableToExcel_conversion(cluCWD026, excel026)
+        arcpy.TableToTable_conversion(cluCWD026, wetDir, csv026Name)
     
-    if arcpy.Exists(excel026_alt):
-        arcpy.Delete_management(excel026_alt)
+    if arcpy.Exists(csv026_alt):
+        arcpy.Delete_management(csv026_alt)
     if PrevOnly == False:
-        arcpy.TableToExcel_conversion(cluCWD026_alt, excel026_alt)
+        arcpy.TableToTable_conversion(cluCWD026_alt, wetDir, csv026_altName)
 
-    if arcpy.Exists(excel028):
-        arcpy.Delete_management(excel028)
+    if arcpy.Exists(csv028):
+        arcpy.Delete_management(csv028)
     if arcpy.Exists(cluCWD028):
-        arcpy.TableToExcel_conversion(cluCWD028, excel028)
-
-##    if arcpy.Exists(excel028_alt):
-##        arcpy.Delete_management(excel028_alt)
-##    if arcpy.Exists(cluCWD028_alt):
-##        arcpy.TableToExcel_conversion(cluCWD028_alt, excel028_alt)
-
+        arcpy.TableToTable_conversion(cluCWD028, wetDir, csv028Name)
+        
         
     #### Clean up Temporary Datasets
     # Temporary datasets specifically from this tool
