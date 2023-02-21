@@ -1,9 +1,72 @@
 # Wetland-Tools---ArcGIS-Pro
 NRCS wetlands conservation compliance tools for creating determination products in ArcGIS Pro
 
-## **Version 2.0.0 (02/09/2023; Production Release):**
+## **Version 2.0.1 (02/21/2023; Production Release):**
 
 ### **New Features/Changes**
+- Changed all workflows and tool references that imported or exported Excel tables to use CSV to avoid compatibility problems with ArcGIS Pro 3.0.3.
+- CSV files cannot have multiple tables or tabs, so split the NRCS Address Excel file into an NRCS Address CSV file and FSA Address CSV file.
+- Converted the NAD Address Excel file to CSV.
+- Removed the NRCS Address and NAD Addres Excel files (now replaced by CSV files referenced above).
+- Updated the State Tool Administrator guide and the User Guide to reflect changes from Excel to CSV.
+
+### **Changed Files**
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_CWD_Mapping_Layers.py
+- ..\NRCS_Welland_Tools_Pro\SUPPORT\Create_Forms_and_Letters.py
+- ..\NRCS_Welland_Tools_Pro\SUPPORT\Download_Soil_Data.py
+- ..\NRCS_Welland_Tools_Pro\SUPPORT\Export_Soil_Table.py
+- ..\NRCS_Welland_Tools_Pro\SUPPORT\Import_Office_Addresses.py
+
+
+### Tips on Updating
+It is recommended to completely replace existing installation folders and contents. State Tool Administrators can retain the previous NRCS_Address.xlsx file to transfer NRCS and FSA addresses to the new CSV files as necessary (see State Tool Administrator Guide). Newly entered (or transferred) addresses should be imported into the State Tool Administrator's version of the tool before they repackage and deploy it (again, see the State Tool Administrator Guide). 
+
+### Adoption by States that never used any previous version
+States that have never adopted the Wetland Tools prior to version 2.0.1 should have the State Tool Administrator download version 2.0.1 and customize it fully, following all instructions in the State Tool Administrator Guide found in the Docs folder.
+
+### Updates for Version 2.0.0 Adopters
+States that have adopted version 2.0.0 of the tools already can download version 2.0.1, and only need to update the following:
+- Save a copy of the NRCS_Address.xlsx from version 2.0.0.
+- Edit the new NRCS_Address.csv and FSA_Address.csv files, per the instructions in the State Tool Administrator Guide.
+- Note: Records can be copied and pasted from the previous NRCS_Address.xlsx spreadsheet tabs to the new, respective CSV files.
+- Import the updated address tables to the tool, per the instructions in the State Tool Administrator Guide.
+- APRX templates created from version 2.0.x of the tool do not need to be rebuilt and overwritten for users.
+- Distribute their customized version in their respective state.
+
+### Updates for Version 1.x.x Adopters
+States that adopted a version before 2.0.0 and which have not yet switched to 2.0.0 can skip to 2.0.1, and should do the following:
+- Save a copy of the NRCS_Address.xlsx from version 1.x.x.
+- Edit the new NRCS_Address.csv and FSA_Address.csv files, per the instructions in the State Tool Administrator Guide.
+- Note: Records can be copied and pasted from the previous NRCS_Address.xlsx spreadsheet tabs to the new, respective CSV files.
+- Import the updated address tables to the tool, per the instructions in the State Tool Administrator Guide.
+- Create new state level APRX templates as needed, from the newly created Blank Templates now provided in the install folder.
+- Distribute their customized version in their respective state.
+
+### Version 1.x.x APRX File Compatibility with Version 2.x.x APRX Files
+APRX Templates or files from any 1.x.x version of the tools will work in version 2.x.x of the tools, except for the *Validate Sampling Units* and *Export Base Map* tools. Due to the changes related to the Base Map in version 2.x.x, existing projects created under any 1.x.x version of the tools *can* be made to work by importing the new Base Map layout file (PAGX) from the *Installed_Templates* folder, per the following procedure. The following procedure is *only* recommended for existing work projects that were not complete at the time a user updates from version 1.x.x to 2.x.x of the tool. These steps are ONLY recommended for existing projects that were started BEFORE a user upgraded version to 2.x.x tools and ONLY if the user has subsequently updated to version 2.x.x.
+
+- Open the existing template or APRX.
+- In Catalog, expand Layouts.
+- Right-click and Delete the existing Base Map Layout.
+- Go to the Insert tab.
+- Click Import Layout.
+- Click Import Layout File (at the bottom of the Import Layout screen).
+- Navigate to ..\NRCS_Wetland_Tools_Pro\Installed_Layouts
+- Select Base Map Portrait 8.5x11 (this is a PAGX file type).
+- Click OK
+- The new Base Map will be added to the project and will be open.
+- In the Contents pane of the open Base Map, right-click the "Map Frame" item and then click Properties.
+- In the Format Map Frame pane that opens, find the Map Frame section and change the Map in the drop down from Determiations1 to Determinations.
+- Close the Format Map Frame pane.
+- In the Catalog Pane, expand the Maps section.
+- Right-click and Delete Determinations1. Do NOT delete Determinations! Only delete any additional Determinations maps that are appended with a number.
+- Save the project.
+
+
+## **Version History:**
+
+### v 2.0.0 (02/09/2023; Production Release):
+
 - Updated recommended ArcGIS Pro version to 2.9.5 in documentation. Pro 2.7.x and 2.8.x still work.
 - Confirmed tool functions in Pro 3.0.3, however there are Excel dependency components for Pro 3.0.3 that IT needs to install (described in documentation). These dependent components are NOT needed for Pro 2.7, 2.8, or 2.9. The Excel dependent components needed for Pro 3.0.3 have been requested for Software Center release to Pro 3.0.3 users only, but are not yet available.
 - Removed all R components and replaced them with python components in the Forms and Letter tools.
@@ -26,9 +89,6 @@ NRCS wetlands conservation compliance tools for creating determination products 
 - Imported the updated the *NAD Address* data table into the SUPPORT.gdb file.
 - Fixed bug with apostrophes in county names.
 - Fixed bug to reliably generate *Sampling Unit* polygons when a new *Request Extent* is found adjacent to and coincident with previously completed determinations.
-
-### **Changed Files**
-Note, as this is a major version release, it is recommended for State Tool Admninstrators to completely install the new tools, except for the existing NRCS_Address.xlsx file found under ..\SUPPORT\Templates, which can be transferred from old versions to the new version.  After completing the new install and updating files, per the *Tips on Updating* section below, State Tool Administrators should deploy the entire modified tool to their users, including the transferred NRCS_Address.xlsx that has been customized for their state.
 - ..\NRCS_Wetland_Tools_Pro\LibraryInstall.R (removed)
 - ..\NRCS_Wetland_Tools_Pro\NRCS_Wetland_Tools_Pro.tbx
 - ..\NRCS_Wetland_Tools_Pro\NRCS_Wetland_Tools_Pro_Training.tbx
@@ -65,38 +125,6 @@ Note, as this is a major version release, it is recommended for State Tool Admni
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates (all files in this folder that supported R were removed or replaced, except for NAD_Address.xlsx and NRCS_Address.xlsx)
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\NAD_Address.xlsx
 
-### Tips on Updating
-Version 2.0.0 is a new version release. It is recommended to completely replace existing installation folders and contents, except for the NRCS_Address.xlsx file. State Tool Administrators should download the new version, customize it (per the guidance in the State Tool Administrator Guide), create new templates from the updated Blank templates, import the transferred NRCS_Address.xlsx table, and then provide their customized version of the tool to users in their state.
-
-- States that are adopting the tool for the first time at version 2.0.0 or later do not need to be concerned with any update notes related to transferring or correcting anything from version 1.x of the tools. Instead, the State Tool Administrator for those states can follow the instructions in the *State Tool Administrator Guide* found in the *Docs* folder, and then provide the complete set of the tools and their modified files to their state's users.
-
-- The NRCS Address spreadsheet's format from 1.0.4 or later has NOT changed. You can use your existing 1.0.4 or later NRCS Address spreadsheet if you've already customized it. Make a copy of your existing NRCS Address spreadsheet outside of the install folder, install the new version, and then restore your custom NRCS Address spreadsheet in the standard location within the install folder. For version 2.0.0, you must also open a tool template, run the *Import Office Address Tables* tool in the *F. Utilities* toolset, and then close the tool template without saving, prior to distribution in your state.
-
-- APRX Templates or files from any 1.x version of the tools will work in version 2.0.0 of the tools, except for the *Validate Sampling Units* and *Export Base Map* tools. The Base Map layout has been modified. Therefore, State Tool Administrators must rebuild new state templates from the updated Blank templates provided in version 2.0.0 and then provided their new templates in subsequent deployments to their users.
-
-### Importing the New Base Map to Existing Projects
-Due to the changes related to the Base Map, existing projects created under any 1.x version of the tools *can* be made to work by importing the new Base Map layout file (PAGX) from the *Installed_Templates* folder, per the following procedure. The following procedure is *only* recommended for existing work projects that were not complete at the time a user updates to the new tool. These steps are ONLY recommended for existing projects that were started BEFORE a user upgraded version to 2.0.0 tools and ONLY if the user now has at least version 2.0.0 of the WC Tool.
-
-- Open the existing template or APRX.
-- In Catalog, expand Layouts.
-- Right-click and Delete the existing Base Map Layout.
-- Go to the Insert tab.
-- Click Import Layout.
-- Click Import Layout File (at the bottom of the Import Layout screen).
-- Navigate to ..\NRCS_Wetland_Tools_Pro\Installed_Layouts
-- Select Base Map Portrait 8.5x11 (this is a PAGX file type).
-- Click OK
-- The new Base Map will be added to the project and will be open.
-- In the Contents pane of the open Base Map, right-click the "Map Frame" item and then click Properties.
-- In the Format Map Frame pane that opens, find the Map Frame section and change the Map in the drop down from Determiations1 to Determinations.
-- Close the Format Map Frame pane.
-- In the Catalog Pane, expand the Maps section.
-- Right-click and Delete Determinations1. Do NOT delete Determinations! Only delete any additional Determinations maps that are appended with a number.
-- Save the project.
-
--If an existing project contains a CLU CWD layer or Previous Determinations layer that contains CW+ labels, the user can remove the bad layers from the map and then run the *Reload Project Layers* tool from the *F. Utilities* toolset to reload the layers with correct labels that will show the Occurrence Year in the label.
-
-## **Version History:**
 
 ### v 1.1.0 (09/09/2022; Production Release):
 
