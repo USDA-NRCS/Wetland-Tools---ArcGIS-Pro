@@ -51,6 +51,10 @@
 ## rev. 05/02/2022
 ## - Updated Previously Certified data processing steps
 ##
+## rev. 03/02/2023
+## - Debugged extra Previous Site CWD generation when previous determinations are present adjacent to the request
+##   area but not on the tract.
+##
 ## ===============================================================================================================
 ## ===============================================================================================================    
 def AddMsgAndPrint(msg, severity=0):
@@ -501,85 +505,105 @@ try:
     del drop_fields, existing_fields
     
 
-    #### Check for Existing CWD data within the request extent from the server layer and create the previous certication layers if found.
+    #### Check for Existing CWD data within the tract from the server layer and create the previous certication layers if found.
     AddMsgAndPrint("\tChecking for existing CWD data in the Tract...",0)
     arcpy.SetProgressorLabel("Checking for existing CWD data in the Tract...")
 
     query_results_fc = queryIntersect(scratchGDB,wetDir, projectTract,cwdURL,intCWD)
 
     if arcpy.Exists(intCWD):
-        # This section runs if any intersecting geometry is returned from the query
-        AddMsgAndPrint("\tPrevious certifications found within current Tract! Processing...",0)
-        arcpy.SetProgressorLabel("Previous certifications found within current Tract! Processing...")
-        
-        # Use intersect to apply current clu data to the intCWD in case FSA CLU administrative info changed over time
-        arcpy.Intersect_analysis([projectCLU, query_results_fc], prevCertMulti, "NO_FID", "#", "INPUT")
+        arcpy.analysis.Clip(query_results_fc, projectTract, "clip_test")
+        clipped_results = int(arcpy.GetCount_management("clip_test").getOutput(0))
+        if clipped_results > 0:
+            # This section runs if any intersecting geometry is returned from the query
+            AddMsgAndPrint("\tPrevious certifications found within current Tract! Processing...",0)
+            arcpy.SetProgressorLabel("Previous certifications found within current Tract! Processing...")
+            
+            # Use intersect to apply current clu data to the intCWD in case FSA CLU administrative info changed over time
+            arcpy.Intersect_analysis([projectCLU, query_results_fc], prevCertMulti, "NO_FID", "#", "INPUT")
 
-        # Explode features into single part
-        arcpy.MultipartToSinglepart_management(prevCertMulti, prevCertSingle)
-        arcpy.Delete_management(prevCertMulti)
+            # Explode features into single part
+            arcpy.MultipartToSinglepart_management(prevCertMulti, prevCertSingle)
+            arcpy.Delete_management(prevCertMulti)
 
-        # Transer the job_id_1 attributes to the job_id field
-        fields = ['job_id','job_id_1']
-        cursor = arcpy.da.UpdateCursor(prevCertSingle, fields)
-        for row in cursor:
-            row[0] = row[1]
-            cursor.updateRow(row)
-        del fields
-        del cursor
+            # Transer the job_id_1 attributes to the job_id field
+            fields = ['job_id','job_id_1']
+            cursor = arcpy.da.UpdateCursor(prevCertSingle, fields)
+            for row in cursor:
+                row[0] = row[1]
+                cursor.updateRow(row)
+            del fields
+            del cursor
 
-        # Temporarily calc acres to zero to retain the field through the next dissolve
-        arcpy.CalculateField_management(prevCertSingle, "acres", 0, "PYTHON_9.3")
+            # Temporarily calc acres to zero to retain the field through the next dissolve
+            arcpy.CalculateField_management(prevCertSingle, "acres", 0, "PYTHON_9.3")
 
-        # Dissolve the layer to potentially clean up slivers caused by old and new field lines (also removes all the "_1" and other extraneous fields)
-        dis_fields = ['job_id', 'admin_state', 'admin_state_name', 'admin_county', 'admin_county_name', 'state_code', 'state_name', 'county_code', 'county_name',
-                      'farm_number', 'tract_number', 'clu_number', 'eval_status', 'wetland_label', 'occur_year', 'acres', 'three_factors', 'request_date', 'request_type',
-                      'deter_method', 'deter_staff', 'dig_staff', 'dig_date', 'cwd_comments', 'cert_date']
-        arcpy.Dissolve_management(prevCertSingle, origCert, dis_fields, "", "SINGLE_PART", "")
-        del dis_fields
+            # Dissolve the layer to potentially clean up slivers caused by old and new field lines (also removes all the "_1" and other extraneous fields)
+            dis_fields = ['job_id', 'admin_state', 'admin_state_name', 'admin_county', 'admin_county_name', 'state_code', 'state_name', 'county_code', 'county_name',
+                          'farm_number', 'tract_number', 'clu_number', 'eval_status', 'wetland_label', 'occur_year', 'acres', 'three_factors', 'request_date', 'request_type',
+                          'deter_method', 'deter_staff', 'dig_staff', 'dig_date', 'cwd_comments', 'cert_date']
+            arcpy.Dissolve_management(prevCertSingle, origCert, dis_fields, "", "SINGLE_PART", "")
+            del dis_fields
 
-        # Calculate the eval_status field to "Certified-Digital"
-        expression = "\"Certified-Digital\""
-        arcpy.CalculateField_management(origCert, "eval_status", expression, "PYTHON_9.3")
-        del expression
+            # Calculate the eval_status field to "Certified-Digital"
+            expression = "\"Certified-Digital\""
+            arcpy.CalculateField_management(origCert, "eval_status", expression, "PYTHON_9.3")
+            del expression
 
-        # Update the acres in the resulting layer
-        expression = "round(!Shape.Area@acres!,2)"
-        arcpy.CalculateField_management(origCert, "acres", expression, "PYTHON_9.3")
+            # Update the acres in the resulting layer
+            expression = "round(!Shape.Area@acres!,2)"
+            arcpy.CalculateField_management(origCert, "acres", expression, "PYTHON_9.3")
 
-        # Delete the orig_id field
-        drop_fields = ['ORIG_ID']
-        existing_fields = []
-        for fld in arcpy.ListFields(origCert):
-            existing_fields.append(fld.name)
-        for fld in drop_fields:
-            if fld not in existing_fields:
-                drop_fields.remove(fld)
-        if len(drop_fields) > 0:
-            arcpy.DeleteField_management(origCert, drop_fields)
-        del drop_fields, existing_fields
-        
-        # Create the origAdmin layer using Dissolve (drop anything from the Clu field or the wetland label level).
-        dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
-        arcpy.Dissolve_management(origCert, origAdmin, dis_fields, "", "SINGLE_PART", "")
-        del dis_fields
+            # Delete the orig_id field
+            drop_fields = ['ORIG_ID']
+            existing_fields = []
+            for fld in arcpy.ListFields(origCert):
+                existing_fields.append(fld.name)
+            for fld in drop_fields:
+                if fld not in existing_fields:
+                    drop_fields.remove(fld)
+            if len(drop_fields) > 0:
+                arcpy.DeleteField_management(origCert, drop_fields)
+            del drop_fields, existing_fields
+            
+            # Create the origAdmin layer using Dissolve (drop anything from the Clu field or the wetland label level).
+            dis_fields = ['job_id','admin_state','admin_state_name','admin_county','admin_county_name','state_code','state_name','county_code','county_name','farm_number','tract_number','eval_status']
+            arcpy.Dissolve_management(origCert, origAdmin, dis_fields, "", "SINGLE_PART", "")
+            del dis_fields
 
-        # Also Delete orig_id field from the origAdmin layer
-        drop_fields = ['ORIG_ID']
-        existing_fields = []
-        for fld in arcpy.ListFields(origAdmin):
-            existing_fields.append(fld.name)
-        for fld in drop_fields:
-            if fld not in existing_fields:
-                drop_fields.remove(fld)
-        if len(drop_fields) > 0:
-            arcpy.DeleteField_management(origAdmin, drop_fields)
-        del drop_fields, existing_fields
+            # Also Delete orig_id field from the origAdmin layer
+            drop_fields = ['ORIG_ID']
+            existing_fields = []
+            for fld in arcpy.ListFields(origAdmin):
+                existing_fields.append(fld.name)
+            for fld in drop_fields:
+                if fld not in existing_fields:
+                    drop_fields.remove(fld)
+            if len(drop_fields) > 0:
+                arcpy.DeleteField_management(origAdmin, drop_fields)
+            del drop_fields, existing_fields
 
-        # Create prevCert and prevAdmin layers
-        arcpy.CopyFeatures_management(origCert, prevCert)
-        arcpy.CopyFeatures_management(origAdmin, prevAdmin)
+            # Create prevCert and prevAdmin layers
+            arcpy.CopyFeatures_management(origCert, prevCert)
+            arcpy.CopyFeatures_management(origAdmin, prevAdmin)
 
+            #Clean up
+            arcpy.management.Delete("clip_test")
+            del clipped_results
+        else:
+            AddMsgAndPrint("\tNo previous certifications found! Continuing...",0)
+            arcpy.SetProgressorLabel("No previous certifications found! Continuing...")
+            if arcpy.Exists(origAdmin):
+                try:
+                    arcpy.Delete_management(origAdmin)
+                    arcpy.Delete_management(origCert)
+                    arcpy.Delete_management(prevAdmin)
+                    arcpy.Delete_management(prevCert)
+                except:
+                    pass
+            #Clean up
+            arcpy.management.Delete("clip_test")
+            del clipped_results
     else:
         AddMsgAndPrint("\tNo previous certifications found! Continuing...",0)
         arcpy.SetProgressorLabel("No previous certifications found! Continuing...")
