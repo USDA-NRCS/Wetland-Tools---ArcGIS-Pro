@@ -28,24 +28,24 @@ NRCS wetlands conservation compliance tools for creating determination products 
 
 
 ### Tips on Updating
-It is recommended to completely replace existing installation folders and contents. State Tool Administrators can retain the previous NRCS_Address.xlsx file to transfer NRCS and FSA addresses to the new CSV files as necessary (see State Tool Administrator Guide). Newly entered (or transferred) addresses should be imported into the State Tool Administrator's version of the tool before they repackage and deploy it (again, see the State Tool Administrator Guide). 
+It is recommended to completely replace existing installation folders and contents. State Tool Administrators can retain the previous NRCS_Address.xlsx file to transfer NRCS and FSA addresses to the new CSV files as necessary (see State Tool Administrator Guide). Newly entered (or transferred) addresses should be imported into the State Tool Administrator's version of the tool before they repackage and deploy it (again, see the State Tool Administrator Guide). Column and column names in the NRCS, FSA, and NAD Address Tables cannot be reordered or renamed and are case sensitive. Do NOT change them.
 
 ### Adoption by States that never used any version of the tools
 States that have never adopted the Wetland Tools should have the State Tool Administrator download the latest version and customize it fully, following all instructions in the State Tool Administrator Guide found in the Docs folder.
 
 ### Updates for States that previously adopted version 2.0.0
-States that have adopted version 2.0.0 of the tools already can download version 2.0.1, and only need to update the following:
+States that have adopted version 2.0.0 of the tools already can download version 2.0.2, and only need to update the following:
 - Save a copy of the NRCS_Address.xlsx from version 2.0.0.
 - Edit the new NRCS_Address.csv and FSA_Address.csv files, per the instructions in the State Tool Administrator Guide.
-- Note: Records can be copied and pasted from the previous NRCS_Address.xlsx spreadsheet tabs to the new, respective CSV files.
+- Note: Records can be copied and pasted from the previous NRCS_Address.xlsx spreadsheet tabs to the new, respective CSV files. Columns cannot be reordered or renamed.
 - Import the updated address tables to the tool, per the instructions in the State Tool Administrator Guide.
 - APRX templates created from version 2.0.x of the tool do not need to be rebuilt and overwritten for users.
 - Distribute their customized version in their respective state.
 
-### Updates for States that previously adopted version 1.x.x, but have not yet migrated to the latest 2.x.x version
-States that adopted a 1.x version and never adopted a 2.x version can skip to the latest 2.x version and should do the following:
+### Updates for States that previously adopted version 1.x, but have not yet migrated to any 2.x version
+States that adopted a 1.x version and never adopted a 2.x version can skip to the latest version and should do the following:
 - Save a copy of the NRCS_Address.xlsx from version 1.x.x.
-- Edit the new NRCS_Address.csv and FSA_Address.csv files, per the instructions in the State Tool Administrator Guide.
+- Edit the new NRCS_Address.csv and FSA_Address.csv files, per the instructions in the State Tool Administrator Guide. Columns cannot be reordered or renamed.
 - Note: Records can be copied and pasted from the previous NRCS_Address.xlsx spreadsheet tabs to the new, respective CSV files.
 - Import the updated address tables to the tool, per the instructions in the State Tool Administrator Guide.
 - Create new state level APRX templates as needed, from the newly created Blank Templates now provided in the install folder.
