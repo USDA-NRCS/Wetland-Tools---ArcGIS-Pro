@@ -95,66 +95,85 @@ if int(GetCount(admin_table)[0]) != 1:
     AddError('Error: Admin Table has more than one entry. Exiting...')
     exit()
 
-admin_data = {}
-fields = ['admin_state', 'admin_state_name', 'admin_county', 'admin_county_name', 'state_code', 'state_name', 'county_code', 'county_name', 
-    'farm_number', 'tract_number', 'client', 'deter_staff', 'dig_staff', 'request_date', 'request_type', 'comments', 'street', 'street_2', 
-    'city', 'state', 'zip', 'job_id']
-with SearchCursor(admin_table, fields) as cursor:
-    row = cursor.next()
-    admin_data['admin_state'] = row[0] if row[0] else ''
-    admin_data['admin_state_name'] = row[1] if row[1] else ''
-    admin_data['admin_county'] = row[2] if row[2] else ''
-    admin_data['admin_county_name'] = row[3] if row[3] else ''
-    admin_data['state_code'] = row[4] if row[4] else ''
-    admin_data['state_name'] = row[5] if row[5] else ''
-    admin_data['county_code'] = row[6] if row[6] else ''
-    admin_data['county_name'] = row[7] if row[7] else ''
-    admin_data['farm_number'] = row[8] if row[8] else ''
-    admin_data['tract_number'] = row[9] if row[9] else ''
-    admin_data['client'] = row[10] if row[10] else ''
-    admin_data['deter_staff'] = row[11] if row[11] else ''
-    admin_data['dig_staff'] = row[12] if row[12] else ''
-    admin_data['request_date'] = row[13].strftime('%m/%d/%Y') if row[13] else ''
-    admin_data['request_type'] = row[14] if row[14] else ''
-    admin_data['comments'] = row[15] if row[15] else ''
-    admin_data['street'] = f'{row[16]}, {row[17]}' if row[17] else row[16]
-    admin_data['city'] = row[18] if row[18] else ''
-    admin_data['state'] = row[19] if row[19] else ''
-    admin_data['zip'] = row[20] if row[20] else ''
+try:
+    admin_data = {}
+    fields = ['admin_state', 'admin_state_name', 'admin_county', 'admin_county_name', 'state_code', 'state_name', 'county_code', 'county_name', 
+        'farm_number', 'tract_number', 'client', 'deter_staff', 'dig_staff', 'request_date', 'request_type', 'comments', 'street', 'street_2', 
+        'city', 'state', 'zip', 'job_id']
+    with SearchCursor(admin_table, fields) as cursor:
+        row = cursor.next()
+        admin_data['admin_state'] = row[0] if row[0] else ''
+        admin_data['admin_state_name'] = row[1] if row[1] else ''
+        admin_data['admin_county'] = row[2] if row[2] else ''
+        admin_data['admin_county_name'] = row[3] if row[3] else ''
+        admin_data['state_code'] = row[4] if row[4] else ''
+        admin_data['state_name'] = row[5] if row[5] else ''
+        admin_data['county_code'] = row[6] if row[6] else ''
+        admin_data['county_name'] = row[7] if row[7] else ''
+        admin_data['farm_number'] = row[8] if row[8] else ''
+        admin_data['tract_number'] = row[9] if row[9] else ''
+        admin_data['client'] = row[10] if row[10] else ''
+        admin_data['deter_staff'] = row[11] if row[11] else ''
+        admin_data['dig_staff'] = row[12] if row[12] else ''
+        admin_data['request_date'] = row[13].strftime('%m/%d/%Y') if row[13] else ''
+        admin_data['request_type'] = row[14] if row[14] else ''
+        admin_data['comments'] = row[15] if row[15] else ''
+        admin_data['street'] = f'{row[16]}, {row[17]}' if row[17] else row[16]
+        admin_data['city'] = row[18] if row[18] else ''
+        admin_data['state'] = row[19] if row[19] else ''
+        admin_data['zip'] = row[20] if row[20] else ''
+except Exception as e:
+    AddError('Error: failed while retrieving Admin Table data. Exiting...')
+    AddError(e)
+    exit()
+
 AddMessage('Retrieved data from Admin Table...')
 
 
 ### Read and assign values from NRCS Addresses Table - select row by NRCS Office input ###
-nrcs_address = {}
-fields = ['NRCSOffice', 'NRCSAddress', 'NRCSCITY', 'NRCSSTATE', 'NRCSZIP', 'NRCSPHONE', 'NRCSFAX', 'NRCSCounty']
-where_clause = """{0}='{1}'""".format(AddFieldDelimiters(support_gdb, 'NRCSOffice'), nrcs_office)
-with SearchCursor(nrcs_addresses_table, fields, where_clause) as cursor:
-    row = cursor.next()
-    nrcs_address['office'] = row[0] if row[0] else ''
-    nrcs_address['street'] = row[1] if row[1] else ''
-    nrcs_address['city'] = row[2] if row[2] else ''
-    nrcs_address['state'] = row[3] if row[3] else ''
-    nrcs_address['zip'] = row[4] if row[4] else ''
-    nrcs_address['phone'] = row[5] if row[5] else ''
-    nrcs_address['fax'] = row[6] if row[6] else ''
-    nrcs_address['county'] = row[7] if row[7] else ''
+try:
+    nrcs_address = {}
+    fields = ['NRCSOffice', 'NRCSAddress', 'NRCSCITY', 'NRCSSTATE', 'NRCSZIP', 'NRCSPHONE', 'NRCSFAX', 'NRCSCounty']
+    where_clause = """{0}='{1}'""".format(AddFieldDelimiters(support_gdb, 'NRCSOffice'), nrcs_office)
+    with SearchCursor(nrcs_addresses_table, fields, where_clause) as cursor:
+        row = cursor.next()
+        nrcs_address['office'] = row[0] if row[0] else ''
+        nrcs_address['street'] = row[1] if row[1] else ''
+        nrcs_address['city'] = row[2] if row[2] else ''
+        nrcs_address['state'] = row[3] if row[3] else ''
+        nrcs_address['zip'] = row[4] if row[4] else ''
+        nrcs_address['phone'] = row[5] if row[5] else ''
+        nrcs_address['fax'] = row[6] if row[6] else ''
+        nrcs_address['county'] = row[7] if row[7] else ''
+except Exception as e:
+    AddError('Error: failed while retrieving NRCS Address Table data. Exiting...')
+    AddError(e)
+    AddError('You may need to run tool F.Import Office Addresses and then try this tool again.')
+    exit()
+
 AddMessage('Retrieved data from NRCS Addresses Table...')
 
-
 ### Read and assign values from FSA Addresses Table - select row by FSA Office input ###
-fsa_address = {}
-fields = ['FSAOffice', 'FSAAddress', 'FSACITY', 'FSASTATE', 'FSAZIP', 'FSAPHONE', 'FSAFAX', 'FSACounty']
-where_clause = """{0} = '{1}'""".format(AddFieldDelimiters(support_gdb, 'FSAOffice'), fsa_office)
-with SearchCursor(fsa_addresses_table, fields, where_clause) as cursor:
-    row = cursor.next()
-    fsa_address['office'] = row[0] if row[0] else ''
-    fsa_address['street'] = row[1] if row[1] else ''
-    fsa_address['city'] = row[2] if row[2] else ''
-    fsa_address['state'] = row[3] if row[3] else ''
-    fsa_address['zip'] = row[4] if row[4] else ''
-    fsa_address['phone'] = row[5] if row[5] else ''
-    fsa_address['fax'] = row[6] if row[6] else ''
-    fsa_address['county'] = row[7] if row[7] else ''
+try:
+    fsa_address = {}
+    fields = ['FSAOffice', 'FSAAddress', 'FSACITY', 'FSASTATE', 'FSAZIP', 'FSAPHONE', 'FSAFAX', 'FSACounty']
+    where_clause = """{0} = '{1}'""".format(AddFieldDelimiters(support_gdb, 'FSAOffice'), fsa_office)
+    with SearchCursor(fsa_addresses_table, fields, where_clause) as cursor:
+        row = cursor.next()
+        fsa_address['office'] = row[0] if row[0] else ''
+        fsa_address['street'] = row[1] if row[1] else ''
+        fsa_address['city'] = row[2] if row[2] else ''
+        fsa_address['state'] = row[3] if row[3] else ''
+        fsa_address['zip'] = row[4] if row[4] else ''
+        fsa_address['phone'] = row[5] if row[5] else ''
+        fsa_address['fax'] = row[6] if row[6] else ''
+        fsa_address['county'] = row[7] if row[7] else ''
+except Exception as e:
+    AddError('Error: failed while retrieving FSA Address Table data. Exiting...')
+    AddError(e)
+    AddError('You may need to run tool F.Import Office Addresses and then try this tool again.')
+    exit()
+
 AddMessage('Retrieved data from FSA Addresses Table...')
 
 
@@ -163,20 +182,27 @@ if not Exists(nad_addresses_table):
     AddError('NAD Addresses table not found in SUPPORT.gdb. Exiting...')
     exit()
 
-nad_address = {}
-fields = ['STATECD', 'STATE', 'NADADDRESS', 'NADCITY', 'NADSTATE', 'NADZIP', 'TOLLFREE', 'PHONE', 'TTY', 'FAX']
-where_clause = """{0} = '{1}'""".format(AddFieldDelimiters(support_gdb, 'STATECD'), admin_data['state_code'])
-with SearchCursor(nad_addresses_table, fields, where_clause) as cursor:
-    row = cursor.next()
-    nad_address['state'] = row[1] if row[1] else ''
-    nad_address['street'] = row[2] if row[2] else ''
-    nad_address['city'] = row[3] if row[3] else ''
-    nad_address['state'] = row[4] if row[4] else ''
-    nad_address['zip'] = row[5] if row[5] else ''
-    nad_address['toll_free'] = row[6] if row[6] else ''
-    nad_address['phone'] = row[7] if row[7] else ''
-    nad_address['tty'] = row[8] if row[8] else ''
-    nad_address['fax'] = row[9] if row[9] else ''
+try:
+    nad_address = {}
+    fields = ['STATECD', 'STATE', 'NADADDRESS', 'NADCITY', 'NADSTATE', 'NADZIP', 'TOLLFREE', 'PHONE', 'TTY', 'FAX']
+    where_clause = """{0} = '{1}'""".format(AddFieldDelimiters(support_gdb, 'STATECD'), admin_data['state_code'])
+    with SearchCursor(nad_addresses_table, fields, where_clause) as cursor:
+        row = cursor.next()
+        nad_address['state'] = row[1] if row[1] else ''
+        nad_address['street'] = row[2] if row[2] else ''
+        nad_address['city'] = row[3] if row[3] else ''
+        nad_address['state'] = row[4] if row[4] else ''
+        nad_address['zip'] = row[5] if row[5] else ''
+        nad_address['toll_free'] = row[6] if row[6] else ''
+        nad_address['phone'] = row[7] if row[7] else ''
+        nad_address['tty'] = row[8] if row[8] else ''
+        nad_address['fax'] = row[9] if row[9] else ''
+except Exception as e:
+    AddError('Error: failed while retrieving NAD Address Table data. Exiting...')
+    AddError(e)
+    AddError('You may need to run tool F.Import Office Addresses and then try this tool again.')
+    exit()
+
 AddMessage('Retrieved data from NAD Addresses Table...')
 
 
@@ -197,33 +223,39 @@ try:
 except PermissionError:
     AddError('Error: Please close any open Word documents and try again. Exiting...')
     exit()
-except Exception:
+except Exception as e:
     AddError('Error: Failed to create WC_Letter.docx. Exiting...')
+    AddError(e)
     exit()
 
 
 ### Read and assign values from CLU CWD 026 Table ###
 SetProgressorLabel('Generating NRCS-CPA-026-WC-Form.docx...')
-table_026 = clu_cwd_026_alt_table if consolidate_by_wetland == 'true' else clu_cwd_026_table
-data_026_pg1 = [] #11 rows
-data_026_pg2 = [] #15 rows
-data_026_extra = []
-fields = ['clu_number', 'wetland_label', 'occur_year', 'SUM_acres']
-with SearchCursor(table_026, fields) as cursor:
-    row_count = 0
-    for row in cursor:
-        row_count += 1
-        row_data = {}
-        row_data['clu'] = row[0] if row[0] else ''
-        row_data['label'] = row[1] if row[1] else ''
-        row_data['year'] = row[2] if row[2] else ''
-        row_data['acres'] = f'{row[3]:.2f}' if row[3] else ''
-        if row_count < 12:
-            data_026_pg1.append(row_data)
-        elif row_count > 11 and row_count < 27:
-            data_026_pg2.append(row_data)
-        else:
-            data_026_extra.append(row_data)
+try:
+    table_026 = clu_cwd_026_alt_table if consolidate_by_wetland == 'true' else clu_cwd_026_table
+    data_026_pg1 = [] #11 rows
+    data_026_pg2 = [] #15 rows
+    data_026_extra = []
+    fields = ['clu_number', 'wetland_label', 'occur_year', 'SUM_acres']
+    with SearchCursor(table_026, fields) as cursor:
+        row_count = 0
+        for row in cursor:
+            row_count += 1
+            row_data = {}
+            row_data['clu'] = row[0] if row[0] else ''
+            row_data['label'] = row[1] if row[1] else ''
+            row_data['year'] = row[2] if row[2] else ''
+            row_data['acres'] = f'{row[3]:.2f}' if row[3] else ''
+            if row_count < 12:
+                data_026_pg1.append(row_data)
+            elif row_count > 11 and row_count < 27:
+                data_026_pg2.append(row_data)
+            else:
+                data_026_extra.append(row_data)
+except Exception as e:
+    AddError('Error: failed while retrieving CLU CWD 026 Table data. Exiting...')
+    AddError(e)
+    exit()
 
 
 ### Generate Pages 1 and 2 of 026 Form ###
@@ -244,8 +276,9 @@ try:
 except PermissionError:
     AddError('Error: Please close any open Word documents and try again. Exiting...')
     exit()
-except Exception:
+except Exception as e:
     AddError('Error: Failed to create pages 1 and 2 of NRCS-CPA-026-WC-Form.docx. Exiting...')
+    AddError(e)
     exit()
 
 
@@ -267,8 +300,9 @@ if data_026_extra:
             cpa_026_wc_composer.append(supplemental_026_doc)
             remove(cpa_026_wc_supplemental_template_output)
             AddMessage(f'Created 026 Supplemental Worksheet page {page_number+3}...')
-        except Exception:
+        except Exception as e:
             AddError(f'Error: Failed to create 026 Supplemental Worksheet page {page_number+3}. Exiting...')
+            AddError(e)
             exit()
 
 
@@ -281,34 +315,40 @@ try:
 except PermissionError:
     AddError('Error: Please close any open Word documents and try again. Exiting...')
     exit()
-except Exception:
+except Exception as e:
     AddError('Error: Failed to append Wetland Definitions template and finalize 026 Form. Exiting...')
+    AddError(e)
     exit()
 
 
 ### Read and assign values from CLU CWD 028 Table ###
 if create_028_form == 'Yes':
-    SetProgressorLabel('Generating NRCS-CPA-028-WC-Form.docx...')
-    data_028_pg1 = [] #12 rows
-    data_028_pg2 = [] #20 rows
-    data_028_extra = []
-    fields = ['clu_number', 'wetland_label', 'occur_year', 'cert_date', 'SUM_acres']
-    with SearchCursor(clu_cwd_028_table, fields) as cursor:
-        row_count = 0
-        for row in cursor:
-            row_count += 1
-            row_data = {}
-            row_data['clu'] = row[0] if row[0] else ''
-            row_data['label'] = row[1] if row[1] else ''
-            row_data['year'] = row[2] if row[2] else ''
-            row_data['date'] = row[3].strftime('%m/%d/%Y') if row[3] else ''
-            row_data['acres'] = f'{row[4]:.2f}' if row[4] else ''
-            if row_count < 13:
-                data_028_pg1.append(row_data)
-            elif row_count > 12 and row_count < 33:
-                data_028_pg2.append(row_data)
-            else:
-                data_028_extra.append(row_data)
+    try:
+        SetProgressorLabel('Generating NRCS-CPA-028-WC-Form.docx...')
+        data_028_pg1 = [] #12 rows
+        data_028_pg2 = [] #20 rows
+        data_028_extra = []
+        fields = ['clu_number', 'wetland_label', 'occur_year', 'cert_date', 'SUM_acres']
+        with SearchCursor(clu_cwd_028_table, fields) as cursor:
+            row_count = 0
+            for row in cursor:
+                row_count += 1
+                row_data = {}
+                row_data['clu'] = row[0] if row[0] else ''
+                row_data['label'] = row[1] if row[1] else ''
+                row_data['year'] = row[2] if row[2] else ''
+                row_data['date'] = row[3].strftime('%m/%d/%Y') if row[3] else ''
+                row_data['acres'] = f'{row[4]:.2f}' if row[4] else ''
+                if row_count < 13:
+                    data_028_pg1.append(row_data)
+                elif row_count > 12 and row_count < 33:
+                    data_028_pg2.append(row_data)
+                else:
+                    data_028_extra.append(row_data)
+    except Exception as e:
+        AddError('Error: failed while retrieving CLU CWD 028 Table data. Exiting...')
+        AddError(e)
+        exit()
 
 
     ### Generate Pages 1 and 2 of 028 Form ###
@@ -328,8 +368,9 @@ if create_028_form == 'Yes':
     except PermissionError:
         AddError('Error: Please close any open Word documents and try again. Exiting...')
         exit()
-    except Exception:
+    except Exception as e:
         AddError('Error: Failed to create pages 1 and 2 of NRCS-CPA-028-WC-Form.docx. Exiting...')
+        AddError(e)
         exit()
 
 
@@ -351,8 +392,9 @@ if create_028_form == 'Yes':
                 cpa_028_wc_composer.append(supplemental_028_doc)
                 remove(cpa_028_wc_supplemental_template_output)
                 AddMessage(f'Created 028 Supplemental Worksheet page {page_number+3}...')
-            except Exception:
+            except Exception as e:
                 AddError(f'Error: Failed to create 028 Supplemental Worksheet page {page_number+3}. Exiting...')
+                AddError(e)
                 exit()
 
     
@@ -365,8 +407,9 @@ if create_028_form == 'Yes':
     except PermissionError:
         AddError('Error: Please close any open Word documents and try again. Exiting...')
         exit()
-    except Exception:
+    except Exception as e:
         AddError('Error: Failed to append Wetland Definitions template and finalize 028 Form. Exiting...')
+        AddError(e)
         exit()
 
 
@@ -378,5 +421,6 @@ try:
     startfile(cpa_026_wc_output)
     if create_028_form == 'Yes':
         startfile(cpa_028_wc_output)
-except Exception:
+except Exception as e:
     AddError('Error: Failed to open finished forms in Microsoft Word. End of script.')
+    AddError(e)
