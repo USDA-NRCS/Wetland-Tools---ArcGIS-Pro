@@ -99,7 +99,7 @@ try:
     admin_data = {}
     fields = ['admin_state', 'admin_state_name', 'admin_county', 'admin_county_name', 'state_code', 'state_name', 'county_code', 'county_name', 
         'farm_number', 'tract_number', 'client', 'deter_staff', 'dig_staff', 'request_date', 'request_type', 'comments', 'street', 'street_2', 
-        'city', 'state', 'zip', 'job_id']
+        'city', 'state', 'zip']
     with SearchCursor(admin_table, fields) as cursor:
         row = cursor.next()
         admin_data['admin_state'] = row[0] if row[0] else ''
@@ -133,7 +133,7 @@ AddMessage('Retrieved data from Admin Table...')
 ### Read and assign values from NRCS Addresses Table - select row by NRCS Office input ###
 try:
     nrcs_address = {}
-    fields = ['NRCSOffice', 'NRCSAddress', 'NRCSCITY', 'NRCSSTATE', 'NRCSZIP', 'NRCSPHONE', 'NRCSFAX', 'NRCSCounty']
+    fields = ['NRCSOffice', 'NRCSAddress', 'NRCSCITY', 'NRCSSTATE', 'NRCSZIP', 'NRCSPHONE', 'NRCSFAX']
     where_clause = """{0}='{1}'""".format(AddFieldDelimiters(support_gdb, 'NRCSOffice'), nrcs_office)
     with SearchCursor(nrcs_addresses_table, fields, where_clause) as cursor:
         row = cursor.next()
@@ -144,7 +144,6 @@ try:
         nrcs_address['zip'] = row[4] if row[4] else ''
         nrcs_address['phone'] = row[5] if row[5] else ''
         nrcs_address['fax'] = row[6] if row[6] else ''
-        nrcs_address['county'] = row[7] if row[7] else ''
 except Exception as e:
     AddError('Error: failed while retrieving NRCS Address Table data. Exiting...')
     AddError(e)
