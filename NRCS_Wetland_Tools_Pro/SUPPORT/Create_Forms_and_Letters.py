@@ -40,8 +40,9 @@ site_cwd_lyr = GetParameterAsText(0)
 include_pjw_statement = GetParameterAsText(1)
 create_028_form = GetParameterAsText(2)
 nrcs_office = GetParameterAsText(3)
-fsa_office = GetParameterAsText(4)
-consolidate_by_wetland = GetParameterAsText(5)
+fsa_county = GetParameterAsText(4)
+fsa_office = GetParameterAsText(5)
+consolidate_by_wetland = GetParameterAsText(6)
 
 AddMessage('Assigning local variables...')
 SetProgressorLabel('Assigning local variables...')
@@ -214,6 +215,7 @@ try:
         'admin_data': admin_data,
         'nrcs_address': nrcs_address,
         'fsa_address': fsa_address,
+        'fsa_county': fsa_county,
         'nad_address': nad_address
     }
     customer_letter_template.render(context, autoescape=True)
