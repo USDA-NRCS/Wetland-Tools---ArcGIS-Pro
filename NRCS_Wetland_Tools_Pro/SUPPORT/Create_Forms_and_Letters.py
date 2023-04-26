@@ -216,7 +216,7 @@ try:
         'fsa_address': fsa_address,
         'nad_address': nad_address
     }
-    customer_letter_template.render(context)
+    customer_letter_template.render(context, autoescape=True)
     customer_letter_template.save(customer_letter_output)
     AddMessage('Created WC_Letter.docx...')
 except PermissionError:
@@ -267,7 +267,7 @@ try:
         'data_026_pg1': add_blank_rows(data_026_pg1, 11),
         'data_026_pg2': add_blank_rows(data_026_pg2, 15) 
     }
-    cpa_026_wc_template.render(context)
+    cpa_026_wc_template.render(context, autoescape=True)
     cpa_026_wc_template.save(cpa_026_wc_output)
     cpa_026_wc_doc = Document(cpa_026_wc_output)
     cpa_026_wc_composer = Composer(cpa_026_wc_doc)
@@ -293,7 +293,7 @@ if data_026_extra:
             page_data = add_blank_rows(page_data, 15)
             cpa_026_wc_supplemental_template = DocxTemplate(cpa_026_wc_supplemental_template_path)
             context = {'data_026_extra': page_data}
-            cpa_026_wc_supplemental_template.render(context)
+            cpa_026_wc_supplemental_template.render(context, autoescape=True)
             cpa_026_wc_supplemental_template.save(cpa_026_wc_supplemental_template_output)
             supplemental_026_doc = Document(cpa_026_wc_supplemental_template_output)
             cpa_026_wc_composer.append(supplemental_026_doc)
@@ -359,7 +359,7 @@ if create_028_form == 'Yes':
             'data_028_pg1': add_blank_rows(data_028_pg1, 12),
             'data_028_pg2': add_blank_rows(data_028_pg2, 20) 
         }
-        cpa_028_wc_template.render(context)
+        cpa_028_wc_template.render(context, autoescape=True)
         cpa_028_wc_template.save(cpa_028_wc_output)
         cpa_028_wc_doc = Document(cpa_028_wc_output)
         cpa_028_wc_composer = Composer(cpa_028_wc_doc)
@@ -385,7 +385,7 @@ if create_028_form == 'Yes':
                 page_data = add_blank_rows(page_data, 20)
                 cpa_028_wc_supplemental_template = DocxTemplate(cpa_028_wc_supplemental_template_path)
                 context = {'data_028_extra': page_data}
-                cpa_028_wc_supplemental_template.render(context)
+                cpa_028_wc_supplemental_template.render(context, autoescape=True)
                 cpa_028_wc_supplemental_template.save(cpa_028_wc_supplemental_template_output)
                 supplemental_028_doc = Document(cpa_028_wc_supplemental_template_output)
                 cpa_028_wc_composer.append(supplemental_028_doc)
