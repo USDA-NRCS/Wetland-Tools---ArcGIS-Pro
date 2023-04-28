@@ -624,7 +624,7 @@ try:
     # Export the map
     AddMsgAndPrint("\tExporting the Previous Determinations Map to PDF...",0)
     arcpy.SetProgressorLabel("Exporting Previous Determination Map...")
-    dm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+    dm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
     AddMsgAndPrint("\tPrevious Determinations Map file exported!",0)
 
 

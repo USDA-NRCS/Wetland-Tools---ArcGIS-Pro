@@ -725,7 +725,7 @@ try:
         
     # Export the map
     AddMsgAndPrint("\tExporting the Base Map to PDF...",0)
-    bm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+    bm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
     AddMsgAndPrint("\tBase Map file exported!",0)
     
 

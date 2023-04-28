@@ -918,7 +918,7 @@ try:
     # Export the map
     AddMsgAndPrint("\tExporting the Site Map to PDF...",0)
     arcpy.SetProgressorLabel("Exporting Site Map...")
-    lm_lyt.exportToPDF(sitePDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+    lm_lyt.exportToPDF(sitePDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
     AddMsgAndPrint("\tBase Map file exported!",0)
 
     # Reset visibility
@@ -951,7 +951,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Contour Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Contour Map...")
-            elev_lyt.exportToPDF(ctrPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            elev_lyt.exportToPDF(ctrPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tBase Map file exported!",0)
 
             # Reset visibility
@@ -994,7 +994,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the DEM Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting DEM Map...")
-            elev_lyt.exportToPDF(demPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            elev_lyt.exportToPDF(demPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tDEM Map file exported!",0)
 
             # Reset visibility
@@ -1035,7 +1035,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the DEM-No Contours Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting DEM-No Contours Map...")
-            elev_lyt.exportToPDF(demoPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            elev_lyt.exportToPDF(demoPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tDEM Map file exported!",0)
 
             # Reset visibility
@@ -1076,7 +1076,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Slope Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Slope Map...")
-            elev_lyt.exportToPDF(slopePDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            elev_lyt.exportToPDF(slopePDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tSlope Map file exported!",0)
 
             # Reset visibility
@@ -1111,7 +1111,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Depth Grid Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Depth Grid Map...")
-            elev_lyt.exportToPDF(depthPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            elev_lyt.exportToPDF(depthPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tDepth Grid Map file exported!",0)
 
             # Reset visibility
@@ -1147,7 +1147,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the NWI Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting NWI Map...")
-            nwi_lyt.exportToPDF(nwiPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            nwi_lyt.exportToPDF(nwiPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tNWI Map file exported!",0)
 
             # Reset visibility
@@ -1184,7 +1184,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Soil Map Units to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Soil Map Units Map...")
-            soil_lyt.exportToPDF(soilPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(soilPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tSoil Map Units file exported!",0)
 
             # Reset visibility
@@ -1229,7 +1229,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Drainage Class Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Drainage Class Map...")
-            soil_lyt.exportToPDF(drainPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(drainPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tDrainage Class Map file exported!",0)
 
             # Reset visibility
@@ -1274,7 +1274,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Ecological Classification Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Ecological Classification Map...")
-            soil_lyt.exportToPDF(ecoPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(ecoPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tEcological Classification Map file exported!",0)
 
             # Reset visibility
@@ -1319,7 +1319,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Flooding Frequency Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Flooding Frequency Map...")
-            soil_lyt.exportToPDF(floodPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(floodPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tFlooding Frequency Map file exported!",0)
 
             # Reset visibility
@@ -1364,7 +1364,7 @@ try:
 ##            # Export the map
 ##            AddMsgAndPrint("\tExporting the Hydric Condition Map to PDF...",0)
 ##            arcpy.SetProgressorLabel("Exporting Hydric Condition Map...")
-##            soil_lyt.exportToPDF(hydricConPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+##            soil_lyt.exportToPDF(hydricConPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
 ##            AddMsgAndPrint("\tHydric Condition Map file exported!",0)
 ##
 ##            # Reset visibility
@@ -1409,7 +1409,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Hydric Classification Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Hydric Classification Map...")
-            soil_lyt.exportToPDF(hydricRatMuPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(hydricRatMuPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tHydric Classification Map file exported!",0)
 
             # Reset visibility
@@ -1454,7 +1454,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Hydric Rating by Component Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Hydric Rating by Component Map...")
-            soil_lyt.exportToPDF(hydricRatCompPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(hydricRatCompPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tHydric Rating by Component Map file exported!",0)
 
             # Reset visibility
@@ -1499,7 +1499,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Hydrologic Soil Group Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Hydrologic Soil Group Map...")
-            soil_lyt.exportToPDF(hydrologicPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(hydrologicPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tHydrologic Soil Group Map file exported!",0)
 
             # Reset visibility
@@ -1544,7 +1544,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Ponding Frequency Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Hydric Frequency Map...")
-            soil_lyt.exportToPDF(pondingPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(pondingPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tPonding Frequency Map file exported!",0)
 
             # Reset visibility
@@ -1589,7 +1589,7 @@ try:
             # Export the map
             AddMsgAndPrint("\tExporting the Water Table Depth Map to PDF...",0)
             arcpy.SetProgressorLabel("Exporting Water Table Depth Map...")
-            soil_lyt.exportToPDF(wtrtblPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+            soil_lyt.exportToPDF(wtrtblPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
             AddMsgAndPrint("\tWater Table Depth Map file exported!",0)
 
             # Reset visibility

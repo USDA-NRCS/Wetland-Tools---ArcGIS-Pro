@@ -722,7 +722,7 @@ try:
     # Export the map
     AddMsgAndPrint("\tExporting the Determination Map to PDF...",0)
     arcpy.SetProgressorLabel("Exporting Determination Map...")
-    dm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_AND_ATTRIBUTES", georef_info=True)
+    dm_lyt.exportToPDF(outPDF, resolution=300, image_quality="NORMAL", layers_attributes="LAYERS_ONLY", georef_info=True)
     AddMsgAndPrint("\tDetermination Map file exported!",0)
 
     # Change back the PJW layer name (temp fix before all renaming)
