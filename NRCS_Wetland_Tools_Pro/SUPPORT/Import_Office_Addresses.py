@@ -19,9 +19,12 @@
 ##
 ## 02/17/2023 - Chris Morse - Changed inputs from XLSX to CSV
 ##
+## 04/28/2023 - Dylan Harwell - Minor cleanup/refactor
 ## ===============================================================================================================
 #### Import system modules
-import arcpy, sys, os
+from os import path
+from sys import argv
+import arcpy
 
 # Set overwrite flag
 arcpy.env.overwriteOutput = True
@@ -31,38 +34,25 @@ arcpy.env.overwriteOutput = True
 arcpy.AddMessage("Setting variables...")
 arcpy.SetProgressorLabel("Setting variables...")
 
-supportGDB = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb")
-templates_folder = os.path.join(os.path.dirname(sys.argv[0]), "Templates")
-##nrcs_address_excel = templates_folder + os.sep + "NRCS_Address.xlsx"
-##nad_address_excel = templates_folder + os.sep + "NAD_Address.xlsx"
-nrcs_address_csv = templates_folder + os.sep + "NRCS_Address.csv"
-fsa_address_csv = templates_folder + os.sep + "FSA_Address.csv"
-nad_address_csv = templates_folder + os.sep + "NAD_Address.csv"
-##nrcs_table = supportGDB + os.sep + "nrcs_addresses"
-##fsa_table = supportGDB + os.sep + "fsa_addresses"
-##nad_table = supportGDB + os.sep + "nad_addresses"
-nrcs_temp = "nrcs_temp"
-nrcs_temp_path = supportGDB + os.sep + nrcs_temp
-nrcs_table = "nrcs_addresses"
-fsa_temp = "fsa_temp"
-fsa_temp_path = supportGDB + os.sep + fsa_temp
-fsa_table = "fsa_addresses"
-nad_temp = "nad_temp"
-nad_temp_path = supportGDB + os.sep + nad_temp
-nad_table = "nad_addresses"
+supportGDB = path.join(path.dirname(argv[0]), "SUPPORT.gdb")
+templates_folder = path.join(path.dirname(argv[0]), "Templates")
+nrcs_address_csv = path.join(templates_folder, "NRCS_Address.csv")
+nrcs_temp_path = path.join(supportGDB, "nrcs_temp")
+fsa_address_csv = path.join(templates_folder, "FSA_Address.csv")
+fsa_temp_path = path.join(supportGDB, "fsa_temp")
+nad_address_csv = path.join(templates_folder, "NAD_Address.csv")
+nad_temp_path = path.join(supportGDB, "nad_temp")
 
 temp_tables = [nrcs_temp_path, fsa_temp_path, nad_temp_path]
 for item in temp_tables:
     if arcpy.Exists(item):
         arcpy.management.Delete(item)
 
-##if arcpy.Exists(nrcs_address_excel) and arcpy.Exists(nad_address_excel):
 if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Exists(nad_address_csv):
     try:
         arcpy.AddMessage("Importing NRCS Office Table...")
         arcpy.SetProgressorLabel("Importing NRCS Office Table...")
-        #arcpy.ExcelToTable_conversion(nrcs_address_excel, nrcs_table, "NRCS_Offices", 1)
-        arcpy.conversion.TableToTable(nrcs_address_csv, supportGDB, nrcs_temp)
+        arcpy.conversion.TableToTable(nrcs_address_csv, supportGDB, "nrcs_temp")
         regen = False
         nrcs_fields = arcpy.ListFields(nrcs_temp_path)
         for field in nrcs_fields:
@@ -71,7 +61,7 @@ if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Ex
         if regen == True:
             # Use Field Mappings to control column format in output (all output fields need to be text/string in output)
             # CSV defaults anyting that looks like a number to a number, which might be the NRCSZIP field as an Integer from the NRCS_Address.csv table if no entered zips have dashes.
-            arcpy.conversion.TableToTable(nrcs_address_csv, supportGDB, nrcs_table, '',
+            arcpy.conversion.TableToTable(nrcs_address_csv, supportGDB, "nrcs_addresses", '',
                                           r'NRCSOffice "NRCSOffice" true true false 8000 Text 0 0,First,#,' + nrcs_address_csv + ',NRCSOffice,0,8000;' +
                                           r'NRCSAddress "NRCSAddress" true true false 8000 Text 0 0,First,#,' + nrcs_address_csv + ',NRCSAddress,0,8000;' +
                                           r'NRCSCITY "NRCSCITY" true true false 8000 Text 0 0,First,#,' + nrcs_address_csv + ',NRCSCITY,0,8000;' +
@@ -82,14 +72,12 @@ if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Ex
                                           r'NRCSCounty "NRCSCounty" true true false 8000 Text 0 0,First,#,' + nrcs_address_csv + ',NRCSCounty,0,8000',
                                           '')
         else:
-            arcpy.conversion.TableToTable(nrcs_address_csv, supportGDB, nrcs_table)
+            arcpy.conversion.TableToTable(nrcs_address_csv, supportGDB, "nrcs_addresses")
         arcpy.management.Delete(nrcs_temp_path)
-        del regen, nrcs_fields
         
         arcpy.AddMessage("Importing FSA Office Table...")
         arcpy.SetProgressorLabel("Importing FSA Office Table...")
-        #arcpy.ExcelToTable_conversion(nrcs_address_excel, fsa_table, "FSA_Offices", 1)
-        arcpy.conversion.TableToTable(fsa_address_csv, supportGDB, fsa_temp)
+        arcpy.conversion.TableToTable(fsa_address_csv, supportGDB, "fsa_temp")
         regen = False
         fsa_fields = arcpy.ListFields(fsa_temp_path)
         for field in fsa_fields:
@@ -98,7 +86,7 @@ if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Ex
         if regen == True:
             # Use Field Mappings to control column format in output (all output fields need to be text/string in output)
             # CSV defaults anyting that looks like a number to a number, which might be the FSAZIP field as an Integer from the FSA_Address.csv table if no entered zips have dashes.
-            arcpy.conversion.TableToTable(fsa_address_csv, supportGDB, fsa_table, '',
+            arcpy.conversion.TableToTable(fsa_address_csv, supportGDB, "fsa_addresses", '',
                                           r'FSAOffice "FSAOffice" true true false 8000 Text 0 0,First,#,' + fsa_address_csv + ',FSAOffice,0,8000;' +
                                           r'FSAAddress "FSAAddress" true true false 8000 Text 0 0,First,#,' + fsa_address_csv + ',FSAAddress,0,8000;' +
                                           r'FSACITY "FSACITY" true true false 8000 Text 0 0,First,#,' + fsa_address_csv + ',FSACITY,0,8000;' +
@@ -109,14 +97,12 @@ if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Ex
                                           r'FSACounty "FSACounty" true true false 8000 Text 0 0,First,#,' + fsa_address_csv + ',FSACounty,0,8000',
                                           '')
         else:
-            arcpy.conversion.TableToTable(fsa_address_csv, supportGDB, fsa_table)
+            arcpy.conversion.TableToTable(fsa_address_csv, supportGDB, "fsa_addresses")
         arcpy.management.Delete(fsa_temp_path)
-        del regen, fsa_fields
 
         arcpy.AddMessage("Importing NAD Office Table...")
         arcpy.SetProgressorLabel("Importing NAD Office Table...")
-        #arcpy.ExcelToTable_conversion(nad_address_excel, nad_table, "NAD_Address", 1)
-        arcpy.conversion.TableToTable(nad_address_csv, supportGDB, nad_temp)
+        arcpy.conversion.TableToTable(nad_address_csv, supportGDB, "nad_temp")
         regen = False
         nad_fields = arcpy.ListFields(nad_temp_path)
         for field in nad_fields:
@@ -125,7 +111,7 @@ if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Ex
         if regen == True:
             # Use Field Mappings to control column format in output (all output fields need to be text/string in output)
             # CSV defaults anyting that looks like a number to a number, which will be the STATECD field as an Integer from the NAD_Address.csv table.
-            arcpy.conversion.TableToTable(nad_address_csv, supportGDB, nad_table, '',
+            arcpy.conversion.TableToTable(nad_address_csv, supportGDB, "nad_addresses", '',
                                           r'STATECD "STATECD" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',STATECD,-1,-1;' +
                                           r'STATE "STATE" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',STATE,0,8000;' +
                                           r'NADADDRESS "NADADDRESS" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',NADADDRESS,0,8000;' +
@@ -138,9 +124,8 @@ if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Ex
                                           r'FAX "FAX" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',FAX,0,8000',
                                           '')
         else:
-            arcpy.conversion.TableToTable(nad_address_csv, supportGDB, nad_table)
+            arcpy.conversion.TableToTable(nad_address_csv, supportGDB, "nad_addresses")
         arcpy.management.Delete(nad_temp_path)
-        del regen, nad_fields
     except:
         arcpy.AddError("Something went wrong in the import process. Exiting...")
         exit()
