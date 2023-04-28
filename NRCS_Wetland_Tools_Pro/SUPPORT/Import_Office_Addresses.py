@@ -19,15 +19,12 @@
 ##
 ## 02/17/2023 - Chris Morse - Changed inputs from XLSX to CSV
 ##
-## 04/28/2023 - Dylan Harwell - Minor cleanup/refactor
+## 04/28/2023 - Dylan Harwell - Minor cleanup/refactor, Fix NADZIP field map, prefix state codes with 0
 ## ===============================================================================================================
 #### Import system modules
 from os import path
 from sys import argv
 import arcpy
-
-# Set overwrite flag
-arcpy.env.overwriteOutput = True
 
 #### Start
 
@@ -42,6 +39,10 @@ fsa_address_csv = path.join(templates_folder, "FSA_Address.csv")
 fsa_temp_path = path.join(supportGDB, "fsa_temp")
 nad_address_csv = path.join(templates_folder, "NAD_Address.csv")
 nad_temp_path = path.join(supportGDB, "nad_temp")
+
+# Set overwrite flag
+arcpy.env.workspace = supportGDB
+arcpy.env.overwriteOutput = True
 
 temp_tables = [nrcs_temp_path, fsa_temp_path, nad_temp_path]
 for item in temp_tables:
@@ -117,7 +118,7 @@ if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Ex
                                           r'NADADDRESS "NADADDRESS" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',NADADDRESS,0,8000;' +
                                           r'NADCITY "NADCITY" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',NADCITY,0,8000;' +
                                           r'NADSTATE "NADSTATE" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',NADSTATE,0,8000;' +
-                                          r'NADZIP "NADZIP" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',NADZIP,0,8000;' +
+                                          r'NADZIP "NADZIP" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',NADZIP,-1,-1;' +
                                           r'TOLLFREE "TOLLFREE" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',TOLLFREE,0,8000;' +
                                           r'PHONE "PHONE" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',PHONE,0,8000;' +
                                           r'TTY "TTY" true true false 8000 Text 0 0,First,#,' + nad_address_csv + ',TTY,0,8000;' +
@@ -126,6 +127,12 @@ if arcpy.Exists(nrcs_address_csv) and arcpy.Exists(fsa_address_csv) and arcpy.Ex
         else:
             arcpy.conversion.TableToTable(nad_address_csv, supportGDB, "nad_addresses")
         arcpy.management.Delete(nad_temp_path)
+        # Add leading 0 to any state codes of length 1 (e.g. 1 becomes 01)
+        with arcpy.da.UpdateCursor("nad_addresses", ["STATECD"]) as cursor:
+            for row in cursor:
+                if len(row[0]) == 1:
+                    row[0] = f"0{row[0]}"
+                    cursor.updateRow(row)
     except:
         arcpy.AddError("Something went wrong in the import process. Exiting...")
         exit()
