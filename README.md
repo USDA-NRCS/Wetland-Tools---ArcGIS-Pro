@@ -1,55 +1,59 @@
 # Wetland-Tools---ArcGIS-Pro
 NRCS wetlands conservation compliance tools for creating determination products in ArcGIS Pro
 
-## **Version 2.0.2 (03/10/2023; Production Release):**
+## **Version 2.0.3 (05/04/2023; Production Release):**
 
 ### **New Features/Changes**
-- Changed all workflows and tool references that imported or exported Excel tables to use CSV to avoid compatibility problems with ArcGIS Pro 3.0.3.
-- CSV files cannot have multiple tables or tabs, so split the NRCS Address Excel file into an NRCS Address CSV file and FSA Address CSV file.
-- Converted the NAD Address Excel file to CSV.
-- Removed the NRCS Address and NAD Addres Excel files (now replaced by CSV files referenced above).
-- Updated the State Tool Administrator guide and the User Guide to reflect changes from Excel to CSV.
-- Corrected Month and Year in header of forms to the most recent publication month and year of the forms (August 2020).
-- Corrected a bug in Define Request Extent that incorrectly pulled previous determinations from adjacent tracts into the current project, if found.
+- Updated wetland determination letter to add the selected NRCS field office in Create Forms and Letters to the top of the return address.
+- Made the request date in the letter auto-populate from information entered in tool A02. Updated the associated grammar in the wetland determination letter slightly to account for the date.
+- Corrected a problem where entities with special characters in their name were not appearing correctly on the letter and CPA-026.
+- Corrected the Import Office Tables tool to properly handle states with single digit state codes for NAD address lookup in the Create Forms and Letters tool.
+- Removed the County column from the NRCS_Address.csv table. Only offices and their respective information are needed in this table.
+- Updated the Create Forms and Letters tool to include a parameter to select NRCS Administrative Office, FSA County Committee County, and FSA Administrative Office. When completing parameters, set the NRCS office to the office that is issuing the determination, set the FSA County Committee County to the county where the county committee would have jurisdiction, and set the FSA Admninstrative Office to the FSA office address that will appear on the letter and be associated to the selected county committee.  In this way, all possible combinations of NRCS Offices, FSA County Committees, FSA Offices, and associated NAD office can be correctly populated.
+- Updated the symbology for the Drainage layer in the workflow to remove symbols with white lines that wouldn't show up on white paper. Standardized all pre and post 1985 symbols for drainage to be solid lines or dotted lines, respectively.
+- Corrected an issue where all Export Map tools that used USDA image services were displaying the outline and tile grids within those services on output maps.
+- Updated the State Tool Administrator guide and the User Guide to reflect all changes.
 
 ### **Changed Files**
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_CWD_Mapping_Layers.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Forms_and_Letters.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Download_Soil_Data.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Soil_Table.py
+- ..\NRCS_Wetland_Tools_Pro\NRCS_Wetland_Tools_Pro.tbx
+- ..\NRCS_Wetland_Tools_Pro\NRCS_Wetland_Tools_Pro_Training.tbx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool State Administrator Guide.pdf
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Docs\WC Tool User Guide.pdf
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\layer_files\Drainage_Lines.lyrx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\WC_Letter_Template.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\FSA_Address.csv
 - ..\NRCS_Wetland_Tools_Pro\SUPPORT\Import_Office_Addresses.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Define_Request_Extent.py
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\CPA_026_WC_Template.docx
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\CPA_028_WC_Template.docx
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\DefinitionsNDS_026.docx
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\DefinitionsNDS_028.docx
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\SupplementalWorksheet_026.docx
-- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\SupplementalWorksheet_028.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Base_Map.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Determination_Map.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Prev_Determination_Map.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Reference_Maps.py
 
 
 ### Tips on Updating
-It is recommended to completely replace existing installation folders and contents. State Tool Administrators can retain the previous NRCS_Address.xlsx file to transfer NRCS and FSA addresses to the new CSV files as necessary (see State Tool Administrator Guide). Newly entered (or transferred) addresses should be imported into the State Tool Administrator's version of the tool before they repackage and deploy it (again, see the State Tool Administrator Guide). Column and column names in the NRCS, FSA, and NAD Address Tables cannot be reordered or renamed and are case sensitive. Do NOT change them.
+It is recommended to completely replace existing installation folders and contents. State Tool Administrators can retain previous NRCS_Address.xlsx, NRCS_Address.csv, or FSA_Address.csv files to reference and transfer records to the most current NRCS and FSA address CSV files as necessary (see State Tool Administrator Guide). Newly entered (or transferred) addresses should be imported into the State Tool Administrator's version of the tool before they repackage and deploy it (again, see the State Tool Administrator Guide). Columns and column names in the NRCS, FSA, and NAD Address Tables cannot be reordered or renamed and are case sensitive. Do NOT change them.
 
 ### Adoption by States that never used any version of the tools
 States that have never adopted the Wetland Tools should have the State Tool Administrator download the latest version and customize it fully, following all instructions in the State Tool Administrator Guide found in the Docs folder.
 
 ### Updates for States that previously adopted version 2.0.0
-States that have adopted version 2.0.0 of the tools already can download version 2.0.2, and only need to update the following:
-- Save a copy of the NRCS_Address.xlsx from version 2.0.0.
+States that have adopted version 2.0.0 of the tools already can download version 2.0.3, and only need to update the following:
+- Save a copy of the NRCS_Address.xlsx from version 2.0.0 for reference only.
 - Edit the new NRCS_Address.csv and FSA_Address.csv files, per the instructions in the State Tool Administrator Guide.
-- Note: Records can be copied and pasted from the previous NRCS_Address.xlsx spreadsheet tabs to the new, respective CSV files. Columns cannot be reordered or renamed.
+- IMPORTANT: Columns in the new address CSV files cannot be reordered or renamed.
 - Import the updated address tables to the tool, per the instructions in the State Tool Administrator Guide.
 - APRX templates created from version 2.0.x of the tool do not need to be rebuilt and overwritten for users.
 - Distribute their customized version in their respective state.
 
 ### Updates for States that previously adopted version 1.x, but have not yet migrated to any 2.x version
 States that adopted a 1.x version and never adopted a 2.x version can skip to the latest version and should do the following:
-- Save a copy of the NRCS_Address.xlsx from version 1.x.x.
-- Edit the new NRCS_Address.csv and FSA_Address.csv files, per the instructions in the State Tool Administrator Guide. Columns cannot be reordered or renamed.
-- Note: Records can be copied and pasted from the previous NRCS_Address.xlsx spreadsheet tabs to the new, respective CSV files.
+- Save a copy of the NRCS_Address.xlsx from version 1.x.x for reference.
+- Edit the new NRCS_Address.csv and FSA_Address.csv files, per the instructions in the State Tool Administrator Guide.
+- IMPORTANT: Columns in the new address CSV files cannot be reordered or renamed.
 - Import the updated address tables to the tool, per the instructions in the State Tool Administrator Guide.
-- Create new state level APRX templates as needed, from the newly created Blank Templates now provided in the install folder.
-- Distribute their customized version in their respective state.
+- Create new state level APRX templates from the newly created Blank Templates now provided in the install folder.
+- Distribute your state customized version of the toolbox in your state, per the tips in the State Administrator Guide.
 
 ### Version 1.x.x APRX File Compatibility with Version 2.x.x APRX Files
 APRX Templates or files from any 1.x.x version of the tools will work in version 2.x.x of the tools, except for the *Validate Sampling Units* and *Export Base Map* tools. Due to the changes related to the Base Map in version 2.x.x, existing projects created under any 1.x.x version of the tools *can* be made to work by importing the new Base Map layout file (PAGX) from the *Installed_Templates* folder, per the following procedure. The following procedure is *only* recommended for existing work projects that were not complete at the time a user updates from version 1.x.x to 2.x.x of the tool. These steps are ONLY recommended for existing projects that were started BEFORE a user upgraded version to 2.x.x tools and ONLY if the user has subsequently updated to version 2.x.x.
@@ -73,6 +77,27 @@ APRX Templates or files from any 1.x.x version of the tools will work in version
 
 
 ## **Version History:**
+
+### v 2.0.2 (03/10/2023; Production Release):
+- Changed all workflows and tool references that imported or exported Excel tables to use CSV to avoid compatibility problems with ArcGIS Pro 3.0.3.
+- CSV files cannot have multiple tables or tabs, so split the NRCS Address Excel file into an NRCS Address CSV file and FSA Address CSV file.
+- Converted the NAD Address Excel file to CSV.
+- Removed the NRCS Address and NAD Addres Excel files (now replaced by CSV files referenced above).
+- Updated the State Tool Administrator guide and the User Guide to reflect changes from Excel to CSV.
+- Corrected Month and Year in header of forms to the most recent publication month and year of the forms (August 2020).
+- Corrected a bug in Define Request Extent that incorrectly pulled previous determinations from adjacent tracts into the current project, if found.
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_CWD_Mapping_Layers.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Create_Forms_and_Letters.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Download_Soil_Data.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Export_Soil_Table.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Import_Office_Addresses.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Define_Request_Extent.py
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\CPA_026_WC_Template.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\CPA_028_WC_Template.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\DefinitionsNDS_026.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\DefinitionsNDS_028.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\SupplementalWorksheet_026.docx
+- ..\NRCS_Wetland_Tools_Pro\SUPPORT\Templates\SupplementalWorksheet_028.docx
 
 ### v 2.0.0 (02/09/2023; Production Release):
 
