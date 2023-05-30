@@ -132,6 +132,9 @@ AddMessage('Retrieved data from Admin Table...')
 
 
 ### Read and assign values from NRCS Addresses Table - select row by NRCS Office input ###
+# Handle apostrophe in office name for SQL statement
+if "'" in nrcs_office:
+    nrcs_office = nrcs_office.replace("'", "''")
 try:
     nrcs_address = {}
     fields = ['NRCSOffice', 'NRCSAddress', 'NRCSCITY', 'NRCSSTATE', 'NRCSZIP', 'NRCSPHONE', 'NRCSFAX']
@@ -154,6 +157,9 @@ except Exception as e:
 AddMessage('Retrieved data from NRCS Addresses Table...')
 
 ### Read and assign values from FSA Addresses Table - select row by FSA Office input ###
+# Handle apostrophe in office name for SQL statement
+if "'" in fsa_office:
+    fsa_office = fsa_office.replace("'", "''")
 try:
     fsa_address = {}
     fields = ['FSAOffice', 'FSAAddress', 'FSACITY', 'FSASTATE', 'FSAZIP', 'FSAPHONE', 'FSAFAX', 'FSACounty']
