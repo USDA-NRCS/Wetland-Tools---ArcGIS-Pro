@@ -726,8 +726,7 @@ sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
 sys.path.append(scriptPath)
 
-import extract_CLU_by_Tract
-reload(extract_CLU_by_Tract)
+from wetland_utils import getPortalTokenInfo
 
 
 #### Update Environments
@@ -747,19 +746,19 @@ except:
 
 #### Check GeoPortal Connection
 #nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'     # GeoPortal Production 10.8.1
-#portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
+#portalToken = getPortalTokenInfo(nrcsPortal)
 #if not portalToken:
 #    arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GeoPortal 10.8.1! Exiting...")
 #    exit()
     
 nrcsPortal = 'https://gis-states.sc.egov.usda.gov/portal/'     # GeoPortal States Production 10.8.1
-portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
+portalToken = getPortalTokenInfo(nrcsPortal)
 if not portalToken:
     arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GeoPortal States 10.8.1! Exiting...")
     exit()
 
 #nrcsPortal = 'https://gis-testing.usda.net/portal/'     # GeoPortal Sandbox Testing 10.8.1
-#portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
+#portalToken = getPortalTokenInfo(nrcsPortal)
 #if not portalToken:
 #    arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GIS-Testing 10.8.1! Exiting...")
 #    exit()
