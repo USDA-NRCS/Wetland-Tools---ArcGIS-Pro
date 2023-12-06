@@ -293,7 +293,6 @@ def queryIntersect(ws, temp_dir, fc, RESTurl, outFC):
 ##  ws is a file geodatabase workspace to store temp files for processing
 ##  fc is the input feature class. Should be a polygon feature class, but technically shouldn't fail if other types
 ##  RESTurl is the url for the query where the target hosted data resides
-##  Example: """https://gis-testing.usda.net/server/rest/services/Hosted/CWD_Training/FeatureServer/0/query"""
 ##  outFC is the output feature class path/name that is return if the function succeeds AND finds data
 ##  Otherwise False is returned
 
@@ -743,25 +742,12 @@ except:
     arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
-
-#### Check GeoPortal Connection
-#nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'     # GeoPortal Production 10.8.1
-#portalToken = getPortalTokenInfo(nrcsPortal)
-#if not portalToken:
-#    arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GeoPortal 10.8.1! Exiting...")
-#    exit()
     
 nrcsPortal = 'https://gis-states.sc.egov.usda.gov/portal/'     # GeoPortal States Production 10.8.1
 portalToken = getPortalTokenInfo(nrcsPortal)
 if not portalToken:
     arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GeoPortal States 10.8.1! Exiting...")
     exit()
-
-#nrcsPortal = 'https://gis-testing.usda.net/portal/'     # GeoPortal Sandbox Testing 10.8.1
-#portalToken = getPortalTokenInfo(nrcsPortal)
-#if not portalToken:
-#    arcpy.AddError("Could not generate Portal token! Please login or switch active portal to GIS-Testing 10.8.1! Exiting...")
-#    exit()
     
 
 #### Main procedures
