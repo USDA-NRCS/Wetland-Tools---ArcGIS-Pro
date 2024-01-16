@@ -86,7 +86,6 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
 ##  ws is a file geodatabase workspace to store temp files for processing
 ##  fc is the input feature class. Should be a polygon feature class, but technically shouldn't fail if other types
 ##  RESTurl is the url for the query where the target hosted data resides
-##  Example: """https://gis-testing.usda.net/server/rest/services/Hosted/CWD_Training/FeatureServer/0/query"""
 ##  outFC is the output feature class path/name that is return if the function succeeds AND finds data
 ##  Otherwise False is returned
 
@@ -180,8 +179,7 @@ sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
 sys.path.append(scriptPath)
 
-import extract_CLU_by_Tract
-reload(extract_CLU_by_Tract)
+from wetland_utils import getPortalTokenInfo
 
 
 #### Update Environments
@@ -202,9 +200,7 @@ except:
 
 #### Check GeoPortal Connection
 nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
-#nrcsPortal = 'https://gis-states.sc.egov.usda.gov/portal/'
-#nrcsPortal = 'https://gis-testing.usda.net/portal/'
-portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
+portalToken = getPortalTokenInfo(nrcsPortal)
 if not portalToken:
     arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
     exit()

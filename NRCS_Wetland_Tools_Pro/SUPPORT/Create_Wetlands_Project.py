@@ -128,7 +128,6 @@ def queryIntersectNWI(ws,temp_dir,fc,RESTurl,outFC):
 ##  ws is a file geodatabase workspace to store temp files for processing
 ##  fc is the input feature class. Should be a polygon feature class, but technically shouldn't fail if other types
 ##  RESTurl is the url for the query where the target hosted data resides
-##  Example: """https://gis-testing.usda.net/server/rest/services/Hosted/CWD_Training/FeatureServer/0/query"""
 ##  outFC is the output feature class path/name that is return if the function succeeds AND finds data
 ##  Otherwise False is returned
 
@@ -202,7 +201,6 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
 ##  ws is a file geodatabase workspace to store temp files for processing
 ##  fc is the input feature class. Should be a polygon feature class, but technically shouldn't fail if other types
 ##  RESTurl is the url for the query where the target hosted data resides
-##  Example: """https://gis-testing.usda.net/server/rest/services/Hosted/CWD_Training/FeatureServer/0/query"""
 ##  outFC is the output feature class path/name that is return if the function succeeds AND finds data
 ##  Otherwise False is returned
 
@@ -301,8 +299,8 @@ sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
 sys.path.append(scriptPath)
 
-import extract_CLU_by_Tract
-reload(extract_CLU_by_Tract)
+from extract_CLU_by_Tract import extract_CLU
+from wetland_utils import getPortalTokenInfo
 
 
 #### Inputs
@@ -404,7 +402,7 @@ aprx.defaultGeodatabase = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gd
 
 #### Check GeoPortal Connection
 nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
-portalToken = extract_CLU_by_Tract.getPortalTokenInfo(nrcsPortal)
+portalToken = getPortalTokenInfo(nrcsPortal)
 if not portalToken:
     arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
     exit()
@@ -779,7 +777,7 @@ try:
         AddMsgAndPrint("\nDownloading latest CLU data...",0)
         arcpy.SetProgressorLabel("Downloading latest CLU data...")
         # Download CLU
-        cluTempPath = extract_CLU_by_Tract.start(adminState, adminCounty, tractNumber, outSpatialRef, basedataGDB_path)
+        cluTempPath = extract_CLU(adminState, adminCounty, tractNumber, basedataGDB_path, outSpatialRef)
 
         # Convert feature class to the projectTempCLU layer in the project's feature dataset
         # This should work because the input CLU feature class coming from the download should have the same spatial reference as the target feature dataset
