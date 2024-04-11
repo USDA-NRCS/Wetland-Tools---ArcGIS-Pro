@@ -286,6 +286,8 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
 ##            return False
 
 ## ===============================================================================================================
+
+
 #### Import system modules
 import sys, string, os, traceback, re, uuid
 import datetime, shutil
@@ -300,7 +302,7 @@ scriptPath = os.path.dirname(sys.argv[0])
 sys.path.append(scriptPath)
 
 from extract_CLU_by_Tract import extract_CLU
-from wetland_utils import getPortalTokenInfo
+from wetland_utils import getPortalTokenInfo, importCLUMetadata
 
 
 #### Inputs
@@ -849,7 +851,6 @@ try:
         arcpy.CreateFeatureclass_management(basedataFD, cluName, "POLYGON", templateCLU)
         arcpy.Append_management(projectCLUTemp, projectCLU, "NO_TEST")
         arcpy.Delete_management(projectCLUTemp)
-
     
     #### Create the Tract layer by dissolving the CLU layer.
     # If the Tract layer doesn't exist, create it
@@ -914,8 +915,10 @@ try:
             except:
                 pass
     
+    # Import FGDC Metadata from template CLU
+    importCLUMetadata(templateCLU, projectCLU)
 
-    #### Zoom to tract (not possible in map views in Pro)
+    #### Zoom to tract (not possible in map views in Pro) TODO: This is possible using camera extent
 
 
     #### Prepare to add to map
