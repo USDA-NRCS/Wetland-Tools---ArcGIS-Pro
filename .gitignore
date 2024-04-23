@@ -3,3 +3,5 @@ venv/
 .vscode/
 *.lock
 GpMessages/
+Index/
+*_index/
