@@ -2,6 +2,7 @@ from sys import exc_info
 from traceback import format_exception
 
 from arcpy import AddError, AddMessage, AddWarning, GetActivePortalURL, GetSigninToken, ListPortalURLs
+from arcpy.metadata import Metadata
 
 
 def AddMsgAndPrint(msg, severity=0, textFilePath=None):
@@ -79,3 +80,10 @@ def getPortalTokenInfo(portalURL):
     except:
         errorMsg()
         return False
+
+
+def importCLUMetadata(source_fc, target_fc):
+    ''' Imports metadata from a source feature class to a target feature class.'''
+    target_md = Metadata(target_fc)
+    target_md.importMetadata(source_fc)
+    target_md.save()
