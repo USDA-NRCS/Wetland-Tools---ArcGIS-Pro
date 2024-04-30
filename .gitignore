@@ -5,3 +5,6 @@ venv/
 GpMessages/
 Index/
 *_index/
+.backups/
+ImportLog/
+.pyHistory
