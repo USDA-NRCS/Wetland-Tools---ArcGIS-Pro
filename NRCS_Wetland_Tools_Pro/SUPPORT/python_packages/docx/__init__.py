@@ -1,16 +1,30 @@
-# encoding: utf-8
+"""Initialize `docx` package.
 
-from docx.api import Document  # noqa
+Export the `Document` constructor function and establish the mapping of part-type to
+the part-classe that implements that type.
+"""
 
-__version__ = "0.8.11"
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Type
+
+from docx.api import Document
+
+if TYPE_CHECKING:
+    from docx.opc.part import Part
+
+__version__ = "1.1.2"
 
 
-# register custom Part classes with opc package reader
+__all__ = ["Document"]
 
-from docx.opc.constants import CONTENT_TYPE as CT, RELATIONSHIP_TYPE as RT
+
+# -- register custom Part classes with opc package reader --
+
+from docx.opc.constants import CONTENT_TYPE as CT
+from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.opc.part import PartFactory
 from docx.opc.parts.coreprops import CorePropertiesPart
-
 from docx.parts.document import DocumentPart
 from docx.parts.hdrftr import FooterPart, HeaderPart
 from docx.parts.image import ImagePart
@@ -19,7 +33,7 @@ from docx.parts.settings import SettingsPart
 from docx.parts.styles import StylesPart
 
 
-def part_class_selector(content_type, reltype):
+def part_class_selector(content_type: str, reltype: str) -> Type[Part] | None:
     if reltype == RT.IMAGE:
         return ImagePart
     return None
