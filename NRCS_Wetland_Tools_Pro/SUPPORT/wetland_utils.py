@@ -5,6 +5,21 @@ from arcpy import AddError, AddMessage, AddWarning, GetActivePortalURL, GetSigni
 from arcpy.metadata import Metadata
 
 
+def addLyrxByConnectionProperties(map, lyr_name_list, lyrx_layer, gdb_path, visible=True):
+    ''' Add a layer to a map by setting the lyrx file connection properties.'''
+    if lyrx_layer.name not in lyr_name_list:
+        lyrx_cp = lyrx_layer.connectionProperties
+        lyrx_cp['connection_info']['database'] = gdb_path
+        lyrx_cp['dataset'] = lyrx_layer.name
+        lyrx_layer.updateConnectionProperties(lyrx_layer.connectionProperties, lyrx_cp)
+        map.addLayer(lyrx_layer)
+
+    lyr_list = map.listLayers()
+    for lyr in lyr_list:
+        if lyr.longName == lyrx_layer.name:
+            lyr.visible = visible
+
+
 def AddMsgAndPrint(msg, severity=0, textFilePath=None):
     """ Adds tool message to the geoprocessor. Split the message on \n first, so a GPMessage will be added for each line."""
     try:

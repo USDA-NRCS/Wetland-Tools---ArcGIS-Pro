@@ -302,7 +302,7 @@ scriptPath = os.path.dirname(sys.argv[0])
 sys.path.append(scriptPath)
 
 from extract_CLU_by_Tract import extract_CLU
-from wetland_utils import getPortalTokenInfo, importCLUMetadata
+from wetland_utils import addLyrxByConnectionProperties, getPortalTokenInfo, importCLUMetadata
 
 
 #### Inputs
@@ -496,7 +496,9 @@ try:
     userWorkspace = os.path.dirname(basedataGDB_path)
     basedataFD = basedataGDB_path + os.sep + "Layers"
     outputWS = basedataGDB_path
-    templateCLU = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "master_clu")
+    support_dir = os.path.dirname(sys.argv[0])
+    clu_lyrx = arcpy.mp.LayerFile(os.path.join(support_dir, 'layer_files', 'CLU.lyrx')).listLayers()[0]
+    templateCLU = os.path.join(support_dir, "SUPPORT.gdb" + os.sep + "master_clu")
     cluTempName = "CLU_Temp_" + projectName
     projectCLUTemp = basedataFD + os.sep + cluTempName
     cluName = "Site_CLU"
@@ -918,19 +920,29 @@ try:
     # Import FGDC Metadata from template CLU
     importCLUMetadata(templateCLU, projectCLU)
 
-    #### Zoom to tract (not possible in map views in Pro) TODO: This is possible using camera extent
-
 
     #### Prepare to add to map
-    if not arcpy.Exists(cluOut):
-        arcpy.SetParameterAsText(9, projectCLU)
+    # if not arcpy.Exists(cluOut):
+    #     arcpy.SetParameterAsText(9, projectCLU)
     if not arcpy.Exists(DAOIOut):
         arcpy.SetParameterAsText(10, projectDAOI)
     if not arcpy.Exists(NWI_name):
         if arcpy.Exists(projectNWI):
             arcpy.SetParameterAsText(14, projectNWI)
 
-    
+
+    #### Add CLU and Zoom
+    lyr_name_list = [lyr.longName for lyr in m.listLayers()]
+    addLyrxByConnectionProperties(m, lyr_name_list, clu_lyrx, basedataGDB_path)
+    clu_extent = arcpy.Describe(projectCLU).extent
+    clu_extent.XMin = clu_extent.XMin - 100
+    clu_extent.XMax = clu_extent.XMax + 100
+    clu_extent.YMin = clu_extent.YMin - 100
+    clu_extent.YMax = clu_extent.YMax + 100
+    map_view = aprx.activeView
+    map_view.camera.setExtent(clu_extent)
+
+
     #### Compact FGDB
     try:
         AddMsgAndPrint("\nCompacting File Geodatabases..." ,0)
