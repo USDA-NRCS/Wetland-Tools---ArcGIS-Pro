@@ -1,33 +1,21 @@
-# encoding: utf-8
+"""Paragraph-related proxy types."""
 
-"""
-Paragraph-related proxy types.
-"""
-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals
-)
-
-from ..enum.text import WD_LINE_SPACING
-from ..shared import ElementProxy, Emu, lazyproperty, Length, Pt, Twips
-from .tabstops import TabStops
+from docx.enum.text import WD_LINE_SPACING
+from docx.shared import ElementProxy, Emu, Length, Pt, Twips, lazyproperty
+from docx.text.tabstops import TabStops
 
 
 class ParagraphFormat(ElementProxy):
-    """
-    Provides access to paragraph formatting such as justification,
-    indentation, line spacing, space before and after, and widow/orphan
-    control.
-    """
-
-    __slots__ = ('_tab_stops',)
+    """Provides access to paragraph formatting such as justification, indentation, line
+    spacing, space before and after, and widow/orphan control."""
 
     @property
     def alignment(self):
-        """
-        A member of the :ref:`WdParagraphAlignment` enumeration specifying
-        the justification setting for this paragraph. A value of |None|
-        indicates paragraph alignment is inherited from the style hierarchy.
+        """A member of the :ref:`WdParagraphAlignment` enumeration specifying the
+        justification setting for this paragraph.
+
+        A value of |None| indicates paragraph alignment is inherited from the style
+        hierarchy.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -41,12 +29,12 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def first_line_indent(self):
-        """
-        |Length| value specifying the relative difference in indentation for
-        the first line of the paragraph. A positive value causes the first
-        line to be indented. A negative value produces a hanging indent.
-        |None| indicates first line indentation is inherited from the style
-        hierarchy.
+        """|Length| value specifying the relative difference in indentation for the
+        first line of the paragraph.
+
+        A positive value causes the first line to be indented. A negative value produces
+        a hanging indent. |None| indicates first line indentation is inherited from the
+        style hierarchy.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -60,10 +48,10 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def keep_together(self):
-        """
-        |True| if the paragraph should be kept "in one piece" and not broken
-        across a page boundary when the document is rendered. |None|
-        indicates its effective value is inherited from the style hierarchy.
+        """|True| if the paragraph should be kept "in one piece" and not broken across a
+        page boundary when the document is rendered.
+
+        |None| indicates its effective value is inherited from the style hierarchy.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -76,12 +64,12 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def keep_with_next(self):
-        """
-        |True| if the paragraph should be kept on the same page as the
-        subsequent paragraph when the document is rendered. For example, this
-        property could be used to keep a section heading on the same page as
-        its first paragraph. |None| indicates its effective value is
-        inherited from the style hierarchy.
+        """|True| if the paragraph should be kept on the same page as the subsequent
+        paragraph when the document is rendered.
+
+        For example, this property could be used to keep a section heading on the same
+        page as its first paragraph. |None| indicates its effective value is inherited
+        from the style hierarchy.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -94,11 +82,12 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def left_indent(self):
-        """
-        |Length| value specifying the space between the left margin and the
-        left side of the paragraph. |None| indicates the left indent value is
-        inherited from the style hierarchy. Use an |Inches| value object as
-        a convenient way to apply indentation in units of inches.
+        """|Length| value specifying the space between the left margin and the left side
+        of the paragraph.
+
+        |None| indicates the left indent value is inherited from the style hierarchy.
+        Use an |Inches| value object as a convenient way to apply indentation in units
+        of inches.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -112,15 +101,15 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def line_spacing(self):
-        """
-        |float| or |Length| value specifying the space between baselines in
-        successive lines of the paragraph. A value of |None| indicates line
-        spacing is inherited from the style hierarchy. A float value, e.g.
-        ``2.0`` or ``1.75``, indicates spacing is applied in multiples of
-        line heights. A |Length| value such as ``Pt(12)`` indicates spacing
-        is a fixed height. The |Pt| value class is a convenient way to apply
-        line spacing in units of points. Assigning |None| resets line spacing
-        to inherit from the style hierarchy.
+        """|float| or |Length| value specifying the space between baselines in
+        successive lines of the paragraph.
+
+        A value of |None| indicates line spacing is inherited from the style hierarchy.
+        A float value, e.g. ``2.0`` or ``1.75``, indicates spacing is applied in
+        multiples of line heights. A |Length| value such as ``Pt(12)`` indicates spacing
+        is a fixed height. The |Pt| value class is a convenient way to apply line
+        spacing in units of points. Assigning |None| resets line spacing to inherit from
+        the style hierarchy.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -143,19 +132,17 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def line_spacing_rule(self):
-        """
-        A member of the :ref:`WdLineSpacing` enumeration indicating how the
-        value of :attr:`line_spacing` should be interpreted. Assigning any of
-        the :ref:`WdLineSpacing` members :attr:`SINGLE`, :attr:`DOUBLE`, or
-        :attr:`ONE_POINT_FIVE` will cause the value of :attr:`line_spacing`
-        to be updated to produce the corresponding line spacing.
+        """A member of the :ref:`WdLineSpacing` enumeration indicating how the value of
+        :attr:`line_spacing` should be interpreted.
+
+        Assigning any of the :ref:`WdLineSpacing` members :attr:`SINGLE`,
+        :attr:`DOUBLE`, or :attr:`ONE_POINT_FIVE` will cause the value of
+        :attr:`line_spacing` to be updated to produce the corresponding line spacing.
         """
         pPr = self._element.pPr
         if pPr is None:
             return None
-        return self._line_spacing_rule(
-            pPr.spacing_line, pPr.spacing_lineRule
-        )
+        return self._line_spacing_rule(pPr.spacing_line, pPr.spacing_lineRule)
 
     @line_spacing_rule.setter
     def line_spacing_rule(self, value):
@@ -174,10 +161,10 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def page_break_before(self):
-        """
-        |True| if the paragraph should appear at the top of the page
-        following the prior paragraph. |None| indicates its effective value
-        is inherited from the style hierarchy.
+        """|True| if the paragraph should appear at the top of the page following the
+        prior paragraph.
+
+        |None| indicates its effective value is inherited from the style hierarchy.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -190,11 +177,12 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def right_indent(self):
-        """
-        |Length| value specifying the space between the right margin and the
-        right side of the paragraph. |None| indicates the right indent value
-        is inherited from the style hierarchy. Use a |Cm| value object as
-        a convenient way to apply indentation in units of centimeters.
+        """|Length| value specifying the space between the right margin and the right
+        side of the paragraph.
+
+        |None| indicates the right indent value is inherited from the style hierarchy.
+        Use a |Cm| value object as a convenient way to apply indentation in units of
+        centimeters.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -208,13 +196,12 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def space_after(self):
-        """
-        |Length| value specifying the spacing to appear between this
-        paragraph and the subsequent paragraph. |None| indicates this value
-        is inherited from the style hierarchy. |Length| objects provide
-        convenience properties, such as :attr:`~.Length.pt` and
-        :attr:`~.Length.inches`, that allow easy conversion to various length
-        units.
+        """|Length| value specifying the spacing to appear between this paragraph and
+        the subsequent paragraph.
+
+        |None| indicates this value is inherited from the style hierarchy. |Length|
+        objects provide convenience properties, such as :attr:`~.Length.pt` and
+        :attr:`~.Length.inches`, that allow easy conversion to various length units.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -227,13 +214,12 @@ class ParagraphFormat(ElementProxy):
 
     @property
     def space_before(self):
-        """
-        |Length| value specifying the spacing to appear between this
-        paragraph and the prior paragraph. |None| indicates this value is
-        inherited from the style hierarchy. |Length| objects provide
-        convenience properties, such as :attr:`~.Length.pt` and
-        :attr:`~.Length.cm`, that allow easy conversion to various length
-        units.
+        """|Length| value specifying the spacing to appear between this paragraph and
+        the prior paragraph.
+
+        |None| indicates this value is inherited from the style hierarchy. |Length|
+        objects provide convenience properties, such as :attr:`~.Length.pt` and
+        :attr:`~.Length.cm`, that allow easy conversion to various length units.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -246,20 +232,17 @@ class ParagraphFormat(ElementProxy):
 
     @lazyproperty
     def tab_stops(self):
-        """
-        |TabStops| object providing access to the tab stops defined for this
-        paragraph format.
-        """
+        """|TabStops| object providing access to the tab stops defined for this
+        paragraph format."""
         pPr = self._element.get_or_add_pPr()
         return TabStops(pPr)
 
     @property
     def widow_control(self):
-        """
-        |True| if the first and last lines in the paragraph remain on the
-        same page as the rest of the paragraph when Word repaginates the
-        document. |None| indicates its effective value is inherited from the
-        style hierarchy.
+        """|True| if the first and last lines in the paragraph remain on the same page
+        as the rest of the paragraph when Word repaginates the document.
+
+        |None| indicates its effective value is inherited from the style hierarchy.
         """
         pPr = self._element.pPr
         if pPr is None:
@@ -272,12 +255,12 @@ class ParagraphFormat(ElementProxy):
 
     @staticmethod
     def _line_spacing(spacing_line, spacing_lineRule):
-        """
-        Return the line spacing value calculated from the combination of
-        *spacing_line* and *spacing_lineRule*. Returns a |float| number of
-        lines when *spacing_lineRule* is ``WD_LINE_SPACING.MULTIPLE``,
-        otherwise a |Length| object of absolute line height is returned.
-        Returns |None| when *spacing_line* is |None|.
+        """Return the line spacing value calculated from the combination of
+        `spacing_line` and `spacing_lineRule`.
+
+        Returns a |float| number of lines when `spacing_lineRule` is
+        ``WD_LINE_SPACING.MULTIPLE``, otherwise a |Length| object of absolute line
+        height is returned. Returns |None| when `spacing_line` is |None|.
         """
         if spacing_line is None:
             return None
@@ -287,11 +270,11 @@ class ParagraphFormat(ElementProxy):
 
     @staticmethod
     def _line_spacing_rule(line, lineRule):
-        """
-        Return the line spacing rule value calculated from the combination of
-        *line* and *lineRule*. Returns special members of the
-        :ref:`WdLineSpacing` enumeration when line spacing is single, double,
-        or 1.5 lines.
+        """Return the line spacing rule value calculated from the combination of `line`
+        and `lineRule`.
+
+        Returns special members of the :ref:`WdLineSpacing` enumeration when line
+        spacing is single, double, or 1.5 lines.
         """
         if lineRule == WD_LINE_SPACING.MULTIPLE:
             if line == Twips(240):

@@ -1,8 +1,8 @@
-# encoding: utf-8
+"""WordprocessingML Package class and related objects."""
 
-"""WordprocessingML Package class and related objects"""
+from __future__ import annotations
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from typing import IO, cast
 
 from docx.image.image import Image
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
@@ -13,7 +13,7 @@ from docx.shared import lazyproperty
 
 
 class Package(OpcPackage):
-    """Customizations specific to a WordprocessingML package"""
+    """Customizations specific to a WordprocessingML package."""
 
     def after_unmarshal(self):
         """Called by loading code after all parts and relationships have been loaded.
@@ -22,8 +22,8 @@ class Package(OpcPackage):
         """
         self._gather_image_parts()
 
-    def get_or_add_image_part(self, image_descriptor):
-        """Return |ImagePart| containing image specified by *image_descriptor*.
+    def get_or_add_image_part(self, image_descriptor: str | IO[bytes]) -> ImagePart:
+        """Return |ImagePart| containing image specified by `image_descriptor`.
 
         The image-part is newly created if a matching one is not already present in the
         collection.
@@ -31,7 +31,7 @@ class Package(OpcPackage):
         return self.image_parts.get_or_add_image_part(image_descriptor)
 
     @lazyproperty
-    def image_parts(self):
+    def image_parts(self) -> ImageParts:
         """|ImageParts| collection object for this package."""
         return ImageParts()
 
@@ -44,16 +44,16 @@ class Package(OpcPackage):
                 continue
             if rel.target_part in self.image_parts:
                 continue
-            self.image_parts.append(rel.target_part)
+            self.image_parts.append(cast("ImagePart", rel.target_part))
 
 
-class ImageParts(object):
-    """Collection of |ImagePart| objects corresponding to images in the package"""
+class ImageParts:
+    """Collection of |ImagePart| objects corresponding to images in the package."""
 
     def __init__(self):
-        self._image_parts = []
+        self._image_parts: list[ImagePart] = []
 
-    def __contains__(self, item):
+    def __contains__(self, item: object):
         return self._image_parts.__contains__(item)
 
     def __iter__(self):
@@ -62,11 +62,11 @@ class ImageParts(object):
     def __len__(self):
         return self._image_parts.__len__()
 
-    def append(self, item):
+    def append(self, item: ImagePart):
         self._image_parts.append(item)
 
-    def get_or_add_image_part(self, image_descriptor):
-        """Return |ImagePart| object containing image identified by *image_descriptor*.
+    def get_or_add_image_part(self, image_descriptor: str | IO[bytes]) -> ImagePart:
+        """Return |ImagePart| object containing image identified by `image_descriptor`.
 
         The image-part is newly created if a matching one is not present in the
         collection.
@@ -77,37 +77,34 @@ class ImageParts(object):
             return matching_image_part
         return self._add_image_part(image)
 
-    def _add_image_part(self, image):
-        """
-        Return an |ImagePart| instance newly created from image and appended
-        to the collection.
-        """
+    def _add_image_part(self, image: Image):
+        """Return |ImagePart| instance newly created from `image` and appended to the collection."""
         partname = self._next_image_partname(image.ext)
         image_part = ImagePart.from_image(image, partname)
         self.append(image_part)
         return image_part
 
-    def _get_by_sha1(self, sha1):
-        """
-        Return the image part in this collection having a SHA1 hash matching
-        *sha1*, or |None| if not found.
-        """
+    def _get_by_sha1(self, sha1: str) -> ImagePart | None:
+        """Return the image part in this collection having a SHA1 hash matching `sha1`,
+        or |None| if not found."""
         for image_part in self._image_parts:
             if image_part.sha1 == sha1:
                 return image_part
         return None
 
-    def _next_image_partname(self, ext):
+    def _next_image_partname(self, ext: str) -> PackURI:
+        """The next available image partname, starting from ``/word/media/image1.{ext}``
+        where unused numbers are reused.
+
+        The partname is unique by number, without regard to the extension. `ext` does
+        not include the leading period.
         """
-        The next available image partname, starting from
-        ``/word/media/image1.{ext}`` where unused numbers are reused. The
-        partname is unique by number, without regard to the extension. *ext*
-        does not include the leading period.
-        """
-        def image_partname(n):
-            return PackURI('/word/media/image%d.%s' % (n, ext))
+
+        def image_partname(n: int) -> PackURI:
+            return PackURI("/word/media/image%d.%s" % (n, ext))
+
         used_numbers = [image_part.partname.idx for image_part in self]
-        for n in range(1, len(self)+1):
+        for n in range(1, len(self) + 1):
             if n not in used_numbers:
                 return image_partname(n)
-        return image_partname(len(self)+1)
+        return image_partname(len(self) + 1)
