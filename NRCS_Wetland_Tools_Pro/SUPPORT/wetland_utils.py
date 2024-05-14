@@ -1,7 +1,8 @@
 from sys import exc_info
 from traceback import format_exception
 
-from arcpy import AddError, AddMessage, AddWarning, GetActivePortalURL, GetSigninToken, ListPortalURLs
+from arcpy import AddError, AddMessage, AddWarning, Exists, GetActivePortalURL, GetSigninToken, ListPortalURLs
+from arcpy.management import Delete
 from arcpy.metadata import Metadata
 
 
@@ -38,6 +39,16 @@ def AddMsgAndPrint(msg, severity=0, textFilePath=None):
         pass
 
 
+def deleteTempLayers(lyrs):
+    """ Deletes layer in a given list."""
+    for lyr in lyrs:
+        if Exists(lyr):
+            try:
+                Delete(lyr)
+            except:
+                pass
+
+
 def errorMsg():
     """ Print traceback exceptions. If sys.exit was trapped by default exception then ignore traceback message."""
     try:
@@ -47,7 +58,7 @@ def errorMsg():
             AddMsgAndPrint('\n\n')
             pass
         else:
-            AddMsgAndPrint('\n\tNRCS HEL Tool Error: -------------------------', 2)
+            AddMsgAndPrint('\n\tNRCS Wetland Tool Error: -------------------------', 2)
             AddMsgAndPrint(theMsg, 2)
     except:
         AddMsgAndPrint('Unhandled error in errorMsg method', 2)
