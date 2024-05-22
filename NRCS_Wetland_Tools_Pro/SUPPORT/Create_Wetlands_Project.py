@@ -121,79 +121,6 @@ def deleteTempLayers(lyrs):
                 pass
 
 ##  ===============================================================================================================
-def queryIntersectNWI(ws,temp_dir,fc,RESTurl,outFC):
-##  This function uses a REST API query to retrieve geometry from that overlap an input feature class from a
-##  hosted feature service.
-##  Relies on a global variable of portalToken to exist and be active (checked before running this function)
-##  ws is a file geodatabase workspace to store temp files for processing
-##  fc is the input feature class. Should be a polygon feature class, but technically shouldn't fail if other types
-##  RESTurl is the url for the query where the target hosted data resides
-##  outFC is the output feature class path/name that is return if the function succeeds AND finds data
-##  Otherwise False is returned
-
-    # Run the query
-##    try:
-    
-    # Set variables
-    query_url = RESTurl + "/query"
-    jfile = temp_dir + os.sep + "jsonFile.json"
-    wmas_fc = ws + os.sep + "wmas_fc"
-    wmas_dis = ws + os.sep + "wmas_dis_fc"
-    wmas_sr = arcpy.SpatialReference(3857)
-
-    # Convert the input feature class to Web Mercator and to JSON
-    arcpy.management.Project(fc, wmas_fc, wmas_sr)
-    arcpy.management.Dissolve(wmas_fc, wmas_dis, "", "", "MULTI_PART", "")
-    jsonPolygon = [row[0] for row in arcpy.da.SearchCursor(wmas_dis, ['SHAPE@JSON'])][0]
-
-    # Setup parameters for query
-    params = urllibEncode({'f': 'json',
-                           'geometry':jsonPolygon,
-                           'geometryType':'esriGeometryPolygon',
-                           'spatialRelationship':'esriSpatialRelIntersects',
-                           'returnGeometry':'true',
-                           'outFields':'*'})
-
-
-    INparams = params.encode('ascii')
-    resp = urllib.request.urlopen(query_url,INparams)
-
-    responseStatus = resp.getcode()
-    responseMsg = resp.msg
-    jsonString = resp.read()
-
-    if responseStatus > 200:
-        AddMsgAndPrint("\nHost Feature Service " + RESTurl + " may be inaccessible or query may be invalid.",1)
-        AddMsgAndPrint("\nReturning to mainline functions...",1)
-        return False
-
-    # json --> Python; dictionary containing 1 key with a list of lists
-    results = json.loads(jsonString)
-
-    # Check for error in results and exit with message if found.
-    if 'error' in results.keys():
-        if results['error']['message'] == 'Invalid Token':
-            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
-            exit()
-        else:
-            AddMsgAndPrint("\nUnknown error encountered. Host Feature Service " + RESTurl + " may be inaccessible or query may be invalid. Continuing...",1)
-            AddMsgAndPrint("\nResponse status code: " + str(responseStatus),1)
-            return False
-    else:
-        # Convert results to a feature class
-        if not len(results['features']):
-            return False
-        else:
-            with open(jfile, 'w') as outfile:
-                json.dump(results, outfile)
-
-            arcpy.conversion.JSONToFeatures(jfile, outFC)
-            arcpy.management.Delete(jfile)
-            arcpy.management.Delete(wmas_fc)
-            arcpy.management.Delete(wmas_dis)
-            return outFC
-            
-##  ===============================================================================================================
 def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
 ##  This function uses a REST API query to retrieve geometry from that overlap an input feature class from a
 ##  hosted feature service.
@@ -320,7 +247,6 @@ tractNumber = arcpy.GetParameterAsText(7)
 owFlag = arcpy.GetParameter(8)
 map_name = arcpy.GetParameterAsText(11)
 specific_sr = arcpy.GetParameterAsText(12)
-nwiURL = arcpy.GetParameterAsText(13)
 
 
 #### Update Environments
@@ -533,12 +459,6 @@ try:
 ##    target_026w = docs_folder + os.sep + doc026w
 ##    target_026wp = docs_folder + os.sep + doc026wp
 
-    NWI_name = "Site_NWI"
-    projectNWI = basedataFD + os.sep + "Site_NWI"
-    intNWI = basedataGDB_path + os.sep + "Intersected_NWI"
-    tempLayers = [intNWI]
-    deleteTempLayers(tempLayers)
-
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
     
     # Job ID
@@ -745,7 +665,7 @@ try:
     #### Remove the existing projectCLU layer from the Map
     AddMsgAndPrint("\nRemoving CLU layer from project maps, if present...\n",0)
     arcpy.SetProgressorLabel("Removing CLU layer from project maps, if present...")
-    mapLayersToRemove = [cluOut, DAOIOut, NWI_name]
+    mapLayersToRemove = [cluOut, DAOIOut]
     try:
         for maps in aprx.listMaps():
             for lyr in maps.listLayers():
@@ -884,51 +804,14 @@ try:
         arcpy.SetProgressorLabel("CLU overwrite was selected. Resetting the Site Define AOI layer...")
         arcpy.FeatureClassToFeatureClass_conversion(projectCLU, basedataFD, DAOIname)
 
-
-    #### Create the NWI layer
-    AddMsgAndPrint("\nCreating NWI layer...",0)
-    arcpy.SetProgressorLabel("Creating NWI layer...")
-
-    query_results_fc = queryIntersect(scratchGDB,userWorkspace,projectCLU,nwiURL,intNWI)
-
-    if query_results_fc == False:
-        AddMsgAndPrint("\nCould not download NWI data. Either no features were found on the tract or the NWI service may be offline. Continuing...",1)
-        
-    else:
-        if arcpy.Exists(intNWI):
-            # This section runs if any intersecting geometry is returned from the query
-            AddMsgAndPrint("\tNWI data found within current Tract! Processing...",0)
-            arcpy.SetProgressorLabel("NWI data found within current Tract! Processing...")
-
-            nwi_count = int(arcpy.GetCount_management(query_results_fc).getOutput(0))
-            if nwi_count > 0:
-                # Confirm multi part to single part with results and create projectNWI in doing so.
-                arcpy.MultipartToSinglepart_management(query_results_fc, projectNWI)
-                arcpy.Delete_management(query_results_fc)
-            else:
-                AddMsgAndPrint("\tNo NWI data found! Finishing up...",0)
-                arcpy.Delete_management(query_results_fc)
-
-        else:
-            AddMsgAndPrint("\tNo NWI data found! Finishing up...",0)
-            arcpy.SetProgressorLabel("No NWI data found! Finishing up...")
-            try:
-                arcpy.management.Delete(query_results_fc)
-            except:
-                pass
     
     # Import FGDC Metadata from template CLU
     importCLUMetadata(templateCLU, projectCLU)
 
 
     #### Prepare to add to map
-    # if not arcpy.Exists(cluOut):
-    #     arcpy.SetParameterAsText(9, projectCLU)
     if not arcpy.Exists(DAOIOut):
         arcpy.SetParameterAsText(10, projectDAOI)
-    if not arcpy.Exists(NWI_name):
-        if arcpy.Exists(projectNWI):
-            arcpy.SetParameterAsText(14, projectNWI)
 
 
     #### Add CLU and Zoom
