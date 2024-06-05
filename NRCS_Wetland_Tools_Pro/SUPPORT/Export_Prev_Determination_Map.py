@@ -113,9 +113,9 @@ def submitFSquery(url,INparams):
 ## ===============================================================================================================
 def getPLSS(plss_point):
 
-    # URLs for BLM services
-    tr_svc = 'https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/1/query'   # Town and Range
-    sec_svc = 'https://gis.blm.gov/arcgis/rest/services/Cadastral/BLM_Natl_PLSS_CadNSDI/MapServer/2/query'  # Sections
+    # URLs for Section/Township/Range services
+    tr_svc = 'https://gis.sc.egov.usda.gov/appserver/rest/services/cadastral/plss/MapServer/0/query'   # Town and Range
+    sec_svc = 'https://gis.sc.egov.usda.gov/appserver/rest/services/cadastral/plss/MapServer/1/query'  # Sections
 
     trs_text = ''
     
@@ -141,7 +141,7 @@ def getPLSS(plss_point):
             exit()
 
     # The input is a single point. Continue.
-    AddMsgAndPrint("\tInput PLSS location reference is a single point. Using point to query BLM PLSS layers...",0)
+    AddMsgAndPrint("\tInput PLSS location reference is a single point. Using point to query PLSS services...",0)
 
     # Get the x,y of the input point
     jsonPoint = [row[0] for row in arcpy.da.SearchCursor(plss_fc, ['SHAPE@JSON'])][0]
@@ -153,7 +153,7 @@ def getPLSS(plss_point):
                            'returnCountOnly':'true'})
     
     # Run and check the count query
-    AddMsgAndPrint("\tQuerying BLM Township and Range Layer...",0)
+    AddMsgAndPrint("\tQuerying Township and Range Layer...",0)
     mer_txt = ''
     countQuery = submitFSquery(tr_svc,params)
     if countQuery:
@@ -184,7 +184,7 @@ def getPLSS(plss_point):
                            'geometryType':'esriGeometryPoint',
                            'returnCountOnly':'true'})
                 # Run and check the count query
-                AddMsgAndPrint("\tQuerying BLM Sections Layer...",0)
+                AddMsgAndPrint("\tQuerying Sections Layer...",0)
                 countQuery = submitFSquery(sec_svc,params)
                 if countQuery:
                     returned_records = countQuery['count']
