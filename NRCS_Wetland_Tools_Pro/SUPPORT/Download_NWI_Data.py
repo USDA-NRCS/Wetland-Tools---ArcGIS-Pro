@@ -89,9 +89,6 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
 ##  outFC is the output feature class path/name that is return if the function succeeds AND finds data
 ##  Otherwise False is returned
 
-    # Run the query
-##    try:
-    
     # Set variables
     query_url = RESTurl + "/query"
     jfile = temp_dir + os.sep + "jsonFile.json"
@@ -110,15 +107,12 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
                            'geometryType':'esriGeometryPolygon',
                            'spatialRelationship':'esriSpatialRelOverlaps',
                            'returnGeometry':'true',
-                           'outFields':'*',
-                           'token': portalToken['token']})
-
+                           'outFields':'*'})
 
     INparams = params.encode('ascii')
     resp = urllib.request.urlopen(query_url,INparams)
 
     responseStatus = resp.getcode()
-    responseMsg = resp.msg
     jsonString = resp.read()
 
     # json --> Python; dictionary containing 1 key with a list of lists
@@ -126,11 +120,8 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
 
     # Check for error in results and exit with message if found.
     if 'error' in results.keys():
-        if results['error']['message'] == 'Invalid Token':
-            AddMsgAndPrint("\nSign-in token expired. Sign-out and sign-in to the portal again and then re-run. Exiting...",2)
-            exit()
-        else:
-            AddMsgAndPrint("\nUnknown error encountered. Make sure you are online and signed in and that " + RESTurl + " is online. Exiting...",2)
+        if results['error']:
+            AddMsgAndPrint("\nError encountered. Make sure you are online and signed in and that " + RESTurl + " is online. Exiting...",2)
             AddMsgAndPrint("\nResponse status code: " + str(responseStatus),2)
             exit()
     else:
@@ -146,24 +137,6 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
             arcpy.management.Delete(wmas_fc)
             arcpy.management.Delete(wmas_dis)
             return outFC
-
-##        # Cleanup temp stuff from this function
-##        files_to_del = [jfile, wmas_fc, wmas_dis]
-##        for item in files_to_del:
-##            try:
-##                arcpy.management.Delete(item)
-##            except:
-##                pass
-
-##    except httpErrors as e:
-##        if int(e.code) >= 400:
-##            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
-##            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
-##            errorMsg()
-##            exit()
-##        else:
-##            errorMsg()
-##            return False
             
 ## ===============================================================================================================
 #### Import system modules
@@ -178,8 +151,6 @@ parseQueryString = urllib.parse.parse_qsl
 sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
 sys.path.append(scriptPath)
-
-from wetland_utils import getPortalTokenInfo
 
 
 #### Update Environments
@@ -197,14 +168,6 @@ except:
     arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
-
-#### Check GeoPortal Connection
-nrcsPortal = 'https://gis.sc.egov.usda.gov/portal/'
-portalToken = getPortalTokenInfo(nrcsPortal)
-if not portalToken:
-    arcpy.AddError("Could not generate Portal token! Please login to GeoPortal! Exiting...")
-    exit()
-    
 
 #### Main procedures
 try:
