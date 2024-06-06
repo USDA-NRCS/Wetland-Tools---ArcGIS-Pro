@@ -107,6 +107,7 @@ try:
     demSR = GetParameterAsText(9)
     cluSR = GetParameterAsText(10)
     transform = GetParameterAsText(11)
+    depthGrid = GetParameterAsText(12)
 
     slpLyr = LayerFile(path.join(path.dirname(argv[0]), 'layer_files', 'Slope_Pct.lyrx')).listLayers()[0]
     dgLyr = LayerFile(path.join(path.dirname(argv[0]), 'layer_files', 'Local_Depths.lyrx')).listLayers()[0]
@@ -474,29 +475,30 @@ try:
     outHillshade.save(projectHillshade)
     AddMsgAndPrint('\tSuccessful')
 
-    AddMsgAndPrint('\nCreating Depth Grid...')
-    SetProgressorLabel('Creating Depth Grid...')
-    fill = False
-    try:
-        # Fills sinks in projectDEM to remove small imperfections in the data.
-        # Convert the projectDEM to a raster with z units in feet to create this layer
-        Temp_DEMbase = Times(projectDEM, cZfactor)
-        Fill_DEMaoi = Fill(Temp_DEMbase, '')
-        fill = True
-    except:
-        pass
-    
-    if fill:
-        FilMinus = Minus(Fill_DEMaoi, Temp_DEMbase)
+    if depthGrid == 'true':
+        AddMsgAndPrint('\nCreating Depth Grid...')
+        SetProgressorLabel('Creating Depth Grid...')
+        fill = False
+        try:
+            # Fills sinks in projectDEM to remove small imperfections in the data.
+            # Convert the projectDEM to a raster with z units in feet to create this layer
+            Temp_DEMbase = Times(projectDEM, cZfactor)
+            Fill_DEMaoi = Fill(Temp_DEMbase, '')
+            fill = True
+        except:
+            pass
+        
+        if fill:
+            FilMinus = Minus(Fill_DEMaoi, Temp_DEMbase)
 
-        # Create a Depth Grid whereby any pixel with a difference is written to a new raster
-        tempDepths = Con(FilMinus, FilMinus, '', 'VALUE > 0')
-        tempDepths.save(projectDepths)
+            # Create a Depth Grid whereby any pixel with a difference is written to a new raster
+            tempDepths = Con(FilMinus, FilMinus, '', 'VALUE > 0')
+            tempDepths.save(projectDepths)
 
-        # Delete temp data
-        del tempDepths
+            # Delete temp data
+            del tempDepths
 
-        AddMsgAndPrint('\tSuccessful')
+            AddMsgAndPrint('\tSuccessful')
 
 
     #### Delete temp data
@@ -513,19 +515,18 @@ try:
     for lyr in lyr_list:
         lyr_name_list.append(lyr.longName)
 
-    SetParameterAsText(12, projectContours)
+    SetParameterAsText(13, projectContours)
 
-    if dgName not in lyr_name_list:
-        dgLyr_cp = dgLyr.connectionProperties
-        dgLyr_cp['connection_info']['database'] = basedataGDB_path
-        dgLyr_cp['dataset'] = dgName
-        dgLyr.updateConnectionProperties(dgLyr.connectionProperties, dgLyr_cp)
-        m.addLayer(dgLyr)
+    if depthGrid == 'true':
+        if dgName not in lyr_name_list:
+            dgLyr_cp = dgLyr.connectionProperties
+            dgLyr_cp['connection_info']['database'] = basedataGDB_path
+            dgLyr_cp['dataset'] = dgName
+            dgLyr.updateConnectionProperties(dgLyr.connectionProperties, dgLyr_cp)
+            m.addLayer(dgLyr)
 
-    #SetParameterAsText(13, projectSlope)
     SetParameterAsText(14, projectDEM)
     SetParameterAsText(15, projectHillshade)
-    #SetParameterAsText(16, projectDepths)
 
     if slpName not in lyr_name_list:
         slpLyr_cp = slpLyr.connectionProperties
