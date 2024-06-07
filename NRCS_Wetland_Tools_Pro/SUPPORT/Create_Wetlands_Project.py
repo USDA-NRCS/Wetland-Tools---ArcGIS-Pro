@@ -194,35 +194,13 @@ def queryIntersect(ws,temp_dir,fc,RESTurl,outFC):
             arcpy.management.Delete(wmas_dis)
             return outFC
 
-##        # Cleanup temp stuff from this function
-##        files_to_del = [jfile, wmas_fc, wmas_dis]
-##        for item in files_to_del:
-##            try:
-##                arcpy.management.Delete(item)
-##            except:
-##                pass
-
-##    except httpErrors as e:
-##        if int(e.code) >= 400:
-##            AddMsgAndPrint("\nUnknown error encountered. Exiting...",2)
-##            AddMsgAndPrint("\nHTTP Error = " + str(e.code),2)
-##            errorMsg()
-##            exit()
-##        else:
-##            errorMsg()
-##            return False
 
 ## ===============================================================================================================
-
-
 #### Import system modules
-import sys, string, os, traceback, re, uuid
-import datetime, shutil
+import sys, os, traceback, re, uuid
+import datetime
 import arcpy
-from importlib import reload
-import urllib, time, json, random
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError as httpErrors
+import urllib, json
 urllibEncode = urllib.parse.urlencode
 sys.dont_write_bytecode=True
 scriptPath = os.path.dirname(sys.argv[0])
@@ -237,16 +215,10 @@ arcpy.AddMessage("Reading inputs...\n")
 arcpy.SetProgressorLabel("Reading inputs...")
 projectType = arcpy.GetParameterAsText(0)
 existingFolder = arcpy.GetParameterAsText(1)
-#sourceLUT = arcpy.GetParameterAsText(2)
-#stateFld = arcpy.GetParameterAsText(3)
-sourceState = arcpy.GetParameterAsText(4)
-#countyFld = arcpy.GetParameterAsText(5)
-#sourceCounty = arcpy.GetParameterAsText(6).replace("'", "''")
-sourceCounty = arcpy.GetParameterAsText(6)
-tractNumber = arcpy.GetParameterAsText(7)
-owFlag = arcpy.GetParameter(8)
-map_name = arcpy.GetParameterAsText(11)
-specific_sr = arcpy.GetParameterAsText(12)
+sourceState = arcpy.GetParameterAsText(2)
+sourceCounty = arcpy.GetParameterAsText(3)
+tractNumber = arcpy.GetParameterAsText(4)
+owFlag = arcpy.GetParameter(5)
 
 
 #### Update Environments
@@ -256,13 +228,13 @@ arcpy.SetProgressorLabel("Setting Environments...")
 # Test for Pro project.
 try:
     aprx = arcpy.mp.ArcGISProject("CURRENT")
-    m = aprx.listMaps("Determinations")[0]
+    activeMap = aprx.listMaps("Determinations")[0]
 except:
     arcpy.AddError("\nThis tool must be run from an active ArcGIS Pro project that was developed from the template distributed with this toolbox. Exiting...\n")
     exit()
 
 # Check for a projected, WGS 1984 UTM coordinate system for the Determinations map
-mapSR = m.spatialReference
+mapSR = activeMap.spatialReference
 if mapSR.type != "Projected":
     arcpy.AddError("\nThe Determinations map is not set to a Projected coordinate sytsem.")
     arcpy.AddError("\nPlease assign a WGS 1984 UTM coordinate system to the Determinations map that is appropriate for your site.")
@@ -296,25 +268,15 @@ if "UTM" not in mapSR.name:
     arcpy.AddError("\nExiting...")
     exit()
 
-# Set output Pro map
-if map_name != '':
-    activeMap = aprx.listMaps(map_name)[0]
-else:
-    activeMap = aprx.activeMap
 
 # Set output spatial reference
-if specific_sr != '':
-    sr = arcpy.SpatialReference()
-    sr.loadFromString(specific_sr)
-    outSpatialRef = sr
-else:
-    try:
-        activeMapName = activeMap.name
-        activeMapSR = activeMap.getDefinition('V2').spatialReference['latestWkid']
-        outSpatialRef = arcpy.SpatialReference(activeMapSR)
-    except:
-        arcpy.AddError("Could not get a spatial reference! Please run the tool from the Catalog Pane with an active ArcGIS Pro Map open! Exiting...")
-        exit()
+try:
+    activeMapName = activeMap.name
+    activeMapSR = activeMap.getDefinition('V2').spatialReference['latestWkid']
+    outSpatialRef = arcpy.SpatialReference(activeMapSR)
+except:
+    arcpy.AddError("Could not get a spatial reference! Please run the tool from the Catalog Pane with an active ArcGIS Pro Map open! Exiting...")
+    exit()
 
 arcpy.env.outputCoordinateSystem = outSpatialRef
 
@@ -430,34 +392,13 @@ try:
     cluName = "Site_CLU"
     projectCLU = basedataFD + os.sep + cluName
     projectTract = basedataFD + os.sep + "Site_Tract"
-##    projectTractB = basedataFD + os.sep + "Site_Tract_Buffer"
-##    bufferDist = "500 Feet"
-##    bufferDistPlus = "550 Feet"
-##    projectAOI = basedataFD + os.sep + "Site_AOI"
     DAOIname = "Site_Define_AOI"
     projectDAOI = basedataFD + os.sep + DAOIname
-##    helFolder = projectFolder + os.sep + "HEL"
-##    helGDB_name = folderName + "_HEL.gdb"
-##    helGDB_path = helFolder + os.sep + helGDB_name
-##    hel_fd = helGDB_path + os.sep + "HEL_Data"
     wetlandsFolder = projectFolder + os.sep + "Wetlands"
     wetDir = wetlandsFolder
     wcGDB_name = folderName + "_WC.gdb"
     wcGDB_path = wetlandsFolder + os.sep + wcGDB_name
     wcFD = wcGDB_path + os.sep + "WC_Data"
-##    docs_folder = projectFolder + os.sep + "Doc_Templates"
-##    doc028 = "NRCS-CPA-028.docx"
-##    doc026h = "NRCS-CPA-026-HELC.docx"
-##    doc026w = "NRCS-CPA-026-WC.docx"
-##    doc026wp = "NRCS-CPA-026-WC-PJW.docx"
-##    source_028 = os.path.join(os.path.dirname(sys.argv[0]), "AddIns" + os.sep + doc028)
-##    source_026h = os.path.join(os.path.dirname(sys.argv[0]), "AddIns" + os.sep + doc026h)
-##    source_026w = os.path.join(os.path.dirname(sys.argv[0]), "AddIns" + os.sep + doc026w)
-##    source_026wp = os.path.join(os.path.dirname(sys.argv[0]), "AddIns" + os.sep + doc026wp)
-##    target_028 = docs_folder + os.sep + doc028
-##    target_026h = docs_folder + os.sep + doc026h
-##    target_026w = docs_folder + os.sep + doc026w
-##    target_026wp = docs_folder + os.sep + doc026wp
 
     scratchGDB = os.path.join(os.path.dirname(sys.argv[0]), "SCRATCH.gdb")
     
@@ -510,51 +451,6 @@ try:
         except:
             AddMsgAndPrint("\nCould not access C:\Determinations. Check your permissions for C:\Determinations. Exiting...\n",2)
             exit()
-            
-##    # Check if the HEL folder exists within the projectFolder, else create it
-##    if not os.path.exists(helFolder):
-##        try:
-##            os.mkdir(helFolder)
-##            AddMsgAndPrint("\n\tThe HEL folder has been created within " + projectFolder + ".",0)
-##        except:
-##            AddMsgAndPrint("\nCould not access C:\Determinations. Check your permissions for C:\Determinations. Exiting...\n",2)
-##            exit()
-##    else:
-##        AddMsgAndPrint("\n\tThe HEL folder already exists within " + projectFolder + ".",0)
-##
-##
-##    #### Copy the file templates from the install folder to the project directory
-##    # This is done to make the install folder location indepedent on a given computer
-##    # Check if the Doc_Templates folder exists within the projectFolder, else create it
-##    if not os.path.exists(docs_folder):
-##        try:
-##            os.mkdir(docs_folder)
-##            AddMsgAndPrint("\n\tThe Doc_Templates folder has been created within " + projectFolder + ".",0)
-##        except:
-##            AddMsgAndPrint("\nCould not access C:\Determinations. Check your permissions for C:\Determinations. Exiting...\n",2)
-##            sys.exit()
-##        try:
-##            shutil.copy2(source_028, target_028)
-##            shutil.copy2(source_026h, target_026h)
-##            shutil.copy2(source_026w, target_026w)
-##            shutil.copy2(source_026wp, target_026wp)
-##            AddMsgAndPrint("\n\tThe 026 form templates have been copied to the Doc_Templates folder within " + projectFolder + ".",0)
-##        except:
-##            AddMsgAndPrint("\nCould not copy 026 form templates. Please make sure they are closed and try again. Exiting...\n",2)
-##            sys.exit()
-##    else:
-##        # Make sure the .docx template files are in the Doc_Templates folder
-##        if not os.path.exists(target_028):
-##            shutil.copy2(source_028, target_028)
-##        if not os.path.exists(target_026h):
-##            shutil.copy2(source_026h, target_026h)
-##        if not os.path.exists(target_026w):
-##            shutil.copy2(source_026w, target_026w)
-##        if not os.path.exists(target_026wp):
-##            shutil.copy2(source_026wp, target_026wp)
-##        AddMsgAndPrint("\n\tThe Doc_Templates folder already exists within " + projectFolder + ".",0)
-##
-##    AddMsgAndPrint("\nFolder: " + projectFolder + " and its contents have been created and/or updated within C:\Determinations!\n",1)
 
 
     #### If project geodatabases and feature datasets do not exist, create them.
@@ -579,15 +475,6 @@ try:
         AddMsgAndPrint("\nCreating Wetlands feature dataset...",0)
         arcpy.SetProgressorLabel("Creating Wetlands feature dataset...")
         arcpy.CreateFeatureDataset_management(wcGDB_path, "WC_Data", outSpatialRef)
-        
-##    # HEL
-##    if not arcpy.Exists(helGDB_path):
-##        AddMsgAndPrint("\nCreating HEL geodatabase...",0)
-##        arcpy.CreateFileGDB_management(helFolder, helGDB_name, "10.0")
-##
-##    if not arcpy.Exists(hel_fd):
-##        AddMsgAndPrint("\nCreating HEL feature dataset...",0)
-##        arcpy.CreateFeatureDataset_management(helGDB_path, "HEL_Data", outSpatialRef)
 
 
     #### Add or validate the attribute domains for the geodatabases
@@ -598,14 +485,6 @@ try:
     descGDB = arcpy.Describe(wcGDB_path)
     domains = descGDB.domains
 
-##    if not "CWD Status" in domains:
-##        cwdTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_cwd_status")
-##        arcpy.TableToDomain_management(cwdTable, "Code", "Description", wcGDB_path, "CWD Status", "Choices for wetland determination status", "REPLACE")
-##        arcpy.AlterDomain_management(wcGDB_path, "CWD Status", "", "", "DUPLICATE")
-##    if not "Data Form" in domains:
-##        dataTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_data_form")
-##        arcpy.TableToDomain_management(dataTable, "Code", "Description", wcGDB_path, "Data Form", "Choices for data form completion", "REPLACE")
-##        arcpy.AlterDomain_management(wcGDB_path, "Data Form", "", "", "DUPLICATE")
     if not "Evaluation Status" in domains:
         evalTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_evaluation_status")
         arcpy.TableToDomain_management(evalTable, "Code", "Description", wcGDB_path, "Evaluation Status", "Choices for evaluation workflow status", "REPLACE")
@@ -626,10 +505,6 @@ try:
         requestTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_request_type")
         arcpy.TableToDomain_management(requestTable, "Code", "Description", wcGDB_path, "Request Type", "Choices for request type form", "REPLACE")
         arcpy.AlterDomain_management(wcGDB_path, "Request Type", "", "", "DUPLICATE")
-##    if not "ROP Status" in domains:
-##        ropTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_rop_status")
-##        arcpy.TableToDomain_management(ropTable, "Code", "Description", wcGDB_path, "ROP Status", "Choices for ROP status", "REPLACE")
-##        arcpy.AlterDomain_management(wcGDB_path, "ROP Status", "", "", "DUPLICATE")
     if not "Wetland Labels" in domains:
         wetTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_wetland_labels")
         arcpy.TableToDomain_management(wetTable, "Code", "Description", wcGDB_path, "Wetland Labels", "Choices for wetland determination labels", "REPLACE")
@@ -644,22 +519,6 @@ try:
         arcpy.AlterDomain_management(wcGDB_path, "YN", "", "", "DUPLICATE")
 
     del descGDB, domains
-
-##    # HEL Domains
-##    descGDB = arcpy.Describe(helGDB_path)
-##    domains = descGDB.domains
-##
-##    if not "Yes No" in domains:
-##        yesnoTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_yesno")
-##        arcpy.TableToDomain_management(yesnoTable, "Code", "Description", helGDB_path, "Yes No", "Yes or no options", "REPLACE")
-##    if not "HEL Type" in domains:
-##        helTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_hel")
-##        arcpy.TableToDomain_management(helTable, "Code", "Description", helGDB_path, "HEL Type", "Choices for HEL label", "REPLACE")
-##    if not "HEL Request Type" in domains:
-##        helreqTable = os.path.join(os.path.dirname(sys.argv[0]), "SUPPORT.gdb" + os.sep + "domain_hel_request_type")
-##        arcpy.TableToDomain_management(helreqTable, "Code", "Description", helGDB_path, "HEL Request Type", "Choice for HEL request form", "REPLACE")
-##
-##    del descGDB, domains
 
 
     #### Remove the existing projectCLU layer from the Map
@@ -784,15 +643,6 @@ try:
         arcpy.Dissolve_management(projectCLU, projectTract, dis_fields, "", "MULTI_PART", "")
         del dis_fields
 
-##        # Always re-create the buffered areas if you have updated the tract
-##        arcpy.Buffer_analysis(projectTract, projectTractB, bufferDist, "FULL", "", "ALL", "")
-##        arcpy.Buffer_analysis(projectTract, projectAOI, bufferDistPlus, "FULL", "", "ALL", "")
-##
-##    # If the tract exists, but the buffer doesn't, re-create both buffers. Overwrite flag applies to the 2nd one.
-##    if not arcpy.Exists(projectTractB):
-##        arcpy.Buffer_analysis(projectTract, projectTractB, bufferDist, "FULL", "", "ALL", "")
-##        arcpy.Buffer_analysis(projectTract, projectAOI, bufferDistPlus, "FULL", "", "ALL", "")
-
 
     #### Create the Site Define AOI layer as a copy of the CLU layer
     if not arcpy.Exists(projectDAOI):
@@ -811,12 +661,12 @@ try:
 
     #### Prepare to add to map
     if not arcpy.Exists(DAOIOut):
-        arcpy.SetParameterAsText(10, projectDAOI)
+        arcpy.SetParameterAsText(6, projectDAOI)
 
 
     #### Add CLU and Zoom
-    lyr_name_list = [lyr.longName for lyr in m.listLayers()]
-    addLyrxByConnectionProperties(m, lyr_name_list, clu_lyrx, basedataGDB_path)
+    lyr_name_list = [lyr.longName for lyr in activeMap.listLayers()]
+    addLyrxByConnectionProperties(activeMap, lyr_name_list, clu_lyrx, basedataGDB_path)
     clu_extent = arcpy.Describe(projectCLU).extent
     clu_extent.XMin = clu_extent.XMin - 100
     clu_extent.XMax = clu_extent.XMax + 100
@@ -832,7 +682,6 @@ try:
         arcpy.SetProgressorLabel("Compacting File Geodatabases...")
         arcpy.Compact_management(basedataGDB_path)
         arcpy.Compact_management(wcGDB_path)
-##        arcpy.Compact_management(helGDB_path)
         AddMsgAndPrint("\tSuccessful",0)
     except:
         pass
