@@ -618,7 +618,7 @@ try:
                         dict_026_alt[key]=str_of_ints
                             
                 # Transfer the new values back to the alt summary stats table (replace values in the clu_number field)
-                arcpy.management.AddField(cluCWD026_temp, "clu_number", 'TEXT', '', '', 512)
+                arcpy.management.AddField(cluCWD026_temp, "clu_number", 'TEXT', '', '', 1000)
                 field_names = ['wetland_label','occur_year','clu_number']
                 with arcpy.da.UpdateCursor(cluCWD026_temp, field_names) as cursor:
                     for row in cursor:
